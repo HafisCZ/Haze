@@ -2,8 +2,6 @@
 
 #include "Event.h"
 
-#include <sstream>
-
 namespace Haze {
 
 	class HAZE_API WindowResizeEvent : public Event 

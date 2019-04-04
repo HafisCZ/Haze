@@ -1,7 +1,8 @@
+#include "hzpch.h"
 #include "Application.h"
 
-#include "Events/ApplicationEvent.h"
-#include "Log.h"
+#include "Haze/Events/ApplicationEvent.h"
+#include "Haze/Log.h"
 
 namespace Haze {
 

@@ -5,7 +5,7 @@
       <UniqueIdentifier>{8D37867C-796E-870D-225B-6D100E71030F}</UniqueIdentifier>
     </Filter>
     <Filter Include="Haze\Events">
-      <UniqueIdentifier>{79f3f6e4-8e24-4cc1-b7e2-aea737094ead}</UniqueIdentifier>
+      <UniqueIdentifier>{D1423A7A-3DF8-B26F-C6EC-AC4632A1A973}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -19,8 +19,8 @@
     <ClInclude Include="src\Haze\EntryPoint.h">
       <Filter>Haze</Filter>
     </ClInclude>
-    <ClInclude Include="src\Haze\Log.h">
-      <Filter>Haze</Filter>
+    <ClInclude Include="src\Haze\Events\ApplicationEvent.h">
+      <Filter>Haze\Events</Filter>
     </ClInclude>
     <ClInclude Include="src\Haze\Events\Event.h">
       <Filter>Haze\Events</Filter>
@@ -28,10 +28,13 @@
     <ClInclude Include="src\Haze\Events\KeyEvent.h">
       <Filter>Haze\Events</Filter>
     </ClInclude>
-    <ClInclude Include="src\Haze\Events\MouseEvent.h" />
-    <ClInclude Include="src\Haze\Events\ApplicationEvent.h">
+    <ClInclude Include="src\Haze\Events\MouseEvent.h">
+      <Filter>Haze\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Haze\Log.h">
       <Filter>Haze</Filter>
     </ClInclude>
+    <ClInclude Include="src\hzpch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Haze\Application.cpp">
@@ -40,5 +43,6 @@
     <ClCompile Include="src\Haze\Log.cpp">
       <Filter>Haze</Filter>
     </ClCompile>
+    <ClCompile Include="src\hzpch.cpp" />
   </ItemGroup>
 </Project>
