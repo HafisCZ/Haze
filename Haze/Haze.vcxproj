@@ -143,11 +143,15 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Haze\Events\ApplicationEvent.h" />
     <ClInclude Include="src\Haze.h" />
     <ClInclude Include="src\Haze\Application.h" />
     <ClInclude Include="src\Haze\Core.h" />
     <ClInclude Include="src\Haze\EntryPoint.h" />
+    <ClInclude Include="src\Haze\Events\Event.h" />
+    <ClInclude Include="src\Haze\Events\KeyEvent.h" />
     <ClInclude Include="src\Haze\Log.h" />
+    <ClInclude Include="src\Haze\Events\MouseEvent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Haze\Application.cpp" />
