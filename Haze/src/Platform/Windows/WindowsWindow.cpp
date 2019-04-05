@@ -5,6 +5,8 @@
 #include "Haze/Events/ApplicationEvent.h"
 #include "Haze/Events/KeyEvent.h"
 
+#include <glad/glad.h>
+
 namespace Haze 
 {
 
@@ -49,6 +51,10 @@ namespace Haze
 
 		_Window = glfwCreateWindow((int)props.Width, (int)props.Height, _Data.Title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(_Window);
+
+		int status = gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+		HZ_CORE_ASSERT(status, "Failed to initialize GLAD!");
+
 		glfwSetWindowUserPointer(_Window, &_Data);
 		
 		SetVSync(true);
