@@ -7,5 +7,6 @@ bin-int/
 *.user
 *.sln
 *.vcxproj
+*.filters
 
 imgui.ini
