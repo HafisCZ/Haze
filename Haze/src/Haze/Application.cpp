@@ -20,12 +20,29 @@ namespace Haze {
 
 	}
 
+	void Application::PushLayer(Layer* layer) 
+	{
+		_LayerStack.PushLayer(layer);
+	}
+
+	void Application::PushOverlay(Layer* layer)
+	{ 
+		_LayerStack.PushOverlay(layer);
+	}
+
 	void Application::OnEvent(Event& e) 
 	{
-		HZ_CORE_TRACE("{0}", e);
-
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FN(OnWindowClose));
+
+		for (auto it  = _LayerStack.end(); it != _LayerStack.begin(); ) 
+		{ 
+			(*--it)->OnEvent(e);
+			if (e.Handled) 
+			{
+				break;
+			}
+		}
 	}
 
 	void Application::Run()
@@ -33,6 +50,11 @@ namespace Haze {
 		while (_Running) {
 			glClearColor(1, 0, 1, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
+
+			for (Layer* layer : _LayerStack)
+			{ 
+				layer->OnUpdate();
+			}
 
 			_Window->OnUpdate();
 		}

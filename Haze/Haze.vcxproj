@@ -84,6 +84,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalOptions>/MDd %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -109,6 +110,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>/MD %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -135,6 +137,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <AdditionalOptions>/MD %(AdditionalOptions)</AdditionalOptions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
@@ -157,13 +160,17 @@
     <ClInclude Include="src\Haze\Events\Event.h" />
     <ClInclude Include="src\Haze\Events\KeyEvent.h" />
     <ClInclude Include="src\Haze\Events\MouseEvent.h" />
+    <ClInclude Include="src\Haze\Layer.h" />
+    <ClInclude Include="src\Haze\LayerStack.h" />
     <ClInclude Include="src\Haze\Log.h" />
+    <ClInclude Include="src\Haze\Window.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\hzpch.h" />
-    <ClInclude Include="src\Haze\Window.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Haze\Application.cpp" />
+    <ClCompile Include="src\Haze\Layer.cpp" />
+    <ClCompile Include="src\Haze\LayerStack.cpp" />
     <ClCompile Include="src\Haze\Log.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\hzpch.cpp">

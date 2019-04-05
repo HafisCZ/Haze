@@ -46,8 +46,7 @@ namespace Haze
 				return GetCategoryFlags() & category;
 			}
 
-		protected:
-			bool _Handled = false;
+			bool Handled = false;
 	};
 
 	class EventDispatcher 
@@ -61,7 +60,7 @@ namespace Haze
 			{
 				if (_Event.GetEventType() == T::GetStaticType())
 				{
-					_Event._Handled = func(*(T*)&_Event);
+					_Event.Handled = func(*(T*)&_Event);
 					return true;
 				}
 				return false;

@@ -7,6 +7,12 @@
     <Filter Include="Haze\Events">
       <UniqueIdentifier>{D1423A7A-3DF8-B26F-C6EC-AC4632A1A973}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\Windows">
+      <UniqueIdentifier>{64FBD71A-50F4-F66C-7926-DCF1657ED678}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Haze.h" />
@@ -31,23 +37,39 @@
     <ClInclude Include="src\Haze\Events\MouseEvent.h">
       <Filter>Haze\Events</Filter>
     </ClInclude>
+    <ClInclude Include="src\Haze\Layer.h">
+      <Filter>Haze</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Haze\LayerStack.h">
+      <Filter>Haze</Filter>
+    </ClInclude>
     <ClInclude Include="src\Haze\Log.h">
       <Filter>Haze</Filter>
     </ClInclude>
-    <ClInclude Include="src\hzpch.h" />
     <ClInclude Include="src\Haze\Window.h">
       <Filter>Haze</Filter>
     </ClInclude>
-    <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
+      <Filter>Platform\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="src\hzpch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Haze\Application.cpp">
       <Filter>Haze</Filter>
     </ClCompile>
+    <ClCompile Include="src\Haze\Layer.cpp">
+      <Filter>Haze</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Haze\LayerStack.cpp">
+      <Filter>Haze</Filter>
+    </ClCompile>
     <ClCompile Include="src\Haze\Log.cpp">
       <Filter>Haze</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
+      <Filter>Platform\Windows</Filter>
+    </ClCompile>
     <ClCompile Include="src\hzpch.cpp" />
-    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
   </ItemGroup>
 </Project>
