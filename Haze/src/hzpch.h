@@ -12,6 +12,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include "Haze/Log.h"
+
 #ifdef HZ_PLATFORM_WINDOWS
 	#include <Windows.h>
 #endif

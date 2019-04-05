@@ -2,7 +2,8 @@
 
 #include "Event.h"
 
-namespace Haze {
+namespace Haze 
+{
 
 	class HAZE_API MouseMovedEvent : public Event {
 		public:

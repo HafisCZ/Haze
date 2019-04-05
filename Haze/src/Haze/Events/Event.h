@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Core.h"
+#include "hzpch.h"
+#include "Haze/Core.h"
 
 namespace Haze 
 {
@@ -58,7 +59,7 @@ namespace Haze
 
 			template <typename T> bool Dispatch(EventFn<T> func) 
 			{
-				if (_Event.GetEventType() = T::GetStaticType())
+				if (_Event.GetEventType() == T::GetStaticType())
 				{
 					_Event._Handled = func(*(T*)&_Event);
 					return true;
