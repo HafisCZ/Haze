@@ -23,6 +23,9 @@ namespace Haze {
 			void PushLayer(Layer* layer);
 			void PushOverlay(Layer* layer);
 
+			inline static Application& Get() { return *_Instance; }
+			inline Window& GetWindow() { return *_Window; }
+
 		private:
 			bool OnWindowClose(WindowCloseEvent);
 
@@ -30,6 +33,8 @@ namespace Haze {
 			bool _Running = true;
 
 			LayerStack _LayerStack;
+
+			static Application* _Instance;
 	};
 
 	Application* CreateApplication();

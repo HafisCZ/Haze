@@ -8,7 +8,7 @@ namespace Haze
 	class HAZE_API KeyEvent : public Event 
 	{
 		public:
-			inline int GetKeyCopde() const { return _KeyCode; }
+			inline int GetKeyCode() const { return _KeyCode; }
 			
 			EVENT_CLASS_CATEGORY(EventCategoryKeyboard | EventCategoryInput)
 
@@ -36,6 +36,19 @@ namespace Haze
 
 		private:
 			int _RepeatCount;
+	};
+
+	class HAZE_API KeyTypedEvent : public KeyEvent {
+		public:
+			KeyTypedEvent(int keycode) : KeyEvent(keycode) { }
+
+			std::string ToString() const override {
+				std::stringstream ss;
+				ss << "KeyTypedEvent: " << _KeyCode;
+				return ss.str();
+			}
+
+			EVENT_CLASS_TYPE(KeyTyped)
 	};
 
 	class HAZE_API KeyReleasedEvent : public KeyEvent {

@@ -7,8 +7,14 @@
     <Filter Include="Haze\Events">
       <UniqueIdentifier>{D1423A7A-3DF8-B26F-C6EC-AC4632A1A973}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Haze\ImGui">
+      <UniqueIdentifier>{7762EFE4-631A-3132-CC21-0A8EB8F8CB22}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Platform">
       <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Platform\OpenGL">
+      <UniqueIdentifier>{1E7D2C1D-8A08-9AE1-9319-1DD6FF23F6E1}</UniqueIdentifier>
     </Filter>
     <Filter Include="Platform\Windows">
       <UniqueIdentifier>{64FBD71A-50F4-F66C-7926-DCF1657ED678}</UniqueIdentifier>
@@ -37,6 +43,9 @@
     <ClInclude Include="src\Haze\Events\MouseEvent.h">
       <Filter>Haze\Events</Filter>
     </ClInclude>
+    <ClInclude Include="src\Haze\ImGui\ImGuiLayer.h">
+      <Filter>Haze\ImGui</Filter>
+    </ClInclude>
     <ClInclude Include="src\Haze\Layer.h">
       <Filter>Haze</Filter>
     </ClInclude>
@@ -49,6 +58,9 @@
     <ClInclude Include="src\Haze\Window.h">
       <Filter>Haze</Filter>
     </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.h">
+      <Filter>Platform\OpenGL</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>Platform\Windows</Filter>
     </ClInclude>
@@ -58,6 +70,9 @@
     <ClCompile Include="src\Haze\Application.cpp">
       <Filter>Haze</Filter>
     </ClCompile>
+    <ClCompile Include="src\Haze\ImGui\ImGuiLayer.cpp">
+      <Filter>Haze\ImGui</Filter>
+    </ClCompile>
     <ClCompile Include="src\Haze\Layer.cpp">
       <Filter>Haze</Filter>
     </ClCompile>
@@ -66,6 +81,9 @@
     </ClCompile>
     <ClCompile Include="src\Haze\Log.cpp">
       <Filter>Haze</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\ImGuiOpenGLRenderer.cpp">
+      <Filter>Platform\OpenGL</Filter>
     </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>Platform\Windows</Filter>

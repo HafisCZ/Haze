@@ -25,6 +25,7 @@ class Sandbox : public Haze::Application
 		Sandbox() 
 		{
 			PushLayer(new SandboxLayer());
+			PushOverlay(new Haze::ImGuiLayer());
 		}
 
 		~Sandbox() 
