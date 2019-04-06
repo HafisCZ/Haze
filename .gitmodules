@@ -10,3 +10,6 @@
 [submodule "Haze/vendor/glm"]
 	path = Haze/vendor/glm
 	url = https://github.com/g-truc/glm
+[submodule "Haze/vendor/assimp"]
+	path = Haze/vendor/assimp
+	url = https://github.com/HafisCZ/assimp
