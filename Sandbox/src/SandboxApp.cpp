@@ -1,5 +1,7 @@
 #include <Haze.h>
 
+#include "imgui/imgui.h"
+
 class SandboxLayer : public Haze::Layer
 {
 	public:
@@ -17,6 +19,13 @@ class SandboxLayer : public Haze::Layer
 		{
 
 		}
+
+		void OnImGuiRender() override 
+		{
+			ImGui::Begin("fea");
+			ImGui::Text("HELLO");
+			ImGui::End();
+		}
 };
 
 class Sandbox : public Haze::Application
@@ -25,7 +34,6 @@ class Sandbox : public Haze::Application
 		Sandbox() 
 		{
 			PushLayer(new SandboxLayer());
-			PushOverlay(new Haze::ImGuiLayer());
 		}
 
 		~Sandbox() 

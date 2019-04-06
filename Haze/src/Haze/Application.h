@@ -8,6 +8,8 @@
 #include "Haze/Events/Event.h"
 #include "Haze/Events/ApplicationEvent.h"
 
+#include "Haze/ImGui/ImGuiLayer.h"
+
 namespace Haze {
 
 	class HAZE_API Application
@@ -30,6 +32,8 @@ namespace Haze {
 			bool OnWindowClose(WindowCloseEvent);
 
 			std::unique_ptr<Window> _Window;
+			ImGuiLayer* _ImGuiLayer;
+
 			bool _Running = true;
 
 			LayerStack _LayerStack;

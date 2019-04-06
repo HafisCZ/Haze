@@ -16,6 +16,9 @@ namespace Haze {
 
 		_Window = std::unique_ptr<Window>(Window::Create());
 		_Window->SetEventCallback(HZ_BIND_EVENT_FN(Application::OnEvent));
+
+		_ImGuiLayer = new ImGuiLayer();
+		PushOverlay(_ImGuiLayer);
 	}
 
 	Application::~Application() 
@@ -60,6 +63,13 @@ namespace Haze {
 			{ 
 				layer->OnUpdate();
 			}
+
+			_ImGuiLayer->Begin();
+			for (Layer* layer : _LayerStack)
+			{
+				layer->OnImGuiRender();
+			}
+			_ImGuiLayer->End();
 
 			_Window->OnUpdate();
 		}

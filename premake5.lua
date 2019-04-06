@@ -111,6 +111,7 @@ project "Sandbox"
 	{
 		"Haze/vendor/spdlog/include",
 		"Haze/src",
+		"Haze/vendor",
 		"%{IncludeDir.glm}"
 	}
 
