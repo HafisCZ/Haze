@@ -58,7 +58,7 @@ namespace Haze {
 				break;
 			}
 		}
-	}
+	} 
 
 	void Application::Run()
 	{
