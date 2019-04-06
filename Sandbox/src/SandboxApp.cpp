@@ -10,12 +10,12 @@ class SandboxLayer : public Haze::Layer
 
 		void OnUpdate() override 
 		{
-			HZ_INFO("Sandbox Layer: Update");
+
 		}
 
 		void OnEvent(Haze::Event& event) override 
 		{
-			HZ_INFO("{0}", event);
+
 		}
 };
 
