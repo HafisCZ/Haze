@@ -5,6 +5,10 @@
 
 #include <glad/glad.h>
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 namespace Haze {
 
 	Application* Application::_Instance = nullptr;
@@ -19,6 +23,9 @@ namespace Haze {
 
 		_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(_ImGuiLayer);
+
+		// ASSIMP TEST
+		Assimp::Importer importer;
 	}
 
 	Application::~Application() 

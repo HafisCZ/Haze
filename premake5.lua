@@ -16,6 +16,8 @@ IncludeDir["GLFW"] = "Haze/vendor/GLFW/include"
 IncludeDir["Glad"] = "Haze/vendor/Glad/include"
 IncludeDir["ImGui"] = "Haze/vendor/imgui"
 IncludeDir["glm"] = "Haze/vendor/glm"
+IncludeDir["assimp"] = "Haze/vendor/assimp/include"
+IncludeDir["assimp_cfg"] = "Haze/vendor/assimp/build/include"
 
 group "Dependencies"
 	include "Haze/vendor/GLFW"
@@ -50,7 +52,9 @@ project "Haze"
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.Glad}",
 		"%{IncludeDir.ImGui}",
-		"%{IncludeDir.glm}"
+		"%{IncludeDir.glm}",
+		"%{IncludeDir.assimp}",
+		"%{IncludeDir.assimp_cfg}"
 	}
 
 	links
@@ -58,7 +62,10 @@ project "Haze"
 		"GLFW",
 		"Glad",
 		"ImGui",
-		"opengl32.lib"
+		"opengl32.lib",
+		"%{prj.name}/../vendor/assimp/build/contrib/irrXML/Debug/IrrXML.lib",
+		"%{prj.name}/../vendor/assimp/build/contrib/zlib/Debug/zlibstaticd.lib",
+		"%{prj.name}/../vendor/assimp/build/code/Debug/assimp-vc140-mt.lib"
 	}
 
 	filter "system:windows"
@@ -69,7 +76,8 @@ project "Haze"
 		{
 			"HZ_PLATFORM_WINDOWS",
 			"HZ_BUILD_DLL",
-			"GLFW_INCLUDE_NONE"
+			"GLFW_INCLUDE_NONE",
+			"IMGUI_API=__declspec(dllexport)"
 		}
 
 		postbuildcommands
@@ -126,7 +134,8 @@ project "Sandbox"
 
 		defines
 		{
-			"HZ_PLATFORM_WINDOWS"
+			"HZ_PLATFORM_WINDOWS",
+			"IMGUI_API=__declspec(dllimport)"
 		}
 
 	filter "configurations:Debug"
