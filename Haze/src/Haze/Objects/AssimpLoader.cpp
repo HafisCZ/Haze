@@ -35,13 +35,8 @@ namespace Haze
 
 		const std::function<void(const aiScene*, aiMesh*)> processMesh(
 			[&, this](const aiScene* scene, aiMesh* mesh) {
-				using vertex_t = struct {
-					glm::vec3 pos, nor;
-					glm::vec2 tex;
-					glm::vec3 tan, bta;
-				};
-
-				std::vector<vertex_t> vertices(mesh->mNumVertices);
+				std::vector<Vertex> vertices(mesh->mNumVertices);
+				
 				std::vector<unsigned int> indices(
 					[&mesh]() {
 						unsigned int count = 0;
@@ -67,7 +62,17 @@ namespace Haze
 					}
 				}
 
-				model->Meshes.push_back(new Mesh(vertices.size(), indices.size()));
+				if (indices.size() % 3 != 0) 
+				{
+					HZ_CORE_ERROR("Found {0} extra indices!", indices.size() % 3);
+				}
+
+				std::vector<Triangle> triangles(indices.size() / 3);
+				for (unsigned int i = 0; i < triangles.size(); i++) {
+					triangles[i] = { indices[i * 3 + 0], indices[i * 3 + 1], indices[i * 3 + 2] };
+				}
+
+				model->Meshes.push_back(new Mesh(vertices, triangles));
 			}
 		);
 

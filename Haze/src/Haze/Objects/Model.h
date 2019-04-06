@@ -2,18 +2,40 @@
 
 #include "Haze/Core.h"
 
+#include "Haze/Buffers/IndexBuffer.h"
+#include "Haze/Buffers/VertexArray.h"
+
 #include <vector>
+
+#include <glm/glm.hpp>
 
 namespace Haze 
 {
 
+	struct HAZE_API Vertex 
+	{
+		glm::vec3 Position, Normal;
+		glm::vec2 TextureUV;
+		glm::vec3 Tangent, Bitangent;
+	};
+
+	struct HAZE_API Triangle 
+	{
+		unsigned int A, B, C;
+	};
+
 	class HAZE_API Mesh
 	{
 		public:
-			Mesh(unsigned int vertices, unsigned int indices) : Vertices(vertices), Indices(indices) {}
+			Mesh(std::vector<Vertex>& vertices, std::vector<Triangle>& triangles);
 
 		public:
-			unsigned int Vertices, Indices;
+			std::vector<Vertex> Vertices;
+			std::vector<Triangle> Triangles;
+
+			VertexArray* VAO;
+			IndexBuffer* IBO;
+			VertexBuffer* VBO;
 	};
 
 	class HAZE_API Model 

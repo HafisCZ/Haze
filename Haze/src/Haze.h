@@ -9,6 +9,7 @@
 #include "Haze/MouseButtonCodes.h"
 
 #include "Haze/Objects/AssimpLoader.h"
+#include "Haze/Program/Program.h"
 
 #include "Haze/ImGui/ImGuiLayer.h"
 
