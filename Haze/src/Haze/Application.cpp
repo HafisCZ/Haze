@@ -5,10 +5,6 @@
 
 #include <glad/glad.h>
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-
 namespace Haze {
 
 	Application* Application::_Instance = nullptr;
@@ -23,9 +19,6 @@ namespace Haze {
 
 		_ImGuiLayer = new ImGuiLayer();
 		PushOverlay(_ImGuiLayer);
-
-		// ASSIMP TEST
-		Assimp::Importer importer;
 	}
 
 	Application::~Application() 
@@ -58,12 +51,12 @@ namespace Haze {
 				break;
 			}
 		}
-	} 
+	}
 
 	void Application::Run()
 	{
 		while (_Running) {
-			glClearColor(1, 0, 1, 1);
+			glClearColor(0, 0, 0, 1);
 			glClear(GL_COLOR_BUFFER_BIT);
 
 			for (Layer* layer : _LayerStack)
