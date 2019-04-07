@@ -12,10 +12,6 @@ namespace Haze
 
 	void RendererLayer::OnUpdate()
 	{
-		glm::mat4 proj = glm::perspective(glm::radians(45.0f), 1280.0f / 720.0f, 0.1f, 100.0f);
-		glm::mat4 view = glm::lookAt(_CameraPosition, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		glm::mat4 modl = glm::mat4(1.0f);
-
 		if (_Model)
 		{
 			_Program->Bind();
@@ -29,7 +25,7 @@ namespace Haze
 				_Program->SetUniform("uTexture", 0);
 			}
 		
-			_Program->SetUniform("uModelViewProjectionMatrix", proj * view * modl);
+			_Program->SetUniform("uModelViewProjectionMatrix", _Camera->GetProjectionMatrix() * _Camera->GetViewMatrix());
 
 			for (auto m : _Model->Meshes)
 			{
@@ -85,7 +81,42 @@ namespace Haze
 		static auto func_camera_control = [this](bool& show) {
 			ImGui::Begin("Camera control", &show);
 
-			ImGui::InputFloat3("Position: ", &_CameraPosition[0]);
+			if (ImGui::InputFloat3("Position", &_Camera->_WorldPosition[0])) _Camera->UpdateMatrices();
+			ImGui::Separator();
+
+			if (ImGui::SliderFloat("Yaw", &_Camera->_Yaw, -89.0f, 89.0f)) _Camera->UpdateMatrices();
+			if (ImGui::SliderFloat("Pitch", &_Camera->_Pitch, -180.0f, 180.0f)) _Camera->UpdateMatrices();
+			ImGui::Separator();
+
+			if (ImGui::ArrowButton("L", ImGuiDir_Left)) {
+				_Camera->Move(-1.0f, 0.0f, 0.0f);
+				_Camera->UpdateMatrices();
+			}
+			ImGui::SameLine();
+			if (ImGui::ArrowButton("F", ImGuiDir_Up)) {
+				_Camera->Move(0.0f, 0.0f, 1.0f);
+				_Camera->UpdateMatrices();
+			}
+			ImGui::SameLine();
+			if (ImGui::ArrowButton("B", ImGuiDir_Down)) {
+				_Camera->Move(0.0f, 0.0f, -1.0f);
+				_Camera->UpdateMatrices();
+			}
+			ImGui::SameLine();
+			if (ImGui::ArrowButton("R", ImGuiDir_Right)) {
+				_Camera->Move(1.0f, 0.0f, 0.0f);
+				_Camera->UpdateMatrices();
+			}
+
+			if (ImGui::Button("Up")) {
+				_Camera->Move(0.0f, 1.0f, 0.0f);
+				_Camera->UpdateMatrices();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Down")) {
+				_Camera->Move(0.0f, -1.0f, 0.0f);
+				_Camera->UpdateMatrices();
+			}
 
 			ImGui::End();
 		};
