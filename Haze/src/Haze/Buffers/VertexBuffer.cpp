@@ -10,7 +10,7 @@ namespace Haze
 	{
 		glGenBuffers(1, &_Handle);
 		glBindBuffer(GL_ARRAY_BUFFER, _Handle);
-		glBufferData(GL_ARRAY_BUFFER, count * 56, data, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, count * 14 * sizeof(float), data, GL_STATIC_DRAW);
 	}
 
 	VertexBuffer::~VertexBuffer()

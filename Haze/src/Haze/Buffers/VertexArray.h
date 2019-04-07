@@ -10,8 +10,10 @@ namespace Haze
 	class HAZE_API VertexArray 
 	{
 		public:
-			VertexArray(const VertexBuffer& buffer);
+			VertexArray();
 			~VertexArray();
+
+			void BindBuffer(const VertexBuffer& buffer);
 
 			void Bind() const;
 			void Unbind() const;

@@ -7,7 +7,7 @@ class Sandbox : public Haze::Application
 	public:
 		Sandbox() 
 		{
-
+			PushLayer(new Haze::RendererLayer());
 		}
 
 		~Sandbox() 

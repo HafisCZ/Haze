@@ -40,6 +40,10 @@ namespace Haze
 
 		HZ_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 		if (!_GLFWInitialized) 
 		{
 			int success = glfwInit();
@@ -58,6 +62,12 @@ namespace Haze
 		glfwSetWindowUserPointer(_Window, &_Data);
 		
 		SetVSync(true);
+
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 
 		// GLFW callbacks
 		glfwSetWindowSizeCallback(_Window, [](GLFWwindow* window, int width, int height) 

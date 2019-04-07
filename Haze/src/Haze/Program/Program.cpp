@@ -83,6 +83,10 @@ namespace Haze
 	{
 		std::ifstream stream(filepath);
 
+		if (!stream.is_open()) {
+			HZ_CORE_ERROR("Shader not found!");
+		}
+
 		std::string token, line;
 		std::ostringstream output;
 

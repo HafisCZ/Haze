@@ -10,6 +10,7 @@
 
 #include "Haze/Objects/AssimpLoader.h"
 #include "Haze/Program/Program.h"
+#include "Haze/Renderer.h"
 
 #include "Haze/ImGui/ImGuiLayer.h"
 

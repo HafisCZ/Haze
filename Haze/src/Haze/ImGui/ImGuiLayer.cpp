@@ -90,72 +90,7 @@ namespace Haze
 
 	void ImGuiLayer::OnImGuiRender() 
 	{
-		static bool show_model_loader = false;
-		static bool show_program_loader = false;
-
-		static auto func_model_loader = [](bool& show)
-		{
-			ImGui::Begin("Model Loader", &show);
-
-			static std::array<char, 120> buffer;
-			static Model* model = nullptr;
-
-			ImGui::Text("Filepath:");	ImGui::SameLine();
-			ImGui::InputText("##wid", buffer.data(), buffer.size() - 1);	ImGui::SameLine();
-			
-			if(ImGui::Button("Open"))
-			{
-				model = ModelLoader::Load(std::string(buffer.data()));
-			}
-
-			ImGui::Separator();
-
-			if (model)
-			{
-				ImGui::Text("Triangles:");	ImGui::SameLine(200);	ImGui::Text("%d", []() -> unsigned int { unsigned int count = 0; for (auto m : model->Meshes) count += m->Triangles.size(); return count; }());
-				ImGui::Text("Mesh count:");	ImGui::SameLine(200);	ImGui::Text("%d", model->Meshes.size());
-				ImGui::Separator();
-
-				if (ImGui::CollapsingHeader("Meshes")) 
-				{
-					for (unsigned int i = 0; i < model->Meshes.size(); i++) 
-					{
-						if (ImGui::TreeNode(std::string("Mesh " + std::to_string(i)).c_str()))
-						{
-							ImGui::Text("Vertices");	ImGui::SameLine(200);	ImGui::Text("%d", model->Meshes[i]->Vertices.size());
-							ImGui::Text("Triangles");	ImGui::SameLine(200);	ImGui::Text("%d", model->Meshes[i]->Triangles.size());
-							ImGui::TreePop();
-						}
-					}
-				}
-			} 
-			else 
-			{
-				ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "No model opened!");
-			}
-
-			ImGui::End();
-		};
-
-		static auto func_program_loader = [](bool& show)
-		{
-			ImGui::Begin("Program Loader", &show);
-
-			ImGui::End();
-		};
-
-		if (show_model_loader) func_model_loader(show_model_loader);
-		if (show_program_loader) func_program_loader(show_program_loader);
-
-		ImGui::Begin("Haze");
-
-		if (ImGui::CollapsingHeader("Loaders"))
-		{
-			ImGui::Checkbox("Program", &show_program_loader);
-			ImGui::Checkbox("Model", &show_model_loader);
-		}
-
-		ImGui::End();
+	
 	}
 
 
