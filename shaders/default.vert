@@ -8,10 +8,7 @@ layout (location = 4) in vec3 Bitangent;
 
 uniform mat4 uModelViewProjectionMatrix;
 
-out vec2 eTextureUV;
-
 void main() 
 {
 	gl_Position = uModelViewProjectionMatrix * vec4(Position, 1.0);
-	eTextureUV = Position.xz;
 }

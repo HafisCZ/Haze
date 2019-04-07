@@ -12,26 +12,15 @@ namespace Haze
 
 	void RendererLayer::OnUpdate()
 	{
-		if (_Model)
-		{
+		for (auto o : _Scene->Objects) {
 			_Program->Bind();
 			_Program->SetUniform("uColor", _Color);
+			_Program->SetUniform("uModelViewProjectionMatrix", _Camera->GetProjectionMatrix() * _Camera->GetViewMatrix() * (glm::mat4) o->Matrix);
 
-			if (_Texture) {
-				_Program->SetUniform("uTextureEnable", 1);
-				_Program->SetUniform("uTexture", TextureAllocator::Bind(_Texture));
-			} else {
-				_Program->SetUniform("uTextureEnable", 0);
-				_Program->SetUniform("uTexture", 0);
-			}
-		
-			_Program->SetUniform("uModelViewProjectionMatrix", _Camera->GetProjectionMatrix() * _Camera->GetViewMatrix());
-
-			for (auto m : _Model->Meshes)
+			for (auto m : o->Model->Meshes)
 			{
 				m->VAO->Bind();
 				m->IBO->Bind();
-
 				glDrawElements(GL_TRIANGLES, m->Triangles.size() * 3, GL_UNSIGNED_INT, nullptr);
 			}
 
@@ -41,125 +30,99 @@ namespace Haze
 
 	void RendererLayer::OnImGuiRender()
 	{
-		static bool show_model_loader = false;
-		static auto func_model_loader = [this](bool& show) {
-			ImGui::Begin("Model Loader", &show);
-
-			static std::array<char, 120> buffer;
-
-			ImGui::Text("Filepath:");	ImGui::SameLine();
-			ImGui::InputText("##wid", buffer.data(), buffer.size() - 1);	ImGui::SameLine();
-
-			if (ImGui::Button("Open")) {
-				_Model = ModelLoader::Load(std::string(buffer.data()));
+		static std::array<char, 150> buffer;
+		static auto try_load_object = [this](const std::string& path) {
+			Model* model = ModelLoader::Load(path);
+			if (model) {
+				Object* object = new Object();
+				object->Model = model;
+			
+				_Scene->Objects.push_back(object);
 			}
+		};
 
-			ImGui::Separator();
+		ImGui::Begin("Scene");
+		ImGui::Text("Path: "); ImGui::SameLine(); ImGui::InputText("##Path", buffer.data(), 140); ImGui::SameLine(); 
+		if (ImGui::Button("Load")) try_load_object(std::string(buffer.data()));
+		ImGui::Separator();
 
-			if (_Model) {
-				ImGui::Text("Triangles:");	ImGui::SameLine(200);	ImGui::Text("%d", [this]() -> unsigned int { unsigned int count = 0; for (auto m : _Model->Meshes) count += m->Triangles.size(); return count; }());
-				ImGui::Text("Mesh count:");	ImGui::SameLine(200);	ImGui::Text("%d", _Model->Meshes.size());
-				ImGui::Separator();
+		for (unsigned int i = 0; i < _Scene->Objects.size(); i++)
+		{
+			auto object = _Scene->Objects[i];
+			auto model = object->Model;
+			auto& matrix = object->Matrix;
 
-				if (ImGui::CollapsingHeader("Meshes")) {
-					for (unsigned int i = 0; i < _Model->Meshes.size(); i++) {
-						if (ImGui::TreeNode(std::string("Mesh " + std::to_string(i)).c_str())) {
-							ImGui::Text("Vertices");	ImGui::SameLine(200);	ImGui::Text("%d", _Model->Meshes[i]->Vertices.size());
-							ImGui::Text("Triangles");	ImGui::SameLine(200);	ImGui::Text("%d", _Model->Meshes[i]->Triangles.size());
+			if (ImGui::CollapsingHeader(std::string("Object " + std::to_string(i)).c_str()))
+			{
+				if (ImGui::TreeNode(std::string("Meshes##" + std::to_string(i)).c_str())) 
+				{
+					for (unsigned int j = 0; j < model->Meshes.size(); j++) {
+						if (ImGui::TreeNode(std::string(std::to_string(j) + "##" + std::to_string(i)).c_str())) {
+							ImGui::Text("Vertices");	ImGui::SameLine(200);	ImGui::Text("%d", model->Meshes[j]->Vertices.size());
+							ImGui::Text("Triangles");	ImGui::SameLine(200);	ImGui::Text("%d", model->Meshes[j]->Triangles.size());
 							ImGui::TreePop();
 						}
 					}
+
+					ImGui::TreePop();
 				}
-			} else {
-				ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "No model opened!");
+
+				if (ImGui::TreeNode(std::string("Textures##" + std::to_string(i)).c_str())) 
+				{
+					ImGui::Text("Unimplemented");
+					ImGui::TreePop();
+				}
+
+				if (ImGui::TreeNode(std::string("Transformations##" + std::to_string(i)).c_str())) {
+					ImGui::Text("Position:"); ImGui::SameLine(200); if (ImGui::InputFloat3(std::string("##pos" + std::to_string(i)).c_str(), &matrix._Position.x)) matrix.UpdateMatrices(true);
+					ImGui::Text("Scale:"); ImGui::SameLine(200); if (ImGui::SliderFloat3(std::string("##scl" + std::to_string(i)).c_str(), &matrix._Scale.x, 0.1f, 10.0f, "%.1f")) matrix.UpdateMatrices(true);
+					ImGui::Text("Rotation:"); ImGui::SameLine(200); if (ImGui::SliderFloat3(std::string("##rot" + std::to_string(i)).c_str(), &matrix._Rotation.x, -3.14f, 3.14f, "%.2f")) matrix.UpdateMatrices(true);
+					ImGui::TreePop();
+				}
 			}
+		}
 
-			ImGui::End();
-		};
+		ImGui::End();
 
-		static bool show_camera_control = false;
-		static auto func_camera_control = [this](bool& show) {
-			ImGui::Begin("Camera control", &show);
+		ImGui::Begin("Camera control");
 
-			if (ImGui::InputFloat3("Position", &_Camera->_WorldPosition[0])) _Camera->UpdateMatrices();
-			ImGui::Separator();
+		if (ImGui::InputFloat3("Position", &_Camera->_WorldPosition[0])) _Camera->UpdateMatrices();
+		ImGui::Separator();
 
-			if (ImGui::SliderFloat("Yaw", &_Camera->_Yaw, -89.0f, 89.0f)) _Camera->UpdateMatrices();
-			if (ImGui::SliderFloat("Pitch", &_Camera->_Pitch, -180.0f, 180.0f)) _Camera->UpdateMatrices();
-			ImGui::Separator();
+		if (ImGui::SliderFloat("Yaw", &_Camera->_Yaw, -89.0f, 89.0f, "%.0f")) _Camera->UpdateMatrices();
+		if (ImGui::SliderFloat("Pitch", &_Camera->_Pitch, -180.0f, 180.0f)) _Camera->UpdateMatrices();
+		ImGui::Separator();
 
-			if (ImGui::ArrowButton("L", ImGuiDir_Left)) {
-				_Camera->Move(-1.0f, 0.0f, 0.0f);
-				_Camera->UpdateMatrices();
-			}
-			ImGui::SameLine();
-			if (ImGui::ArrowButton("F", ImGuiDir_Up)) {
-				_Camera->Move(0.0f, 0.0f, 1.0f);
-				_Camera->UpdateMatrices();
-			}
-			ImGui::SameLine();
-			if (ImGui::ArrowButton("B", ImGuiDir_Down)) {
-				_Camera->Move(0.0f, 0.0f, -1.0f);
-				_Camera->UpdateMatrices();
-			}
-			ImGui::SameLine();
-			if (ImGui::ArrowButton("R", ImGuiDir_Right)) {
-				_Camera->Move(1.0f, 0.0f, 0.0f);
-				_Camera->UpdateMatrices();
-			}
+		if (ImGui::ArrowButton("L", ImGuiDir_Left)) {
+			_Camera->Move(-1.0f, 0.0f, 0.0f);
+			_Camera->UpdateMatrices();
+		}
+		ImGui::SameLine();
+		if (ImGui::ArrowButton("F", ImGuiDir_Up)) {
+			_Camera->Move(0.0f, 0.0f, 1.0f);
+			_Camera->UpdateMatrices();
+		}
+		ImGui::SameLine();
+		if (ImGui::ArrowButton("B", ImGuiDir_Down)) {
+			_Camera->Move(0.0f, 0.0f, -1.0f);
+			_Camera->UpdateMatrices();
+		}
+		ImGui::SameLine();
+		if (ImGui::ArrowButton("R", ImGuiDir_Right)) {
+			_Camera->Move(1.0f, 0.0f, 0.0f);
+			_Camera->UpdateMatrices();
+		}
 
-			if (ImGui::Button("Up")) {
-				_Camera->Move(0.0f, 1.0f, 0.0f);
-				_Camera->UpdateMatrices();
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Down")) {
-				_Camera->Move(0.0f, -1.0f, 0.0f);
-				_Camera->UpdateMatrices();
-			}
+		if (ImGui::Button("Up")) {
+			_Camera->Move(0.0f, 1.0f, 0.0f);
+			_Camera->UpdateMatrices();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Down")) {
+			_Camera->Move(0.0f, -1.0f, 0.0f);
+			_Camera->UpdateMatrices();
+		}
 
-			ImGui::End();
-		};
-
-		static bool show_texture_control = false;
-		static auto func_texture_control = [this](bool& show) {
-			ImGui::Begin("Texture control", &show);
-
-			ImGui::ColorPicker3("Color", &_Color[0]);
-
-			ImGui::Separator();
-
-			static std::array<char, 120> buffer;
-
-			ImGui::Text("Filepath:");	ImGui::SameLine();
-			ImGui::InputText("##wid", buffer.data(), buffer.size() - 1);	ImGui::SameLine();
-
-			if (ImGui::Button("Open")) {
-				_Texture = TextureLoader::Load(std::string(buffer.data()));
-			}
-
-			ImGui::Separator();
-
-			if (_Texture) {
-				ImGui::Text("Width:");	ImGui::SameLine(200);	ImGui::Text("%d", _Texture->_Width);
-				ImGui::Text("Height:");	ImGui::SameLine(200);	ImGui::Text("%d", _Texture->_Height);
-				ImGui::Text("PPM:");	ImGui::SameLine(200);	ImGui::Text("%d", _Texture->_PPM);
-				ImGui::Text("Format:");	ImGui::SameLine(200);	ImGui::Text("%d", _Texture->_Format);
-			} else {
-				ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "No texture opened!");
-			}
-
-			ImGui::End();
-		};
-
-		if (show_model_loader) func_model_loader(show_model_loader);
-		if (show_camera_control) func_camera_control(show_camera_control);
-		if (show_texture_control) func_texture_control(show_texture_control);
-
-		ImGui::Begin("Render controller");
-		ImGui::Checkbox("Model", &show_model_loader);
-		ImGui::Checkbox("Camera", &show_camera_control);
-		ImGui::Checkbox("Texture", &show_texture_control);
 		ImGui::End();
 	}
 
