@@ -2,6 +2,7 @@
 
 #include "Haze/Core.h"
 #include "Haze/Objects/Model.h"
+#include "Haze/Scene/Light.h"
 
 #include <glm/glm.hpp>
 
@@ -46,10 +47,16 @@ namespace Haze
 	};
 
 	class HAZE_API Scene {
+		private:
+			struct LightContainer {
+				Light* Ambient = nullptr;
+				Light* Vector = nullptr;
+				std::vector<Light*> Point;
+			};
+
 		public:
 			std::vector<Object*> Objects;
-
-
+			LightContainer* Lights = new LightContainer();
 	};
 
 }

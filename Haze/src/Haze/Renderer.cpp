@@ -1,6 +1,8 @@
 #include "hzpch.h"
 #include "Renderer.h"
 
+#include "Program/ProgramAdapter.h"
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -15,23 +17,40 @@
 
 namespace Haze 
 {
+	CUSTOM_ADAPTER(DefaultAdapter) {
+		SCENE {
+			_Program->SetUniform("uColor", glm::vec4(1.0f));
+		}
+
+		OBJECT {
+			_Program->SetUniform("uModelViewProjectionMatrix", camera->GetProjectionMatrix() * camera->GetViewMatrix() * (glm::mat4) object->Matrix);
+		}
+
+		MESH {
+			_Program->SetUniform("uTexture[0]", mesh->Textures[0] != nullptr);
+			_Program->SetUniform("uTexture[1]", mesh->Textures[1] != nullptr);
+			_Program->SetUniform("uTexture[2]", mesh->Textures[2] != nullptr);
+
+			_Program->SetUniform("uTexture0", TextureAllocator::Bind(mesh->Textures[0]));
+			_Program->SetUniform("uTexture1", TextureAllocator::Bind(mesh->Textures[1]));
+			_Program->SetUniform("uTexture2", TextureAllocator::Bind(mesh->Textures[2]));
+		}
+	};
 
 	void RendererLayer::OnUpdate()
 	{
-		for (auto o : _Scene->Objects) {
-			_Program->Bind();
-			_Program->SetUniform("uColor", glm::vec4(1.0f));
-			_Program->SetUniform("uModelViewProjectionMatrix", _Camera->GetProjectionMatrix() * _Camera->GetViewMatrix() * (glm::mat4) o->Matrix);
+		DefaultAdapter adapter(_Program);
+		adapter.Bind();
+
+		adapter.Set(_Scene, _Camera);
+
+		for (auto o : _Scene->Objects) 
+		{
+			adapter.Set(o, _Camera);
 
 			for (auto m : o->Model->Meshes)
 			{
-				_Program->SetUniform("uTexture[0]", m->Textures[0] != nullptr);
-				_Program->SetUniform("uTexture[1]", m->Textures[1] != nullptr);
-				_Program->SetUniform("uTexture[2]", m->Textures[2] != nullptr);
-
-				_Program->SetUniform("uTexture0", TextureAllocator::Bind(m->Textures[0]));
-				_Program->SetUniform("uTexture1", TextureAllocator::Bind(m->Textures[1]));
-				_Program->SetUniform("uTexture2", TextureAllocator::Bind(m->Textures[2]));
+				adapter.Set(m, _Camera);
 
 				m->VAO->Bind();
 				m->IBO->Bind();

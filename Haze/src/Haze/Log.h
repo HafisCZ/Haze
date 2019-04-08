@@ -20,13 +20,13 @@ namespace Haze {
 	};
 }
 
-#define HZ_CORE_FATAL(...)   ::Haze::Log::GetCoreLogger()->fatal(__VA_ARGS__)
+#define HZ_CORE_CRITICAL(...)   ::Haze::Log::GetCoreLogger()->critical(__VA_ARGS__)
 #define HZ_CORE_ERROR(...)   ::Haze::Log::GetCoreLogger()->error(__VA_ARGS__)
 #define HZ_CORE_WARN(...)    ::Haze::Log::GetCoreLogger()->warn(__VA_ARGS__)
 #define HZ_CORE_INFO(...)    ::Haze::Log::GetCoreLogger()->info(__VA_ARGS__)
 #define HZ_CORE_TRACE(...)   ::Haze::Log::GetCoreLogger()->trace(__VA_ARGS__)
 
-#define HZ_FATAL(...)        ::Haze::Log::GetClientLogger()->fatal(__VA_ARGS__)
+#define HZ_CRITICAL(...)        ::Haze::Log::GetClientLogger()->critical(__VA_ARGS__)
 #define HZ_ERROR(...)        ::Haze::Log::GetClientLogger()->error(__VA_ARGS__)
 #define HZ_WARN(...)         ::Haze::Log::GetClientLogger()->warn(__VA_ARGS__)
 #define HZ_INFO(...)         ::Haze::Log::GetClientLogger()->info(__VA_ARGS__)
