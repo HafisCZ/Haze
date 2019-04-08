@@ -12,13 +12,19 @@ namespace Haze
 
 	ModelLoader* ModelLoader::_Instance = new AssimpLoader();
 
-	Model* AssimpLoader::LoadImpl(const std::string& path)
+	Model* AssimpLoader::LoadImpl(const std::string& path, ModelLoaderFlags flags)
 	{
 		Model* model = new Model();
 
 		Assimp::Importer importer;
 		
-		const aiScene* scene = importer.ReadFile(path.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_GenSmoothNormals);
+		unsigned int aiFlags = 0;
+		if (flags & Triangulate) aiFlags |= aiProcess_Triangulate;
+		if (flags & CalculateTangents) aiFlags |= aiProcess_CalcTangentSpace;
+		if (flags & SmoothNormals) aiFlags |= aiProcess_GenSmoothNormals;
+		if (flags & FlipUVCoords) aiFlags |= aiProcess_FlipUVs;
+	
+		const aiScene* scene = importer.ReadFile(path.c_str(), aiFlags);
 		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
 			return nullptr;
 		}

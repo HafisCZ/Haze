@@ -81,10 +81,10 @@ namespace Haze
 	{
 		Texture* texture = new Texture2D();
 		void* buffer = stbi_load(path.c_str(), &texture->_Width, &texture->_Height, &texture->_PPM, 0);
-
-		if (buffer)
+		
+		if (buffer != nullptr)
 		{
-			texture->_Format = (texture->_Format == 1 ? GL_RED : (texture->_Format == 3 ? GL_RGB : GL_RGBA));
+			texture->_Format = (texture->_PPM == 1 ? GL_RED : (texture->_PPM == 3 ? GL_RGB : GL_RGBA));
 
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, texture->_Handle);
@@ -95,13 +95,14 @@ namespace Haze
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 			glTexImage2D(GL_TEXTURE_2D, 0, texture->_Format, texture->_Width, texture->_Height, 0, texture->_Format, GL_UNSIGNED_BYTE, buffer);
-
+			
 			stbi_image_free(buffer);
 
 			return texture;
 		} 
 		else 
 		{
+			HZ_CORE_ERROR("Texture loader error: {0}", stbi_failure_reason());
 			return nullptr;
 		}
 	}

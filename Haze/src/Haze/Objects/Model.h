@@ -41,6 +41,15 @@ namespace Haze
 			Texture* Textures[3];
 	};
 
+	enum ModelLoaderFlags 
+	{
+		All = 15,
+		Triangulate			= BIT(0),
+		CalculateTangents	= BIT(1),
+		SmoothNormals		= BIT(2),
+		FlipUVCoords		= BIT(3)
+	};
+
 	class HAZE_API Model 
 	{
 		public:
@@ -56,9 +65,9 @@ namespace Haze
 	class HAZE_API ModelLoader
 	{
 		public:
-			static Model* Load(const std::string& path) { return _Instance->LoadImpl(path); }
+			static Model* Load(const std::string& path, ModelLoaderFlags flags = All) { return _Instance->LoadImpl(path, flags); }
 
-			virtual Model* LoadImpl(const std::string& path) = 0;
+			virtual Model* LoadImpl(const std::string& path, ModelLoaderFlags flags) = 0;
 
 		private:
 			static ModelLoader* _Instance;
