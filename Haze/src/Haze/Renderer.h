@@ -1,12 +1,11 @@
 #pragma once
 
 #include "Haze/Core.h"
-#include "Haze/Program/Program.h"
 #include "Haze/Objects/Model.h"
 #include "Haze/Layer.h"
-#include "Haze/Textures/Texture.h"
-#include "Haze/Scene/Camera.h"
-#include "Haze/Scene/Scene.h"
+#include "Haze/Buffers/CubeFramebuffer.h"
+#include "Haze/Program/ProgramAdapter.h"
+#include "Haze/Buffers/GBuffer.h"
 
 namespace Haze 
 {
@@ -14,7 +13,23 @@ namespace Haze
 	class HAZE_API RendererLayer : public Layer
 	{
 		public:
-			RendererLayer() : Layer("Render Layer"), _Program(new Program("../shaders/default", 3)) { }
+			RendererLayer() : 
+				Layer("Render Layer"), 
+				_ShadingBuffer(2048, 5), 
+				_Buffer(1280, 720),
+				_GeometryAdapter(new GeometryPassAdapter(new Program("../shaders/geom", ShaderTypeFragment | ShaderTypeVertex))),
+				_ShadingAdapter(new ShadingPassAdapter(new Program("../shaders/shade", ShaderTypeGeometry | ShaderTypeFragment | ShaderTypeVertex))),
+				_LightingAdapter (new LightPassAdapter(new Program("../shaders/light", ShaderTypeFragment | ShaderTypeVertex)))
+
+			{ 
+				Program* prog = _LightingAdapter->GetProgram();
+				
+				prog->Bind();
+				prog->SetUniform("uPosition", 0);
+				prog->SetUniform("uNormal", 1);
+				prog->SetUniform("uAlbedoSpecular", 2);
+				prog->SetUniform("uPointShadowMap", 3);
+			}
 
 			void OnUpdate() override;
 			void OnImGuiRender() override;
@@ -26,7 +41,17 @@ namespace Haze
 			}
 
 		private:
-			Program* _Program = nullptr;
+			void Draw(Mesh* mesh);
+			void Draw();
+			void DrawQuad();
+
+		private:
+			GBuffer _Buffer;
+			CubeFramebufferArray _ShadingBuffer;
+
+			ProgramAdapter* _GeometryAdapter;
+			ProgramAdapter* _ShadingAdapter;
+			ProgramAdapter* _LightingAdapter;
 
 			Camera* _Camera = new Camera();
 			Scene* _Scene = new Scene();

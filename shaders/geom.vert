@@ -25,7 +25,7 @@ void main()
 
 	mat3 normalMatrix = mat3(uModelMatrixI);
 	vec3 t = normalize(normalMatrix * Tangent);
-	vec3 n = normalize(normalMatrix * Normal)
+	vec3 n = normalize(normalMatrix * Normal);
 	t = normalize(t - dot(t, n) * n);
 	vec3 b = cross(t, n);
 

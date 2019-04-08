@@ -75,12 +75,15 @@ namespace Haze
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	void GBuffer::Copy(unsigned int width, unsigned int height)
+	void GBuffer::Copy()
 	{ 
+		int viewport[4];
+		glGetIntegerv(GL_VIEWPORT, viewport);
+
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, _Handle);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-		glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+		glBlitFramebuffer(0, 0, viewport[2], viewport[3], 0, 0, viewport[2], viewport[3], GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 

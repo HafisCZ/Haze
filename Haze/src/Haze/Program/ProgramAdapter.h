@@ -26,6 +26,8 @@ namespace Haze
 			virtual void Set(Mesh* mesh, Camera* camera) = 0;
 
 			inline void Bind() { _Program->Bind(); }
+			
+			inline Program* GetProgram() { return _Program; }
 
 		protected:
 			Program* _Program;

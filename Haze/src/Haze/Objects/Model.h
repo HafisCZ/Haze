@@ -28,6 +28,7 @@ namespace Haze
 	class HAZE_API Mesh
 	{
 		public:
+			Mesh() {}
 			Mesh(std::vector<Vertex>& vertices, std::vector<Triangle>& triangles);
 
 		public:

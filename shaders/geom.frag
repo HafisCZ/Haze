@@ -4,7 +4,7 @@ layout (location = 0) out vec3 Position;
 layout (location = 1) out vec3 Normal;
 layout (location = 2) out vec4 AlbedoSpecular;
 
-uniform bool uTexture[3]
+uniform bool uTexture[3];
 uniform sampler2D uTexture0;
 uniform sampler2D uTexture1;
 uniform sampler2D uTexture2;
@@ -14,7 +14,7 @@ in vec3 ioFragmentPosition;
 in vec3 ioNormal;
 in mat3 ioTangentMatrix;
 
-voin main() 
+void main() 
 {
 	Position = ioFragmentPosition;
 

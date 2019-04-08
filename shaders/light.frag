@@ -44,13 +44,13 @@ uniform vec3 uCameraPosition;
 in vec2 ioTextureUV;
 
 vec3 samples[20] = vec3[] 
-{
+(
 	vec3(1, 1, 1), vec3(1, -1, 1), vec3(-1, -1, 1), vec3(-1, 1, 1),
 	vec3(1, 1, -1), vec3(1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
 	vec3(1, 1, 0), vec3(1, -1, 0), vec3(-1, -1, 0), vec3(-1, 1, 0),
 	vec3(1, 0, 1), vec3(-1, 0, 1), vec3(1, 0, -1), vec3(-1, 0, -1),
 	vec3(0, 1, 1), vec3(0, -1, 1), vec3(0, -1, -1), vec3(0, 1, -1)
-};
+);
 
 float getFragmentShadow(vec3 fragpos, vec3 lightpos, int sid) 
 {
@@ -111,7 +111,7 @@ void main()
 
 	if (uVectorLight.Enabled) 
 	{
-		color += getVectorLight(diffuse, specular, normal, viewdir, vector);
+		color += getVectorLight(diffuse, specular, normal, viewdir);
 	}
 
 	if (uAmbientLight.Enabled) 

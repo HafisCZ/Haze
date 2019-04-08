@@ -15,5 +15,4 @@ namespace Haze
 		Vertices = std::move(vertices);
 		Triangles = std::move(triangles);
 	}
-
 }

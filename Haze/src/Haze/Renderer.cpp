@@ -17,48 +17,94 @@
 
 namespace Haze 
 {
-	CUSTOM_ADAPTER(DefaultAdapter) {
-		SCENE {
-			_Program->SetUniform("uColor", glm::vec4(1.0f));
-		}
-
-		OBJECT {
-			_Program->SetUniform("uModelViewProjectionMatrix", camera->GetProjectionMatrix() * camera->GetViewMatrix() * (glm::mat4) object->Matrix);
-		}
-
-		MESH {
-			_Program->SetUniform("uTexture[0]", mesh->Textures[0] != nullptr);
-			_Program->SetUniform("uTexture[1]", mesh->Textures[1] != nullptr);
-			_Program->SetUniform("uTexture[2]", mesh->Textures[2] != nullptr);
-
-			_Program->SetUniform("uTexture0", TextureAllocator::Bind(mesh->Textures[0]));
-			_Program->SetUniform("uTexture1", TextureAllocator::Bind(mesh->Textures[1]));
-			_Program->SetUniform("uTexture2", TextureAllocator::Bind(mesh->Textures[2]));
-		}
-	};
-
 	void RendererLayer::OnUpdate()
 	{
-		DefaultAdapter adapter(_Program);
-		adapter.Bind();
+		Draw();
+	}
 
-		adapter.Set(_Scene, _Camera);
+	void RendererLayer::Draw(Mesh* mesh)
+	{
+		mesh->VAO->Bind();	
+		mesh->IBO->Bind();
+		glDrawElements(GL_TRIANGLES, mesh->Triangles.size() * 3, GL_UNSIGNED_INT, nullptr);
 
+		TextureAllocator::Flush();
+	}
+
+	void RendererLayer::Draw() 
+	{
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+		_Buffer.Bind();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+		_GeometryAdapter->Bind();
+		_GeometryAdapter->Set(_Scene, _Camera);
 		for (auto o : _Scene->Objects) 
 		{
-			adapter.Set(o, _Camera);
-
+			_GeometryAdapter->Set(o, _Camera);
 			for (auto m : o->Model->Meshes)
 			{
-				adapter.Set(m, _Camera);
+				_GeometryAdapter->Set(m, _Camera);
+				Draw(m);
+			}
+		}
 
-				m->VAO->Bind();
-				m->IBO->Bind();
-				glDrawElements(GL_TRIANGLES, m->Triangles.size() * 3, GL_UNSIGNED_INT, nullptr);
+		_Buffer.Unbind();
+
+		if ([this]() -> bool { for (auto l : _Scene->Lights->Point) if (l->GetType() == POINT_SHADOW) return true; return false; }()) 
+		{
+			glDisable(GL_CULL_FACE);
+			_ShadingBuffer.Bind();
+
+			_ShadingAdapter->Bind();
+			_ShadingAdapter->Set(_Scene, _Camera);
+			for (auto o : _Scene->Objects) 
+			{
+				_ShadingAdapter->Set(o, _Camera);
+				for (auto m : o->Model->Meshes) 
+				{
+					Draw(m);
+				}
 			}
 
-			TextureAllocator::Flush();
+			_ShadingBuffer.Unbind(3);
+			glEnable(GL_CULL_FACE);
 		}
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+		_LightingAdapter->Bind();
+
+		_Buffer.BindTextures(0);
+
+		_LightingAdapter->Set(_Scene, _Camera);
+
+		DrawQuad();
+
+		_Buffer.Copy();
+	}
+
+	void RendererLayer::DrawQuad() 
+	{
+		static float vertices[] = { -1.0f,  1.0f, 0.0f, 0.0f, 1.0f, -1.0f, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 1.0f, 0.0f };
+		static unsigned int vao = []() -> unsigned int {
+			unsigned int vao, vbo;
+			glGenVertexArrays(1, &vao);
+			glBindVertexArray(vao);
+			glGenBuffers(1, &vbo);
+			glBindBuffer(GL_ARRAY_BUFFER, vbo);
+			glBufferData(GL_ARRAY_BUFFER, 6 * 5 * sizeof(float), vertices, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+			return vao;
+		}();
+
+		glBindVertexArray(vao);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	}
 
 	void RendererLayer::OnImGuiRender()
@@ -212,8 +258,78 @@ namespace Haze
 			ImGui::End();
 		};
 
+		static bool win_list_light_show = false;
+		static auto win_list_light = [this]() {
+			ImGui::Begin("Lights", &win_list_light_show, ImGuiWindowFlags_MenuBar);
+
+			if (ImGui::BeginMenuBar()) 
+			{
+				if (_Scene->Lights->Ambient == nullptr && ImGui::MenuItem("Ambient"))  _Scene->Lights->Ambient = new AmbientLight(glm::vec3(1.0f), 0.0f);
+				if (_Scene->Lights->Vector == nullptr && ImGui::MenuItem("Vector"))  _Scene->Lights->Vector = new VectorLight(glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, 0.0f);
+				if (ImGui::MenuItem("Point")) _Scene->Lights->Point.push_back(new PointLight(glm::vec3(1.0f), glm::vec3(0.0f), 0.0f, 0.0f, 0.007f, 0.0002f, false));
+
+				ImGui::EndMenuBar();
+			}
+
+			if (_Scene->Lights->Ambient) 
+			{
+				if (ImGui::CollapsingHeader("Ambient light")) 
+				{
+					ImGui::ColorEdit3("Color##ambient", &_Scene->Lights->Ambient->GetData()[0].x);
+					ImGui::Spacing();
+					ImGui::SliderFloat("Intensity##ambient", &_Scene->Lights->Ambient->GetData()[2].x, 0.0f, 1.0f);
+				}
+			}
+
+			ImGui::Spacing();
+
+			if (_Scene->Lights->Vector) 
+			{
+				if (ImGui::CollapsingHeader("Vector light")) 
+				{
+					ImGui::ColorEdit3("Color##vector", &_Scene->Lights->Vector->GetData()[0].x);
+					ImGui::Spacing();
+					ImGui::InputFloat3("Direction##vector", &_Scene->Lights->Vector->GetData()[1].x);
+					ImGui::Spacing();
+					ImGui::SliderFloat("Intensity##vector", &_Scene->Lights->Vector->GetData()[2].y, 0.0f, 1.0f);
+					ImGui::SliderFloat("Specular##vector", &_Scene->Lights->Vector->GetData()[2].z, 0.0f, 1.0f);
+				}
+			}
+
+			ImGui::Spacing();
+
+			for (unsigned int i = 0; i < _Scene->Lights->Point.size(); i++) 
+			{
+				if (ImGui::CollapsingHeader(UUID1("Point light", i))) 
+				{
+					auto& light = _Scene->Lights->Point[i]->GetData();
+
+					ImGui::ColorEdit3(UUID1("Color", i), &light[0].x);
+
+					ImGui::Spacing();
+
+					ImGui::InputFloat3(UUID1("Position", i), &light[1].x);
+
+					ImGui::Spacing();
+
+					ImGui::SliderFloat(UUID1("Intensity", i), &light[2].y, 0.0f, 1.0f);
+					ImGui::SliderFloat(UUID1("Specular", i), &light[2].z, 0.0f, 1.0f);
+
+					ImGui::Spacing();
+
+					ImGui::InputFloat(UUID1("Linear attenuation", i), &light[3].y);
+					ImGui::InputFloat(UUID1("Quad attenuation", i), &light[3].z);
+				}
+
+				ImGui::Spacing();
+			}
+
+			ImGui::End();
+		};
+
 		if (win_load_object_show) win_load_object();
 		if (win_list_object_show) win_list_object();
+		if (win_list_light_show) win_list_light();
 		if (win_camera_show) win_camera();
 
 		if (ImGui::BeginMainMenuBar()) 
@@ -224,13 +340,14 @@ namespace Haze
 
 			ImGui::Separator();
 
-			if (ImGui::BeginMenu("Scene")) 
-			{
-				ImGui::MenuItem("New object", NULL, &win_load_object_show);
-				ImGui::Separator();
-				ImGui::MenuItem("Objects", NULL, &win_list_object_show);
-				ImGui::EndMenu();
-			}
+			ImGui::MenuItem("Objects", NULL, &win_list_object_show);
+			ImGui::MenuItem("+##0", NULL, &win_load_object_show);
+
+			ImGui::Separator();
+
+			ImGui::MenuItem("Lights", NULL, &win_list_light_show);
+
+			ImGui::Separator();
 
 			ImGui::MenuItem("Camera controls", NULL, &win_camera_show);
 

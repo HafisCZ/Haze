@@ -49,8 +49,8 @@ namespace Haze
 	class HAZE_API Scene {
 		private:
 			struct LightContainer {
-				Light* Ambient = nullptr;
-				Light* Vector = nullptr;
+				Light* Ambient;
+				Light* Vector;
 				std::vector<Light*> Point;
 			};
 

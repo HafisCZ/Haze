@@ -13,7 +13,7 @@ namespace Haze
 			void Resize(unsigned int width, unsigned int height);
 
 			void BindTextures(unsigned int slot);
-			void Copy(unsigned int width, unsigned int height);
+			void Copy();
 
 			void Bind();
 			void Unbind();
