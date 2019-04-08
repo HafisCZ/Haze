@@ -19,7 +19,11 @@ namespace Haze
 			void OnUpdate() override;
 			void OnImGuiRender() override;
 
-			void OnEvent(Event& event) override { }
+			void OnEvent(Event& event) override {
+				if (event.GetEventType() == EventType::WindowResize) {
+					_Camera->OnWindowResizeEvent((WindowResizeEvent&) event);
+				}
+			}
 
 		private:
 			Program* _Program = nullptr;

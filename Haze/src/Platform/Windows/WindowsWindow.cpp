@@ -69,6 +69,9 @@ namespace Haze
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
 
+		glEnable(GL_STENCIL_TEST);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
 		// GLFW callbacks
 		glfwSetWindowSizeCallback(_Window, [](GLFWwindow* window, int width, int height) 
 		{

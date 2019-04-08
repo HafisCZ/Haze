@@ -30,6 +30,7 @@ namespace Haze {
 
 		private:
 			bool OnWindowClose(WindowCloseEvent);
+			bool Application::OnWindowResize(WindowResizeEvent& event);
 
 			std::unique_ptr<Window> _Window;
 			ImGuiLayer* _ImGuiLayer;

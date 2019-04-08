@@ -6,6 +6,7 @@
 #include "Haze/Application.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <glad/glad.h>
 
 namespace Haze
 {
@@ -16,9 +17,10 @@ namespace Haze
 		_WorldPosition(0.0f, 0.0f, 0.0f),
 		_Direction(0.0f, 0.0f, -1.0f),
 		_UpVector(0.0f, 1.0f, 0.0f),
-		_WorldUpVector(0.0f, 1.0f, 0.0f)
+		_WorldUpVector(0.0f, 1.0f, 0.0f),
+		_Viewport(0.0f, 0.0f, Application::Get().GetWindow().GetWidth(), Application::Get().GetWindow().GetHeight())
 	{
-		_Projection = glm::perspective(glm::radians(45.0f), ((float)Application::Get().GetWindow().GetWidth()) / ((float)Application::Get().GetWindow().GetHeight()), 0.1f, 100.0f);
+		_Projection = glm::perspective(glm::radians(45.0f), _Viewport.z / _Viewport.w, 0.1f, 100.0f);
 		UpdateMatrices();
 	}
 	
@@ -42,6 +44,24 @@ namespace Haze
 		_UpVector = glm::normalize(glm::cross(_RightVector, _Direction));
 
 		_View = glm::lookAt(_WorldPosition, _WorldPosition + _Direction, _UpVector);
+	}
+
+	std::pair<glm::vec3, unsigned int> Camera::GetWorldPointer() 
+	{
+		unsigned int index;
+		float depth;
+
+		glReadPixels(_Viewport.z / 2.0f, _Viewport.w / 2.0f, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
+		glReadPixels(_Viewport.z / 2.0f, _Viewport.w / 2.0f, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &index);
+		
+		return { glm::unProject(glm::vec3(_Viewport.z / 2.0f, _Viewport.w / 2.0f, depth), _View, _Projection, _Viewport), index };
+	}
+
+	void Camera::OnWindowResizeEvent(WindowResizeEvent& event)
+	{
+		_Viewport = glm::vec4(0.0f, 0.0f, event.GetWidth(), event.GetHeight());
+		_Projection = glm::perspective(glm::radians(45.0f), _Viewport.z / _Viewport.w, 0.1f, 100.0f);
+		UpdateMatrices();
 	}
 
 }

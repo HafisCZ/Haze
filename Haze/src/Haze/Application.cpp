@@ -42,6 +42,7 @@ namespace Haze {
 	{
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(HZ_BIND_EVENT_FN(Application::OnWindowClose));
+		dispatcher.Dispatch<WindowResizeEvent>(HZ_BIND_EVENT_FN(Application::OnWindowResize));
 
 		for (auto it  = _LayerStack.end(); it != _LayerStack.begin(); ) 
 		{ 
@@ -53,11 +54,17 @@ namespace Haze {
 		}
 	}
 
+	bool Application::OnWindowResize(WindowResizeEvent& event) {
+		glViewport(0, 0, event.GetWidth(), event.GetHeight());
+
+		return false;
+	}
+
 	void Application::Run()
 	{
 		while (_Running) {
 			glClearColor(0, 0, 0, 1);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 			for (Layer* layer : _LayerStack)
 			{ 

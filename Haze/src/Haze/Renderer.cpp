@@ -2,6 +2,7 @@
 #include "Renderer.h"
 
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "imgui.h"
@@ -38,21 +39,66 @@ namespace Haze
 
 	void RendererLayer::OnImGuiRender()
 	{
-		static std::array<char, 150> buffer;
-		static auto try_load_object = [this](const std::string& path) {
+		static auto load_object = [this](const std::string& path) {
 			Model* model = ModelLoader::Load(path);
 			if (model) {
 				Object* object = new Object();
 				object->Model = model;
-			
 				_Scene->Objects.push_back(object);
 			}
 		};
 
-		ImGui::Begin("Scene");
-		ImGui::Text("Path: "); ImGui::SameLine(); ImGui::InputText("##Path", buffer.data(), 140); ImGui::SameLine(); 
-		if (ImGui::Button("Load")) try_load_object(std::string(buffer.data()));
+		static bool win_load_object_show = false;
+		static auto win_load_object = [this]() {
+			static std::array<char, 200> buffer;
+
+			ImGui::Begin("win_load_object", &win_load_object_show);
+
+			ImGui::Text("Filepath:");
+			ImGui::SameLine(100);
+			ImGui::InputText("##text0", buffer.data(), buffer.size());
+			ImGui::Spacing();
+			if (ImGui::Button("Load")) 
+			{
+				load_object(std::string(buffer.data()));
+				win_load_object_show = false;
+			}
+
+			ImGui::End();
+		};
+
+		if (win_load_object_show) win_load_object();
+
+		ImGui::Begin("Scene Editor", 0, ImGuiWindowFlags_MenuBar);
+
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("Add")) 
+			{
+				ImGui::MenuItem("Object", NULL, &win_load_object_show);
+				ImGui::EndMenu();
+			}
+
+			ImGui::EndMenuBar();
+		}
+
+		{
+			static double time = 0;
+			double currentTime = glfwGetTime();
+			ImGui::Text("Frametime: %f", currentTime - time);
+			time = currentTime;
+		}
 		ImGui::Separator();
+
+		ImGui::End();
+
+
+		// TODO: Refactor & Add better controlls
+	
+
+		ImGui::Begin("old Editor");
+
+
 
 		for (unsigned int i = 0; i < _Scene->Objects.size(); i++)
 		{
@@ -107,6 +153,27 @@ namespace Haze
 		ImGui::End();
 
 		ImGui::Begin("Camera control");
+
+		static bool ray = false;
+		static glm::vec3 rayPos;
+		static unsigned int rayIndex;
+
+		if (ImGui::Button("Project ray")) {
+			auto[loc, index] = _Camera->GetWorldPointer();
+			rayPos = loc;
+			rayIndex = index;
+			ray = true;
+		}
+
+		if (ray) {
+			ImGui::SameLine();
+			ImGui::Text("Index %d", rayIndex);
+
+			ImGui::SameLine();
+			ImGui::InputFloat3("##loclabel", &rayPos.x);
+		}
+
+		ImGui::Separator();
 
 		if (ImGui::InputFloat3("Position", &_Camera->_WorldPosition[0])) _Camera->UpdateMatrices();
 		ImGui::Separator();

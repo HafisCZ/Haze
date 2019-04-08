@@ -2,8 +2,6 @@
 
 #include "Haze/Core.h"
 #include "Haze/Events/ApplicationEvent.h"
-#include "Haze/Events/MouseEvent.h"
-#include "Haze/Events/KeyEvent.h"
 
 #include <glm/glm.hpp>
 
@@ -23,11 +21,15 @@ namespace Haze
 			inline const glm::vec3& GetWorldPosition() const { return _WorldPosition; }
 			inline const glm::vec3& GetDirection() const { return _Direction; }
 
+			std::pair<glm::vec3, unsigned int> GetWorldPointer();
+
 			void Move(float x, float y, float z);
 			void Look(float y, float p);
 
 		private:
 			void UpdateMatrices();
+			
+			void OnWindowResizeEvent(WindowResizeEvent& event);
 
 		private:
 			glm::mat4 _Projection;
@@ -39,6 +41,8 @@ namespace Haze
 			glm::vec3 _RightVector;
 			glm::vec3 _UpVector;
 			glm::vec3 _WorldUpVector;
+
+			glm::vec4 _Viewport;
 
 			float _Pitch;
 			float _Yaw;

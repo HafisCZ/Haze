@@ -47,7 +47,7 @@ namespace Haze
 
 	class HAZE_API Scene {
 		public:
-		std::vector<Object*> Objects;
+			std::vector<Object*> Objects;
 
 
 	};

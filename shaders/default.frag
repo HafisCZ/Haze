@@ -18,4 +18,12 @@ void main()
 	} else {
 		Color = uColor;
 	}
+
+	if (uTexture[1]) {
+		Color += 0.01 * texture(uTexture1, ioTextureUV);
+	}
+
+	if (uTexture[2]) {
+		Color += 0.01 * texture(uTexture2, ioTextureUV);
+	}
 }
