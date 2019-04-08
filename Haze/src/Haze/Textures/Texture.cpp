@@ -94,7 +94,7 @@ namespace Haze
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture->_Width, texture->_Height, 0, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+			glTexImage2D(GL_TEXTURE_2D, 0, texture->_Format, texture->_Width, texture->_Height, 0, texture->_Format, GL_UNSIGNED_BYTE, buffer);
 
 			stbi_image_free(buffer);
 

@@ -8,6 +8,8 @@
 #include "imgui.h"
 #include "STB/stb_image.h"
 
+#define UUID(name, i, j, k) std::string(name"##uuid" + std::to_string(i * 100000 + j * 1000 + k)).c_str()
+
 namespace Haze 
 {
 
@@ -67,7 +69,62 @@ namespace Haze
 			ImGui::End();
 		};
 
+		static bool win_list_object_show = false;
+		static auto win_list_object = [this]() {
+			ImGui::Begin("Objects", &win_list_object_show);
+
+			for (unsigned int i = 0; i < _Scene->Objects.size(); i++) {
+				auto object = _Scene->Objects[i];
+				auto model = object->Model;
+				auto& matrix = object->Matrix;
+
+				if (ImGui::CollapsingHeader(UUID("Object", 0, 0, 1))) {
+					if (ImGui::TreeNode(std::string("Meshes##" + std::to_string(i)).c_str())) {
+						for (unsigned int j = 0; j < model->Meshes.size(); j++) {
+							if (ImGui::TreeNode(std::string(std::to_string(j) + "##" + std::to_string(i)).c_str())) {
+								ImGui::Text("Vertices");	ImGui::SameLine(200);	ImGui::Text("%d", model->Meshes[j]->Vertices.size());
+								ImGui::Text("Triangles");	ImGui::SameLine(200);	ImGui::Text("%d", model->Meshes[j]->Triangles.size());
+
+								if (ImGui::TreeNode(std::string("Textures##" + std::to_string(i)).c_str())) {
+									static std::string textureNames[] = { "Diffuse", "Normal", "Specular" };
+									for (unsigned int k = 0; k < 3; k++) {
+										if (model->Meshes[j]->Textures[k]) {
+											if (ImGui::TreeNode(std::string(textureNames[k] + "##" + std::to_string(i * 100000 + j * 1000 + k)).c_str())) {
+												auto texture = model->Meshes[j]->Textures[k];
+
+												ImGui::Text("Width"); ImGui::SameLine(200); ImGui::Text("%d", texture->_Width);
+												ImGui::Text("Height"); ImGui::SameLine(200); ImGui::Text("%d", texture->_Height);
+												ImGui::Text("Channels"); ImGui::SameLine(200); ImGui::Text("%d", texture->_PPM);
+												ImGui::Spacing();
+												ImGui::Text("Binds"); ImGui::SameLine(200); ImGui::Text("%d", texture->_TotalBinds);
+												ImGui::TreePop();
+											}
+										}
+									}
+									ImGui::TreePop();
+								}
+
+								ImGui::TreePop();
+							}
+						}
+
+						ImGui::TreePop();
+					}
+					if (ImGui::TreeNode(std::string("Transformations##" + std::to_string(i)).c_str())) {
+						ImGui::Text("Position:"); ImGui::SameLine(200); if (ImGui::InputFloat3(std::string("##pos" + std::to_string(i)).c_str(), &matrix._Position.x)) matrix.UpdateMatrices(true);
+						ImGui::Text("Scale:"); ImGui::SameLine(200); if (ImGui::SliderFloat3(std::string("##scl" + std::to_string(i)).c_str(), &matrix._Scale.x, 0.1f, 10.0f, "%.1f")) matrix.UpdateMatrices(true);
+						ImGui::Text("Rotation:"); ImGui::SameLine(200); if (ImGui::SliderFloat3(std::string("##rot" + std::to_string(i)).c_str(), &matrix._Rotation.x, -3.14f, 3.14f, "%.2f")) matrix.UpdateMatrices(true);
+						ImGui::TreePop();
+					}
+				}
+			}
+
+			ImGui::End();
+
+		};
+
 		if (win_load_object_show) win_load_object();
+		if (win_list_object_show) win_list_object();
 
 		ImGui::Begin("Scene Editor", 0, ImGuiWindowFlags_MenuBar);
 
@@ -76,6 +133,12 @@ namespace Haze
 			if (ImGui::BeginMenu("Add")) 
 			{
 				ImGui::MenuItem("Object", NULL, &win_load_object_show);
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Scene")) 
+			{
+				ImGui::MenuItem("Objects", NULL, &win_list_object_show);
 				ImGui::EndMenu();
 			}
 
@@ -93,65 +156,7 @@ namespace Haze
 		ImGui::End();
 
 
-		// TODO: Refactor & Add better controlls
-	
-
-		ImGui::Begin("old Editor");
-
-
-
-		for (unsigned int i = 0; i < _Scene->Objects.size(); i++)
-		{
-			auto object = _Scene->Objects[i];
-			auto model = object->Model;
-			auto& matrix = object->Matrix;
-
-			if (ImGui::CollapsingHeader(std::string("Object " + std::to_string(i)).c_str()))
-			{
-				if (ImGui::TreeNode(std::string("Meshes##" + std::to_string(i)).c_str())) 
-				{
-					for (unsigned int j = 0; j < model->Meshes.size(); j++) {
-						if (ImGui::TreeNode(std::string(std::to_string(j) + "##" + std::to_string(i)).c_str())) {
-							ImGui::Text("Vertices");	ImGui::SameLine(200);	ImGui::Text("%d", model->Meshes[j]->Vertices.size());
-							ImGui::Text("Triangles");	ImGui::SameLine(200);	ImGui::Text("%d", model->Meshes[j]->Triangles.size());
-
-							if (ImGui::TreeNode(std::string("Textures##" + std::to_string(i)).c_str())) 
-							{
-								static std::string textureNames[] = { "Diffuse", "Normal", "Specular" };
-								for (unsigned int k = 0; k < 3; k++) {
-									if (model->Meshes[j]->Textures[k]) {
-										if (ImGui::TreeNode(std::string(textureNames[k] + "##" + std::to_string(i * 100000 + j * 1000 + k)).c_str())) {
-											auto texture = model->Meshes[j]->Textures[k];
-
-											ImGui::Text("Width"); ImGui::SameLine(200); ImGui::Text("%d", texture->_Width);
-											ImGui::Text("Height"); ImGui::SameLine(200); ImGui::Text("%d", texture->_Height);
-											ImGui::Text("Channels"); ImGui::SameLine(200); ImGui::Text("%d", texture->_PPM);
-											ImGui::Spacing();
-											ImGui::Text("Binds"); ImGui::SameLine(200); ImGui::Text("%d", texture->_TotalBinds);
-											ImGui::TreePop();
-										}
-									}
-								}
-								ImGui::TreePop();
-							}
-
-							ImGui::TreePop();
-						}
-					}
-
-					ImGui::TreePop();
-				}
-				if (ImGui::TreeNode(std::string("Transformations##" + std::to_string(i)).c_str())) {
-					ImGui::Text("Position:"); ImGui::SameLine(200); if (ImGui::InputFloat3(std::string("##pos" + std::to_string(i)).c_str(), &matrix._Position.x)) matrix.UpdateMatrices(true);
-					ImGui::Text("Scale:"); ImGui::SameLine(200); if (ImGui::SliderFloat3(std::string("##scl" + std::to_string(i)).c_str(), &matrix._Scale.x, 0.1f, 10.0f, "%.1f")) matrix.UpdateMatrices(true);
-					ImGui::Text("Rotation:"); ImGui::SameLine(200); if (ImGui::SliderFloat3(std::string("##rot" + std::to_string(i)).c_str(), &matrix._Rotation.x, -3.14f, 3.14f, "%.2f")) matrix.UpdateMatrices(true);
-					ImGui::TreePop();
-				}
-			}
-		}
-
-		ImGui::End();
-
+		// TODO: Refactor & Add better control
 		ImGui::Begin("Camera control");
 
 		static bool ray = false;
