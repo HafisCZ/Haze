@@ -26,8 +26,6 @@ namespace Haze
 
 			Camera* _Camera = new Camera();
 			Scene* _Scene = new Scene();
-
-			glm::vec4 _Color = glm::vec4(1.0f);
 	};
 
 }

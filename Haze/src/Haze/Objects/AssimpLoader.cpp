@@ -23,7 +23,10 @@ namespace Haze
 			return nullptr;
 		}
 
-		std::string directory = path.substr(0, path.find_last_of('/'));
+		std::string pathFS = path;
+		std::replace(pathFS.begin(), pathFS.end(), '\\', '/');
+
+		std::string directory = pathFS.substr(0, pathFS.find_last_of('/'));
 
 		const static std::function<glm::vec3(const aiVector3D&)> vec3(
 			[](const aiVector3D& vec) -> glm::vec3 { return glm::vec3(vec.x, vec.y, vec.z); }
@@ -62,9 +65,22 @@ namespace Haze
 					}
 				}
 
+				aiMaterial* materials = scene->mMaterials[mesh->mMaterialIndex];
+
+				const auto loadMaterial = [&](aiTextureType type) -> Texture* {
+					if (materials->GetTextureCount(type) > 0) 
+					{
+						aiString filename;
+						materials->GetTexture(type, 0, &filename);
+	
+						return TextureLoader::Load(directory + '/' + std::string(filename.C_Str()));
+					}
+					return nullptr;
+				};
+
 				if (indices.size() % 3 != 0) 
 				{
-					HZ_CORE_ERROR("Found {0} extra indices!", indices.size() % 3);
+					HZ_CORE_ERROR("Incompatible model! Model has to be composed only of triangles!");
 				}
 
 				std::vector<Triangle> triangles(indices.size() / 3);
@@ -72,7 +88,18 @@ namespace Haze
 					triangles[i] = { indices[i * 3 + 0], indices[i * 3 + 1], indices[i * 3 + 2] };
 				}
 
-				model->Meshes.push_back(new Mesh(vertices, triangles));
+				Texture* textures[3];
+				textures[0] = loadMaterial(aiTextureType_DIFFUSE);
+				textures[1] = loadMaterial(aiTextureType_HEIGHT);
+				textures[2] = loadMaterial(aiTextureType_SPECULAR);
+
+				Mesh* modelMesh = new Mesh(vertices, triangles);
+				for (unsigned int i = 0; i < 3; i++) 
+				{
+					modelMesh->Textures[i] = textures[i];
+				}
+
+				model->Meshes.push_back(modelMesh);
 			}
 		);
 

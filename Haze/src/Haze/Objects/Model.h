@@ -4,6 +4,7 @@
 
 #include "Haze/Buffers/IndexBuffer.h"
 #include "Haze/Buffers/VertexArray.h"
+#include "Haze/Textures/Texture.h"
 
 #include <vector>
 
@@ -36,6 +37,8 @@ namespace Haze
 			VertexArray* VAO;
 			IndexBuffer* IBO;
 			VertexBuffer* VBO;
+
+			Texture* Textures[3];
 	};
 
 	class HAZE_API Model 

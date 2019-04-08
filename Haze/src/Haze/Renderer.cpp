@@ -14,11 +14,19 @@ namespace Haze
 	{
 		for (auto o : _Scene->Objects) {
 			_Program->Bind();
-			_Program->SetUniform("uColor", _Color);
+			_Program->SetUniform("uColor", glm::vec4(1.0f));
 			_Program->SetUniform("uModelViewProjectionMatrix", _Camera->GetProjectionMatrix() * _Camera->GetViewMatrix() * (glm::mat4) o->Matrix);
 
 			for (auto m : o->Model->Meshes)
 			{
+				_Program->SetUniform("uTexture[0]", m->Textures[0] != nullptr);
+				_Program->SetUniform("uTexture[1]", m->Textures[1] != nullptr);
+				_Program->SetUniform("uTexture[2]", m->Textures[2] != nullptr);
+
+				_Program->SetUniform("uTexture0", TextureAllocator::Bind(m->Textures[0]));
+				_Program->SetUniform("uTexture1", TextureAllocator::Bind(m->Textures[1]));
+				_Program->SetUniform("uTexture2", TextureAllocator::Bind(m->Textures[2]));
+
 				m->VAO->Bind();
 				m->IBO->Bind();
 				glDrawElements(GL_TRIANGLES, m->Triangles.size() * 3, GL_UNSIGNED_INT, nullptr);
@@ -60,19 +68,33 @@ namespace Haze
 						if (ImGui::TreeNode(std::string(std::to_string(j) + "##" + std::to_string(i)).c_str())) {
 							ImGui::Text("Vertices");	ImGui::SameLine(200);	ImGui::Text("%d", model->Meshes[j]->Vertices.size());
 							ImGui::Text("Triangles");	ImGui::SameLine(200);	ImGui::Text("%d", model->Meshes[j]->Triangles.size());
+
+							if (ImGui::TreeNode(std::string("Textures##" + std::to_string(i)).c_str())) 
+							{
+								static std::string textureNames[] = { "Diffuse", "Normal", "Specular" };
+								for (unsigned int k = 0; k < 3; k++) {
+									if (model->Meshes[j]->Textures[k]) {
+										if (ImGui::TreeNode(std::string(textureNames[k] + "##" + std::to_string(i * 100000 + j * 1000 + k)).c_str())) {
+											auto texture = model->Meshes[j]->Textures[k];
+
+											ImGui::Text("Width"); ImGui::SameLine(200); ImGui::Text("%d", texture->_Width);
+											ImGui::Text("Height"); ImGui::SameLine(200); ImGui::Text("%d", texture->_Height);
+											ImGui::Text("Channels"); ImGui::SameLine(200); ImGui::Text("%d", texture->_PPM);
+											ImGui::Spacing();
+											ImGui::Text("Binds"); ImGui::SameLine(200); ImGui::Text("%d", texture->_TotalBinds);
+											ImGui::TreePop();
+										}
+									}
+								}
+								ImGui::TreePop();
+							}
+
 							ImGui::TreePop();
 						}
 					}
 
 					ImGui::TreePop();
 				}
-
-				if (ImGui::TreeNode(std::string("Textures##" + std::to_string(i)).c_str())) 
-				{
-					ImGui::Text("Unimplemented");
-					ImGui::TreePop();
-				}
-
 				if (ImGui::TreeNode(std::string("Transformations##" + std::to_string(i)).c_str())) {
 					ImGui::Text("Position:"); ImGui::SameLine(200); if (ImGui::InputFloat3(std::string("##pos" + std::to_string(i)).c_str(), &matrix._Position.x)) matrix.UpdateMatrices(true);
 					ImGui::Text("Scale:"); ImGui::SameLine(200); if (ImGui::SliderFloat3(std::string("##scl" + std::to_string(i)).c_str(), &matrix._Scale.x, 0.1f, 10.0f, "%.1f")) matrix.UpdateMatrices(true);

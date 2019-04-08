@@ -28,6 +28,11 @@ namespace Haze
 
 	unsigned int TextureAllocator::BindImpl(Texture* texture) 
 	{
+		if (texture == nullptr) 
+		{
+			return 0;
+		}
+
 		unsigned int selected = 0;
 		unsigned long minBindings = -1;
 
