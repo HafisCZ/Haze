@@ -225,7 +225,14 @@ namespace Haze
 				auto model = object->Model;
 				auto& matrix = object->Matrix;
 
-				if (ImGui::CollapsingHeader(UUID1("Object", i)))
+				bool headerExpanded = ImGui::CollapsingHeader(UUID("Object " + std::to_string(i), i, 0, 0), ImGuiTreeNodeFlags_AllowOverlapMode);
+				ImGui::SameLine(ImGui::GetWindowWidth() - 55);
+				if (ImGui::Button(UUID1("Remove", i))) {
+					_Scene->Objects.erase(_Scene->Objects.begin() + i);
+					break;
+				}
+
+				if (headerExpanded)
 				{
 					if (ImGui::TreeNode(UUID1("Meshes", i))) 
 					{
@@ -465,6 +472,35 @@ namespace Haze
 			ImGui::Separator();
 
 			ImGui::MenuItem("Camera controls", NULL, &win_camera_show);
+
+			ImGui::Separator();
+			ImGui::Separator();
+
+			if (ImGui::BeginMenu("Scene presets")) 
+			{
+				if (ImGui::MenuItem("Box")) 
+				{
+					_Scene->Objects.clear();
+					_Scene->Lights->Point.clear();
+
+					load_object("E:/cube.obj");
+				}
+
+				if (ImGui::MenuItem("Shadows"))
+				{
+					_Scene->Objects.clear();
+					_Scene->Lights->Point.clear();
+
+					load_object("E:/cube.obj");
+					load_object("E:/cube.obj");
+
+					_Scene->Lights->Point.push_back(new PointLight(glm::vec3(0.8f), glm::vec3(0.0f), 1.0, 0.0, 0.007, 0.0002, true));
+					_Scene->Objects[0]->Matrix.SetPosition(glm::vec3(0, 0, 5));
+					_Scene->Objects[1]->Matrix.SetPosition(glm::vec3(0, 2, 8));
+				}
+
+				ImGui::EndMenu();
+			}
 
 			ImGui::EndMainMenuBar();
 		}

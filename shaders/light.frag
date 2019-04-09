@@ -110,7 +110,7 @@ void main()
 				float inte = uLight[i].Shadow ? 1.0 - getFragmentShadow(fragpos, uLight[i].Position, sid++) : 1.0;
 				vec3 diffcol = (uLight[i].Color * uLight[i].Diffuse * diff) * atte;
 				vec3 speccol = (uLight[i].Color * uLight[i].Specular * spec) * atte;
-				color += (diffuse * diffcol + specular * speccol);
+				color += (diffuse * diffcol + specular * speccol) * inte;
 			}
 		}
 
