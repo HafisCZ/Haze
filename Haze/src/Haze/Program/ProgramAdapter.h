@@ -147,4 +147,15 @@ namespace Haze
 		MESH SKIP
 	};
 
+	CUSTOM_ADAPTER(SkyboxAdapter) {
+		SCENE {
+			_Program->SetUniform("uTranslatedViewMatrix", glm::mat4(glm::mat3(camera->GetViewMatrix())));
+			_Program->SetUniform("uProjectionMatrix", camera->GetProjectionMatrix());
+			_Program->SetUniform("uTextureCube", TextureAllocator::Bind(scene->Skybox));
+		}
+
+		OBJECT SKIP
+		MESH SKIP
+	};
+
 }

@@ -77,6 +77,11 @@ namespace Haze
 		glBindTexture(GL_TEXTURE_2D, _Handle);
 	}
 
+	void TextureCube::Bind() {
+		_TotalBinds++;
+		glBindTexture(GL_TEXTURE_CUBE_MAP, _Handle);
+	}
+
 	Texture* TextureLoader::Load(const std::string& path) 
 	{
 		Texture* texture = new Texture2D();
@@ -104,6 +109,50 @@ namespace Haze
 			HZ_CORE_ERROR("Texture loader error: {0}", stbi_failure_reason());
 			return nullptr;
 		}
+	}
+
+	Texture* TextureLoader::LoadCube(const std::string& path)
+	{
+		Texture* texture = new TextureCube();
+
+		std::vector<std::string> textures;
+		std::ifstream in(path);
+
+		if (in.is_open())
+		{
+			std::string tmp;
+			while (in >> tmp) textures.push_back(tmp);
+
+			in.close();
+
+			if (textures.size() == 6) 
+			{
+				glBindTexture(GL_TEXTURE_CUBE_MAP, texture->_Handle);
+
+				for (unsigned int i = 0; i < 6; i++) 
+				{
+					int x, y, pp;
+					void* buffer = stbi_load(textures[i].c_str(), &x, &y, &pp, 0);
+					if (buffer) {
+						glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, x, y, 0, GL_RGB, GL_UNSIGNED_BYTE, buffer);
+						stbi_image_free(buffer);
+					} else {
+						return nullptr;
+					}
+				}
+
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+				return texture;
+			}
+		}
+
+		HZ_CORE_ERROR("Texture loader error! Cannot load cube texture.");
+		return nullptr;
 	}
 
 }

@@ -19,7 +19,8 @@ namespace Haze
 				_Buffer(1280, 720),
 				_GeometryAdapter(new GeometryPassAdapter(new Program("../shaders/geom", ShaderTypeFragment | ShaderTypeVertex))),
 				_ShadingAdapter(new ShadingPassAdapter(new Program("../shaders/shade", ShaderTypeGeometry | ShaderTypeFragment | ShaderTypeVertex))),
-				_LightingAdapter (new LightPassAdapter(new Program("../shaders/light", ShaderTypeFragment | ShaderTypeVertex)))
+				_LightingAdapter(new LightPassAdapter(new Program("../shaders/light", ShaderTypeFragment | ShaderTypeVertex))),
+				_SkyboxAdapter(new SkyboxAdapter(new Program("../shaders/skybox", ShaderTypeFragment | ShaderTypeVertex)))
 			{ 
 				Program* prog = _LightingAdapter->GetProgram();
 				
@@ -49,6 +50,7 @@ namespace Haze
 			ProgramAdapter* _GeometryAdapter;
 			ProgramAdapter* _ShadingAdapter;
 			ProgramAdapter* _LightingAdapter;
+			ProgramAdapter* _SkyboxAdapter;
 
 			Camera* _Camera = new Camera();
 			Scene* _Scene = new Scene();

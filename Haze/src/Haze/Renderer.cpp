@@ -144,6 +144,78 @@ namespace Haze
 		DrawQuad();
 
 		_Buffer.Copy();
+
+		// OPT FORWARD STEP HERE
+
+		if (_Scene->Skybox) {
+			static unsigned int vao = []() -> unsigned int {
+				static float vertices[] = {
+					-1.0f,  1.0f, -1.0f,
+					-1.0f, -1.0f, -1.0f,
+					 1.0f, -1.0f, -1.0f,
+					 1.0f, -1.0f, -1.0f,
+					 1.0f,  1.0f, -1.0f,
+					-1.0f,  1.0f, -1.0f,
+
+					-1.0f, -1.0f,  1.0f,
+					-1.0f, -1.0f, -1.0f,
+					-1.0f,  1.0f, -1.0f,
+					-1.0f,  1.0f, -1.0f,
+					-1.0f,  1.0f,  1.0f,
+					-1.0f, -1.0f,  1.0f,
+
+					 1.0f, -1.0f, -1.0f,
+					 1.0f, -1.0f,  1.0f,
+					 1.0f,  1.0f,  1.0f,
+					 1.0f,  1.0f,  1.0f,
+					 1.0f,  1.0f, -1.0f,
+					 1.0f, -1.0f, -1.0f,
+
+					-1.0f, -1.0f,  1.0f,
+					-1.0f,  1.0f,  1.0f,
+					 1.0f,  1.0f,  1.0f,
+					 1.0f,  1.0f,  1.0f,
+					 1.0f, -1.0f,  1.0f,
+					-1.0f, -1.0f,  1.0f,
+
+					-1.0f,  1.0f, -1.0f,
+					 1.0f,  1.0f, -1.0f,
+					 1.0f,  1.0f,  1.0f,
+					 1.0f,  1.0f,  1.0f,
+					-1.0f,  1.0f,  1.0f,
+					-1.0f,  1.0f, -1.0f,
+
+					-1.0f, -1.0f, -1.0f,
+					-1.0f, -1.0f,  1.0f,
+					 1.0f, -1.0f, -1.0f,
+					 1.0f, -1.0f, -1.0f,
+					-1.0f, -1.0f,  1.0f,
+					 1.0f, -1.0f,  1.0f
+				};
+
+				unsigned int vao, vbo;
+				glGenVertexArrays(1, &vao);
+				glBindVertexArray(vao);
+				glGenBuffers(1, &vbo);
+				glBindBuffer(GL_ARRAY_BUFFER, vbo);
+				glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+				glEnableVertexAttribArray(0);
+				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
+				return vao;
+			}();
+
+			glDepthFunc(GL_LEQUAL);
+
+			_SkyboxAdapter->Bind();
+			_SkyboxAdapter->Set(_Scene, _Camera);
+
+			glBindVertexArray(vao);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+
+			TextureAllocator::Flush();
+
+			glDepthFunc(GL_LESS);
+		}
 	}
 
 	void RendererLayer::DrawQuad() 
@@ -181,6 +253,25 @@ namespace Haze
 				object->Model = model;
 				_Scene->Objects.push_back(object);
 			}
+		};
+
+		static bool win_load_skybox_show = false;
+		static auto win_load_skybox = [this]() {
+			ImGui::Begin("Set skybox", &win_load_skybox_show, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+			ImGui::SetWindowSize("Add new object", ImVec2(400, 50));
+
+			ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "File");
+
+			ImGui::PushItemWidth(350);
+			static std::array<char, 200> buffer;
+			if (ImGui::InputText("##skyboxfile", buffer.data(), buffer.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
+				if (_Scene->Skybox) delete _Scene->Skybox;
+				_Scene->Skybox = (TextureCube*) TextureLoader::LoadCube(std::string(buffer.data()));
+
+				win_load_skybox_show = false;
+			}
+
+			ImGui::End();
 		};
 
 		static bool win_load_object_show = false;
@@ -229,6 +320,7 @@ namespace Haze
 				ImGui::SameLine(ImGui::GetWindowWidth() - 55);
 				if (ImGui::Button(UUID1("Remove", i))) {
 					_Scene->Objects.erase(_Scene->Objects.begin() + i);
+					delete object;
 					break;
 				}
 
@@ -393,7 +485,9 @@ namespace Haze
 				ImGui::SameLine(ImGui::GetWindowWidth() - 55);
 				if (ImGui::Button(UUID1("Remove", i))) 
 				{
+					auto l = _Scene->Lights->Point[i];
 					_Scene->Lights->Point.erase(_Scene->Lights->Point.begin() + i);
+					delete l;
 					break;
 				}
 
@@ -420,6 +514,10 @@ namespace Haze
 					ImGui::Spacing();
 
 					ImGui::Checkbox(UUID1("Casts shadow", i), &_Scene->Lights->Point[i]->IsCastingShadow());
+					ImGui::Separator();
+					if (ImGui::Button("Set using camera")) {
+						_Scene->Lights->Point[i]->GetData()[1] = _Camera->GetWorldPosition();
+					}
 				}
 
 				ImGui::Spacing();
@@ -431,6 +529,7 @@ namespace Haze
 		if (win_load_object_show) win_load_object();
 		if (win_list_object_show) win_list_object();
 		if (win_list_light_show) win_list_light();
+		if (win_load_skybox_show) win_load_skybox();
 		if (win_camera_show) win_camera();
 
 		if (ImGui::BeginMainMenuBar()) 
@@ -472,6 +571,10 @@ namespace Haze
 			ImGui::Separator();
 
 			ImGui::MenuItem("Camera controls", NULL, &win_camera_show);
+
+			ImGui::Separator();
+
+			ImGui::MenuItem("Set skybox", NULL, &win_load_skybox_show);
 
 			ImGui::Separator();
 			ImGui::Separator();

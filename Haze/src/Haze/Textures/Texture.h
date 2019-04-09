@@ -59,10 +59,20 @@ namespace Haze
 			virtual void Bind() override;
 	};
 
+	class HAZE_API TextureCube : public Texture 
+	{
+		public:
+			TextureCube() : Texture() {}
+
+		private:
+			virtual void Bind() override;
+	};
+
 	class HAZE_API TextureLoader 
 	{
 		public:
 			static Texture* Load(const std::string& path);
+			static Texture* LoadCube(const std::string& path);
 	};
 	
 }

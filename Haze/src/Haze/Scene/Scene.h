@@ -45,10 +45,12 @@ namespace Haze
 			Model* Model;
 			ModelMatrix Matrix;
 	};
-
-	class HAZE_API Scene {
+	
+	class HAZE_API Scene 
+	{
 		private:
-			struct LightContainer {
+			struct LightContainer
+			{
 				Light* Ambient = new AmbientLight(glm::vec3(1.0f), 0.1f);
 				Light* Vector = new VectorLight(glm::vec3(1.0f), glm::vec3(0.0f), 0.1f, 0.1f);
 				std::vector<Light*> Point;
@@ -57,6 +59,7 @@ namespace Haze
 		public:
 			std::vector<Object*> Objects;
 			LightContainer* Lights = new LightContainer();
+			TextureCube* Skybox;
 	};
 
 }
