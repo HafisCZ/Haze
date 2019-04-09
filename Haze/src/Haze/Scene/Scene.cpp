@@ -20,7 +20,7 @@ namespace Haze
 
 			_TempMatrix = glm::scale(_TempMatrix, _Scale);
 
-			_TempMatrixI = glm::inverse(_TempMatrix);
+			_TempMatrixI = glm::transpose(glm::inverse(_TempMatrix));
 
 			_Invalid = false;
 		}

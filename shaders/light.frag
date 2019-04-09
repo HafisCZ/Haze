@@ -41,6 +41,8 @@ uniform LightAmbient uAmbientLight;
 
 uniform vec3 uCameraPosition;
 
+uniform int uDrawMode = 0;
+
 in vec2 ioTextureUV;
 
 vec3 samples[20] = vec3[] 
@@ -72,7 +74,7 @@ float getFragmentShadow(vec3 fragpos, vec3 lightpos, int sid)
 	return shadow / 20.0;
 }
 
-vec3 getVectorLight(vec3 diff, float spec, vec3 norm, vec3 viewdir) 
+vec3 getVectorLight(vec3 diff, float spec, vec3 norm, vec3 viewdir, vec3 fragpos) 
 {
 	vec3 lightdir = normalize(-uVectorLight.Direction);
 	float diffuse = max(dot(norm, lightdir), 0.0);
@@ -89,34 +91,54 @@ void main()
 	float specular = texture(uAlbedoSpecular, ioTextureUV).a;
 
 	vec3 color = vec3(0.0);
-	vec3 viewdir = normalize(uCameraPosition - fragpos);
 
-	int sid = 0;
-	for (int i = 0; i < min(uLightCount, 64); ++i) 
+	if (uDrawMode == 0) 
 	{
-		float distance = length(uLight[i].Position - fragpos);
-		if (distance < uLight[i].Radius) 
+		vec3 viewdir = normalize(uCameraPosition - fragpos);
+
+		int sid = 0;
+		for (int i = 0; i < min(uLightCount, 64); ++i) 
 		{
-			vec3 lightdir = normalize(uLight[i].Position - fragpos);
-			float diff = max(dot(lightdir, normal), 0.0);
-			vec3 halfdir = normalize(lightdir + viewdir);
-			float spec = pow(max(dot(normal, halfdir), 0.0), 32.0);
-			float atte = 1.0 / (1.0 + uLight[i].Linear * distance + uLight[i].Quadratic * distance * distance);
-			float inte = uLight[i].Shadow ? 1.0 - getFragmentShadow(fragpos, uLight[i].Position, sid++) : 1.0;
-			vec3 diffcol = (uLight[i].Color * uLight[i].Diffuse * diff) * atte;
-			vec3 speccol = (uLight[i].Color * uLight[i].Specular * spec) * atte;
-			color += (diffuse * diffcol + specular * speccol);
+			float distance = length(uLight[i].Position - fragpos);
+			if (distance < uLight[i].Radius) 
+			{
+				vec3 lightdir = normalize(uLight[i].Position - fragpos);
+				float diff = max(dot(lightdir, normal), 0.0);
+				vec3 halfdir = normalize(lightdir + viewdir);
+				float spec = pow(max(dot(normal, halfdir), 0.0), 32.0);
+				float atte = 1.0 / (1.0 + uLight[i].Linear * distance + uLight[i].Quadratic * distance * distance);
+				float inte = uLight[i].Shadow ? 1.0 - getFragmentShadow(fragpos, uLight[i].Position, sid++) : 1.0;
+				vec3 diffcol = (uLight[i].Color * uLight[i].Diffuse * diff) * atte;
+				vec3 speccol = (uLight[i].Color * uLight[i].Specular * spec) * atte;
+				color += (diffuse * diffcol + specular * speccol);
+			}
 		}
-	}
 
-	if (uVectorLight.Enabled) 
-	{
-		color += getVectorLight(diffuse, specular, normal, viewdir);
-	}
+		if (uVectorLight.Enabled) 
+		{
+			color += getVectorLight(diffuse, specular, normal, viewdir, fragpos);
+		}
 
-	if (uAmbientLight.Enabled) 
+		if (uAmbientLight.Enabled) 
+		{
+			color += diffuse * uAmbientLight.Color * uAmbientLight.Intensity.x;
+		}
+	} 
+	else if (uDrawMode == 1) 
 	{
-		color += diffuse * uAmbientLight.Color * uAmbientLight.Intensity.x;
+		color = fragpos;
+	}
+	else if (uDrawMode == 2) 
+	{
+		color = normal;
+	}
+	else if (uDrawMode == 3) 
+	{
+		color = diffuse;
+	}
+	else 
+	{
+		color = vec3(1.0);
 	}
 
 	FragmentColor = vec4(color, 1.0);

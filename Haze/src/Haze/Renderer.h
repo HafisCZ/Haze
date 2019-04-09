@@ -20,7 +20,6 @@ namespace Haze
 				_GeometryAdapter(new GeometryPassAdapter(new Program("../shaders/geom", ShaderTypeFragment | ShaderTypeVertex))),
 				_ShadingAdapter(new ShadingPassAdapter(new Program("../shaders/shade", ShaderTypeGeometry | ShaderTypeFragment | ShaderTypeVertex))),
 				_LightingAdapter (new LightPassAdapter(new Program("../shaders/light", ShaderTypeFragment | ShaderTypeVertex)))
-
 			{ 
 				Program* prog = _LightingAdapter->GetProgram();
 				

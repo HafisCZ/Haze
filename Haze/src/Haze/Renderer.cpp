@@ -53,7 +53,7 @@ namespace Haze
 
 		_Buffer.Unbind();
 
-		if ([this]() -> bool { for (auto l : _Scene->Lights->Point) if (l->GetType() == POINT_SHADOW) return true; return false; }()) 
+		if ([this]() -> bool { for (auto l : _Scene->Lights->Point) if (l->IsCastingShadow()) return true; return false; }()) 
 		{
 			glDisable(GL_CULL_FACE);
 			_ShadingBuffer.Bind();
@@ -318,7 +318,11 @@ namespace Haze
 					ImGui::Spacing();
 
 					ImGui::InputFloat(UUID1("Linear attenuation", i), &light[3].y);
-					ImGui::InputFloat(UUID1("Quad attenuation", i), &light[3].z);
+					ImGui::InputFloat(UUID1("Quad attenuation", i), &light[3].z, 0.0f, 0.0f, "%.4f");
+
+					ImGui::Spacing();
+
+					ImGui::Checkbox(UUID1("Casts shadow", i), &_Scene->Lights->Point[i]->IsCastingShadow());
 				}
 
 				ImGui::Spacing();

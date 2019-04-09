@@ -35,7 +35,8 @@ namespace Haze
 
 	CUSTOM_ADAPTER(GeometryPassAdapter) {
 		SCENE {
-			_Program->SetUniform("uViewProjectionMatrix", camera->GetProjectionMatrix() * camera->GetViewMatrix());
+			_Program->SetUniform("uProjectionMatrix", camera->GetProjectionMatrix());
+			_Program->SetUniform("uViewMatrix", camera->GetViewMatrix());
 		}
 
 		OBJECT {
@@ -66,7 +67,7 @@ namespace Haze
 			unsigned int index = 0;
 			for (auto light : scene->Lights->Point) 
 			{
-				if (light->GetType() != POINT_SHADOW) 
+				if (!light->IsCastingShadow())
 				{
 					continue;
 				}
@@ -119,7 +120,7 @@ namespace Haze
 				float radius = (-linear + std::sqrt(linear * linear - 4 * quadratic * (constant - (256.0f / 5.0f) * maxBrightness))) / (2.0f * quadratic);
 
 				_Program->SetUniform("uLight[" + std::to_string(index) + "].Radius", radius);
-				_Program->SetUniform("uLight[" + std::to_string(index) + "].Shadow", light->GetType() == POINT_SHADOW);
+				_Program->SetUniform("uLight[" + std::to_string(index) + "].Shadow", light->IsCastingShadow());
 
 				index++;
 			}

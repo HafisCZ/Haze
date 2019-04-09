@@ -9,7 +9,7 @@ namespace Haze
 {
 
 	enum LightType {
-		AMBIENT, VECTOR, POINT, POINT_SHADOW
+		AMBIENT, VECTOR, POINT
 	};
 
 	class HAZE_API Light 
@@ -19,15 +19,18 @@ namespace Haze
 
 			inline LightType GetType() const { return _Type; }
 			inline std::array<glm::vec3, 4>& GetData() { return _Data; }
+			inline bool& IsCastingShadow() { return _Shadow; }
 
 		protected:
 			void Color(glm::vec3 color) { _Data[0] = color; }
 			void Vector(glm::vec3 vector) { _Data[1] = vector; }
 			void Intensity(glm::vec3 intensity) { _Data[2] = intensity; }
 			void Attenuation(glm::vec3 attenuation) { _Data[3] = attenuation; }
+			void Shadow(bool shadow) { _Shadow = shadow; }
 
 		protected:
 			LightType _Type;
+			bool _Shadow;
 			std::array<glm::vec3, 4> _Data;
 	};
 
@@ -54,11 +57,12 @@ namespace Haze
 
 	class HAZE_API PointLight : public Light {
 		public:
-			PointLight(glm::vec3 color, glm::vec3 position, float di, float si, float la, float qa, bool shadow = false) : Light(shadow ? POINT_SHADOW : POINT) {
+			PointLight(glm::vec3 color, glm::vec3 position, float di, float si, float la, float qa, bool shadow = false) : Light(POINT) {
 				Color(color);
 				Vector(position);
 				Intensity({ 0, di, si });
 				Attenuation({ 1, la, qa });
+				Shadow(shadow);
 			}
 	};
 
