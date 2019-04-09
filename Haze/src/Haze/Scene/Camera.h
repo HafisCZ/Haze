@@ -26,6 +26,8 @@ namespace Haze
 			void Move(float x, float y, float z);
 			void Look(float y, float p);
 
+			void SetSpeed(float move, float look);
+
 		private:
 			void UpdateMatrices();
 			
@@ -46,6 +48,9 @@ namespace Haze
 
 			float _Pitch;
 			float _Yaw;
+
+			float _MoveSpeed;
+			float _LookSpeed;
 	};
 
 }

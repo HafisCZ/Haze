@@ -46,7 +46,10 @@ namespace Haze
 			style.WindowRounding = 0.0f;
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
-		
+
+		io.ConfigDockingWithShift = true;
+		io.ConfigWindowsMoveFromTitleBarOnly = true;
+
 		Application& app = Application::Get();
 		GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
 

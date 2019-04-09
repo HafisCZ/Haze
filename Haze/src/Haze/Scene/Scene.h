@@ -49,8 +49,8 @@ namespace Haze
 	class HAZE_API Scene {
 		private:
 			struct LightContainer {
-				Light* Ambient;
-				Light* Vector;
+				Light* Ambient = new AmbientLight(glm::vec3(1.0f), 0.1f);
+				Light* Vector = new VectorLight(glm::vec3(1.0f), glm::vec3(0.0f), 0.1f, 0.1f);
 				std::vector<Light*> Point;
 			};
 

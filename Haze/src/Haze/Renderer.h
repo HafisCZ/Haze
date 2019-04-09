@@ -32,12 +32,8 @@ namespace Haze
 
 			void OnUpdate() override;
 			void OnImGuiRender() override;
-
-			void OnEvent(Event& event) override {
-				if (event.GetEventType() == EventType::WindowResize) {
-					_Camera->OnWindowResizeEvent((WindowResizeEvent&) event);
-				}
-			}
+			
+			void OnEvent(Event& event) override;
 
 		private:
 			void Draw(Mesh* mesh);
@@ -48,6 +44,8 @@ namespace Haze
 			GBuffer _Buffer;
 			CubeFramebufferArray _ShadingBuffer;
 
+			int _Mode = 0;
+			
 			ProgramAdapter* _GeometryAdapter;
 			ProgramAdapter* _ShadingAdapter;
 			ProgramAdapter* _LightingAdapter;

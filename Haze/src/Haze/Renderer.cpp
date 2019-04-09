@@ -2,6 +2,10 @@
 #include "Renderer.h"
 
 #include "Program/ProgramAdapter.h"
+#include "Input.h"
+#include "MouseButtonCodes.h"
+#include "KeyCodes.h"
+#include "Application.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -19,14 +23,69 @@ namespace Haze
 {
 	void RendererLayer::OnUpdate()
 	{
+		if (!ImGui::IsAnyWindowFocused()) {
+			if (Input::IsKeyPressed(HZ_KEY_W)) _Camera->Move(0, 0, 1);
+			if (Input::IsKeyPressed(HZ_KEY_S)) _Camera->Move(0, 0, -1);
+			if (Input::IsKeyPressed(HZ_KEY_A)) _Camera->Move(-1, 0, 0);
+			if (Input::IsKeyPressed(HZ_KEY_D)) _Camera->Move(1, 0, 0);
+
+			if (Input::IsKeyPressed(HZ_KEY_SPACE)) _Camera->Move(0, 1, 0);
+			if (Input::IsKeyPressed(HZ_KEY_C)) _Camera->Move(0, -1, 0);
+
+			static bool lookMode = false;
+			static bool lookModeLast = false;
+			bool lookModeNow = Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_2);
+
+			if (!lookModeLast && lookModeNow) {
+				if (lookMode) {
+					glfwSetInputMode((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+					lookMode = false;
+				} else {
+					glfwSetInputMode((GLFWwindow*)Application::Get().GetWindow().GetNativeWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+					lookMode = true;
+				}
+			}
+
+			lookModeLast = lookModeNow;
+
+			if (lookMode) {
+				auto[x, y] = Input::GetMousePosition();
+				static float lastx = x, lasty = y;
+				
+				if (lookModeLast) {
+					lastx = x;
+					lasty = y;
+				}
+
+				float xo = x - lastx;
+				float yo = lasty - y;
+
+				_Camera->Look(xo, yo);
+
+				lastx = x;
+				lasty = y;
+			}
+		}
+
 		Draw();
+	}
+
+	void RendererLayer::OnEvent(Event& event) {
+		if (event.GetEventType() == EventType::WindowResize) {
+			WindowResizeEvent& we = (WindowResizeEvent&) event;
+
+			glViewport(0, 0, we.GetWidth(), we.GetHeight());
+
+			_Camera->OnWindowResizeEvent(we);
+			_Buffer.Resize(we.GetWidth(), we.GetHeight());
+		}
 	}
 
 	void RendererLayer::Draw(Mesh* mesh)
 	{
 		mesh->VAO->Bind();	
 		mesh->IBO->Bind();
-		glDrawElements(GL_TRIANGLES, mesh->Triangles.size() * 3, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, (int) mesh->Triangles.size() * 3, GL_UNSIGNED_INT, nullptr);
 
 		TextureAllocator::Flush();
 	}
@@ -80,6 +139,7 @@ namespace Haze
 		_Buffer.BindTextures(0);
 
 		_LightingAdapter->Set(_Scene, _Camera);
+		_LightingAdapter->GetProgram()->SetUniform("uDrawMode", _Mode);
 
 		DrawQuad();
 
@@ -125,30 +185,39 @@ namespace Haze
 
 		static bool win_load_object_show = false;
 		static auto win_load_object = [this]() {
-			ImGui::Begin("Add new object", &win_load_object_show);
+			ImGui::Begin("Add new object", &win_load_object_show, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+			ImGui::SetWindowSize("Add new object", ImVec2(400, 150));
 
 			ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "Loader flags");
 			static bool win_load_object_flags[] = { true, true, true, true };
+
+			ImGui::Columns(2, 0, false);
 			ImGui::Checkbox("Triangulate", &win_load_object_flags[0]);
 			ImGui::Checkbox("Generate tangents", &win_load_object_flags[1]);
+			ImGui::NextColumn();
 			ImGui::Checkbox("Smooth normals", &win_load_object_flags[2]);
 			ImGui::Checkbox("Flip UVs", &win_load_object_flags[3]);
+			ImGui::Columns(1); 
+
 			ImGui::Separator();
 			ImGui::Spacing();
 
 			ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "File");
+
+			ImGui::PushItemWidth(350);
 			static std::array<char, 200> buffer;
-			if (ImGui::InputText("", buffer.data(), buffer.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
-				load_object(std::string(buffer.data()));
+			if (ImGui::InputText(".obj", buffer.data(), buffer.size(), ImGuiInputTextFlags_EnterReturnsTrue)) {
+				load_object(std::string(buffer.data()) + ".obj");
 				win_load_object_show = false;
 			}
+
 
 			ImGui::End();
 		};
 
 		static bool win_list_object_show = false;
 		static auto win_list_object = [this]() {
-			ImGui::Begin("Objects", &win_list_object_show);
+			ImGui::Begin("Objects", &win_list_object_show, ImGuiWindowFlags_NoCollapse);
 
 			for (unsigned int i = 0; i < _Scene->Objects.size(); i++) 
 			{
@@ -215,6 +284,13 @@ namespace Haze
 						if (ImGui::InputFloat3("Position", &matrix._Position.x))  matrix.UpdateMatrices(true);
 						if (ImGui::SliderFloat3("Scale", &matrix._Scale.x, 0.1f, 10.0f, "%.1f"))  matrix.UpdateMatrices(true);
 						if (ImGui::SliderFloat3("Rotation", &matrix._Rotation.x, -3.14f, 3.14f, "%.2f"))  matrix.UpdateMatrices(true);
+					
+						if (ImGui::Button(UUID1("Remove", i))) {
+							matrix._Position = glm::vec3(0.0f);
+							matrix._Scale = glm::vec3(1.0f);
+							matrix._Rotation = glm::vec3(0.0f);
+							matrix.UpdateMatrices(true);
+						}
 
 						ImGui::TreePop();
 					}
@@ -226,7 +302,8 @@ namespace Haze
 
 		static bool win_camera_show = false;
 		static auto win_camera = [this]() {
-			ImGui::Begin("Camera", &win_camera_show);
+			ImGui::Begin("Camera", &win_camera_show, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize);
+			ImGui::SetWindowSize("Camera", ImVec2(450, 250));
 
 			if (ImGui::InputFloat3("Position", &_Camera->_WorldPosition[0])) _Camera->UpdateMatrices();
 			if (ImGui::SliderFloat("Yaw", &_Camera->_Yaw, -360.0f, 360.0f, "%.1f")) _Camera->UpdateMatrices();
@@ -255,44 +332,49 @@ namespace Haze
 			ImGui::SameLine();
 			if (ImGui::Button("-##2")) { _Camera->Move(0.0f, 0.0f, -1.0f); _Camera->UpdateMatrices(); }
 
+			ImGui::Separator();
+			ImGui::InputFloat("camera speed", &_Camera->_MoveSpeed);
+			ImGui::InputFloat("mouse sensitivity", &_Camera->_LookSpeed);
+
 			ImGui::End();
 		};
 
 		static bool win_list_light_show = false;
 		static auto win_list_light = [this]() {
-			ImGui::Begin("Lights", &win_list_light_show, ImGuiWindowFlags_MenuBar);
+			ImGui::Begin("Lights", &win_list_light_show, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoCollapse);
 
 			if (ImGui::BeginMenuBar()) 
 			{
-				if (_Scene->Lights->Ambient == nullptr && ImGui::MenuItem("Ambient"))  _Scene->Lights->Ambient = new AmbientLight(glm::vec3(1.0f), 0.0f);
-				if (_Scene->Lights->Vector == nullptr && ImGui::MenuItem("Vector"))  _Scene->Lights->Vector = new VectorLight(glm::vec3(1.0f), glm::vec3(0.0f, -1.0f, 0.0f), 0.0f, 0.0f);
-				if (ImGui::MenuItem("Point")) _Scene->Lights->Point.push_back(new PointLight(glm::vec3(1.0f), glm::vec3(0.0f), 0.0f, 0.0f, 0.007f, 0.0002f, false));
+				if (ImGui::BeginMenu("Add point light")) {
+					if (ImGui::MenuItem("Default")) _Scene->Lights->Point.push_back(new PointLight(glm::vec3(1.0f), glm::vec3(0.0f), 0.0f, 0.0f, 0.007f, 0.0002f, false));
+					if (ImGui::MenuItem("At camera")) _Scene->Lights->Point.push_back(new PointLight(glm::vec3(1.0f), _Camera->GetWorldPosition(), 0.0f, 0.0f, 0.007f, 0.0002f, false));
+
+					ImGui::EndMenu();
+				}
 
 				ImGui::EndMenuBar();
 			}
 
-			if (_Scene->Lights->Ambient) 
+			if (ImGui::CollapsingHeader("Ambient light")) 
 			{
-				if (ImGui::CollapsingHeader("Ambient light")) 
-				{
-					ImGui::ColorEdit3("Color##ambient", &_Scene->Lights->Ambient->GetData()[0].x);
-					ImGui::Spacing();
-					ImGui::SliderFloat("Intensity##ambient", &_Scene->Lights->Ambient->GetData()[2].x, 0.0f, 1.0f);
-				}
+				ImGui::ColorEdit3("Color##ambient", &_Scene->Lights->Ambient->GetData()[0].x);
+				ImGui::Spacing();
+				ImGui::SliderFloat("Intensity##ambient", &_Scene->Lights->Ambient->GetData()[2].x, 0.0f, 1.0f);
 			}
 
 			ImGui::Spacing();
 
-			if (_Scene->Lights->Vector) 
+			if (ImGui::CollapsingHeader("Vector light")) 
 			{
-				if (ImGui::CollapsingHeader("Vector light")) 
-				{
-					ImGui::ColorEdit3("Color##vector", &_Scene->Lights->Vector->GetData()[0].x);
-					ImGui::Spacing();
-					ImGui::InputFloat3("Direction##vector", &_Scene->Lights->Vector->GetData()[1].x);
-					ImGui::Spacing();
-					ImGui::SliderFloat("Intensity##vector", &_Scene->Lights->Vector->GetData()[2].y, 0.0f, 1.0f);
-					ImGui::SliderFloat("Specular##vector", &_Scene->Lights->Vector->GetData()[2].z, 0.0f, 1.0f);
+				ImGui::ColorEdit3("Color##vector", &_Scene->Lights->Vector->GetData()[0].x);
+				ImGui::Spacing();
+				ImGui::InputFloat3("Direction##vector", &_Scene->Lights->Vector->GetData()[1].x);
+				ImGui::Spacing();
+				ImGui::SliderFloat("Intensity##vector", &_Scene->Lights->Vector->GetData()[2].y, 0.0f, 1.0f);
+				ImGui::SliderFloat("Specular##vector", &_Scene->Lights->Vector->GetData()[2].z, 0.0f, 1.0f);
+				ImGui::Separator();
+				if (ImGui::Button("Set using camera")) {
+					_Scene->Lights->Vector->GetData()[1] = _Camera->GetDirection();
 				}
 			}
 
@@ -300,7 +382,15 @@ namespace Haze
 
 			for (unsigned int i = 0; i < _Scene->Lights->Point.size(); i++) 
 			{
-				if (ImGui::CollapsingHeader(UUID1("Point light", i))) 
+				bool headerExpanded = ImGui::CollapsingHeader(UUID("Point light " + std::to_string(i), i, 0, 0), ImGuiTreeNodeFlags_AllowOverlapMode);
+				ImGui::SameLine(ImGui::GetWindowWidth() - 55);
+				if (ImGui::Button(UUID1("Remove", i))) 
+				{
+					_Scene->Lights->Point.erase(_Scene->Lights->Point.begin() + i);
+					break;
+				}
+
+				if (headerExpanded) 
 				{
 					auto& light = _Scene->Lights->Point[i]->GetData();
 
@@ -339,6 +429,27 @@ namespace Haze
 		if (ImGui::BeginMainMenuBar()) 
 		{
 			if (ImGui::BeginMenu(std::to_string(frameTime).c_str())) {
+				ImGui::EndMenu();
+			}
+
+			ImGui::Separator();
+
+			if (ImGui::BeginMenu("Draw modes"))
+			{
+				ImGui::RadioButton("Default", &_Mode, 0);
+
+				ImGui::Separator();
+
+				ImGui::RadioButton("Position", &_Mode, 1);
+				ImGui::RadioButton("Normals", &_Mode, 2);
+
+				ImGui::Separator();
+				ImGui::Text("Textures");
+				ImGui::Spacing();
+
+				ImGui::RadioButton("Diffuse", &_Mode, 3);
+				ImGui::RadioButton("Specular", &_Mode, 4);
+
 				ImGui::EndMenu();
 			}
 

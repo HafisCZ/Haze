@@ -136,6 +136,10 @@ void main()
 	{
 		color = diffuse;
 	}
+	else if (uDrawMode == 4) 
+	{
+		color = vec3(specular);
+	}
 	else 
 	{
 		color = vec3(1.0);
