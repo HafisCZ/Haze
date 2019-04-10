@@ -4,6 +4,8 @@
 #include "Haze/Objects/Model.h"
 #include "Haze/Scene/Light.h"
 
+#include "Haze/ImGui/Presets.h"
+
 #include <glm/glm.hpp>
 
 namespace Haze
@@ -11,7 +13,7 @@ namespace Haze
 
 	class HAZE_API ModelMatrix 
 	{
-		friend class RendererLayer;
+		friend void GUI::ObjectManagerWindow(bool&, bool&, Haze::Scene*);
 
 		public:
 			inline operator const glm::mat4& () { UpdateMatrices(); return _TempMatrix; }

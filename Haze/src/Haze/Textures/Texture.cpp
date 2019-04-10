@@ -1,6 +1,8 @@
 #include "hzpch.h"
 #include "Texture.h"
 
+#include "Haze/Repository.h"
+
 #include <glad/glad.h>
 
 #include "Haze/STB/stb_image.h"
@@ -82,7 +84,7 @@ namespace Haze
 		glBindTexture(GL_TEXTURE_CUBE_MAP, _Handle);
 	}
 
-	Texture* TextureLoader::Load(const std::string& path) 
+	Texture* TextureLoader::LoadImpl(const std::string& path)
 	{
 		Texture* texture = new Texture2D();
 		void* buffer = stbi_load(path.c_str(), &texture->_Width, &texture->_Height, &texture->_PPM, 0);
@@ -111,7 +113,7 @@ namespace Haze
 		}
 	}
 
-	Texture* TextureLoader::LoadCube(const std::string& path)
+	Texture* TextureLoader::LoadCubeImpl(const std::string& path)
 	{
 		Texture* texture = new TextureCube();
 

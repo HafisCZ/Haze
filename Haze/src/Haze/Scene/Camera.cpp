@@ -14,7 +14,7 @@ namespace Haze
 	Camera::Camera() :
 		_Pitch(0.0f),
 		_Yaw(-90.0f),
-		_MoveSpeed(0.1f),
+		_MoveSpeed(0.4f),
 		_LookSpeed(0.2f),
 		_WorldPosition(0.0f, 0.0f, 0.0f),
 		_Direction(0.0f, 0.0f, -1.0f),
@@ -38,7 +38,16 @@ namespace Haze
 		p *= _LookSpeed;
 
 		_Yaw += y;
-		_Pitch = (_Pitch + p) > 89.0f ? 89.0f : ((_Pitch + p) < -89.0f ? -89.0f : (_Pitch + p));
+		_Pitch = fmin(89.0f, fmax(-89.0f, _Pitch + p));
+		UpdateMatrices();
+	}
+
+	void Camera::Set(float x, float y, float z, float yaw, float pitch) 
+	{
+		_WorldPosition = { x, y, z };
+		_Yaw = yaw;
+		_Pitch = fmin(89.0f, fmax(-89.0f, pitch));
+
 		UpdateMatrices();
 	}
 

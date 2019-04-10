@@ -3,6 +3,8 @@
 #include "Haze/Core.h"
 #include "Haze/Events/ApplicationEvent.h"
 
+#include "Haze/ImGui/Presets.h"
+
 #include <glm/glm.hpp>
 
 namespace Haze 
@@ -11,6 +13,7 @@ namespace Haze
 	class HAZE_API Camera 
 	{
 		friend class RendererLayer;
+		friend void GUI::CameraWindow(bool&, Camera*);
 
 		public:
 			Camera();
@@ -27,6 +30,8 @@ namespace Haze
 			void Look(float y, float p);
 
 			void SetSpeed(float move, float look);
+			
+			void Set(float x, float y, float z, float yaw, float pitch);
 
 		private:
 			void UpdateMatrices();

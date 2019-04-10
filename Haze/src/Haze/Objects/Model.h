@@ -5,6 +5,7 @@
 #include "Haze/Buffers/IndexBuffer.h"
 #include "Haze/Buffers/VertexArray.h"
 #include "Haze/Textures/Texture.h"
+#include "Haze/Repository.h"
 
 #include <vector>
 
@@ -66,7 +67,9 @@ namespace Haze
 	class HAZE_API ModelLoader
 	{
 		public:
-			static Model* Load(const std::string& path, ModelLoaderFlags flags = All) { return _Instance->LoadImpl(path, flags); }
+			static Model* Load(const std::string& path, ModelLoaderFlags flags = All) {
+				return static_cast<Model*>(Repository::Request(path, lambda::make([&]() -> void* { return _Instance->LoadImpl(path, flags); })));
+			}
 
 			virtual Model* LoadImpl(const std::string& path, ModelLoaderFlags flags) = 0;
 

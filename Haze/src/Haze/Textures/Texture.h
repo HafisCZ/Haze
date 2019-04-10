@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Haze/Core.h"
+#include "Haze/Repository.h"
 
 #include <string>
 
@@ -13,6 +14,8 @@ namespace Haze
 		friend class TextureAllocator;
 
 		friend class RendererLayer;
+
+		friend void GUI::ObjectManagerWindow(bool&, bool&, Haze::Scene*);
 
 		public:
 			Texture();
@@ -71,8 +74,12 @@ namespace Haze
 	class HAZE_API TextureLoader 
 	{
 		public:
-			static Texture* Load(const std::string& path);
-			static Texture* LoadCube(const std::string& path);
+			static Texture* Load(const std::string& path) { return static_cast<Texture*>(Repository::Request(path, lambda::make([&]() -> void* { return LoadImpl(path); }))); }
+			static Texture* LoadCube(const std::string& path) { return static_cast<Texture*>(Repository::Request(path, lambda::make([&]() -> void* { return LoadCubeImpl(path); }))); }
+
+		private:
+			static Texture* LoadImpl(const std::string& path);
+			static Texture* LoadCubeImpl(const std::string& path);
 	};
 	
 }
