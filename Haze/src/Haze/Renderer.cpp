@@ -1,24 +1,18 @@
 #include "hzpch.h"
 #include "Renderer.h"
 
-#include "Program/ProgramAdapter.h"
 #include "Input.h"
 #include "MouseButtonCodes.h"
 #include "KeyCodes.h"
 #include "Application.h"
+#include "ScriptReader.h"
 
 #include "ImGui/Presets.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <glm/gtc/matrix_transform.hpp>
 #include "imgui.h"
-
-#define UUID3(name, i, j, k)	std::string(name"##uuid" + std::to_string(i * 100000 + j * 1000 + k)).c_str()
-#define UUID2(name, i, j)		std::string(name"##uuid" + std::to_string(i * 100000 + j * 1000)).c_str()
-#define UUID1(name, i)			std::string(name"##uuid" + std::to_string(i * 100000)).c_str()
-#define UUID(name, i, j, k)		std::string(name + "##uuid" + std::to_string(i * 100000 + j * 1000 + k)).c_str()
 
 namespace Haze 
 {
@@ -242,18 +236,20 @@ namespace Haze
 
 	void RendererLayer::OnImGuiRender()
 	{
-		/*
-			New menu system
-		*/
 		static bool win_camera = false;
 		static bool win_repository = false;
 		static bool win_setskybox = false;
 		static bool win_insertobject = false;
 		static bool win_objectmanager = false;
 		static bool win_lightmanager = false;
+		static bool win_script = false;
+		
+		static std::array<char, 1000> script;
+		static bool script_execute = false;
 
 		if (win_camera) GUI::CameraWindow(win_camera, _Camera);
 		if (win_repository) GUI::RepositoryWindow(win_repository);
+		if (win_script) GUI::ScriptWindow(win_script, script, script_execute);
 		if (win_setskybox) GUI::SetSkyboxWindow(win_setskybox, _Scene);
 		if (win_insertobject) GUI::InsertObjectWindow(win_insertobject, _Scene);
 		if (win_objectmanager) GUI::ObjectManagerWindow(win_objectmanager, win_insertobject, _Scene);
@@ -267,9 +263,7 @@ namespace Haze
 				if (frametime < 0.018) ImGui::TextColored(ImVec4(RGBTOF(23, 91, 37)), "%F", frametime);
 				else if (frametime < 0.021) ImGui::TextColored(ImVec4(RGBTOF(211, 214, 23)), "%F", frametime);
 				else ImGui::TextColored(ImVec4(RGBTOF(214, 64, 23)), "%F", frametime);
-
 				GUI::BigSeparator();
-
 				if (ImGui::BeginMenu("Drawing mode")) 
 				{
 					ImGui::RadioButton("Default", &_Mode, 0);
@@ -283,15 +277,11 @@ namespace Haze
 					ImGui::RadioButton("Specular", &_Mode, 4);
 					ImGui::EndMenu();
 				}
-
 				GUI::BigSeparator();
-
 				ImGui::MenuItem("Repository", 0, &win_repository);
 				ImGui::EndMenu();
 			}
-
 			ImGui::Separator();
-
 			if (ImGui::BeginMenu("Scene")) 
 			{
 				ImGui::MenuItem("Objects", 0, &win_objectmanager);
@@ -299,13 +289,17 @@ namespace Haze
 				ImGui::MenuItem("Lights", 0, &win_lightmanager);
 				GUI::BigSeparator();
 				ImGui::MenuItem("Skybox", 0, &win_setskybox);
-
 				ImGui::EndMenu();
 			}
-
 			ImGui::MenuItem("Camera", 0, &win_camera);
-
+			ImGui::MenuItem("Script", 0, &win_script);
 			ImGui::EndMainMenuBar();
+
+			if (script_execute) 
+			{
+				ScriptReader::Execute(script.data(), _Scene, _Camera);
+				script_execute = false;
+			}
 		}
 	}
 

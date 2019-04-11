@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Haze/Core.h"
-#include "Haze/Objects/Model.h"
 #include "Haze/Layer.h"
 #include "Haze/Buffers/CubeFramebuffer.h"
 #include "Haze/Program/ProgramAdapter.h"

@@ -29,6 +29,16 @@ namespace GUI
 		return delt;
 	}
 
+	void FixPath(char* data) {
+		for (int i = 0; i < strlen(data); i++) 
+		{
+			if (data[i] == '\\') 
+			{
+				data[i] = '/';
+			}
+		}
+	}
+
 	void Test()
 	{
 		ImGui::ShowTestWindow();
@@ -45,6 +55,23 @@ namespace GUI
 	{
 		ImGui::Spacing();
 		ImGui::Spacing();
+	}
+
+	void ScriptWindow(bool& show, std::array<char, 1000>& content, bool& execute) 
+	{
+		ImGui::Begin("Script", &show, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+		{
+			ImGui::BeginMenuBar();
+			if (ImGui::MenuItem("Run")) 
+			{
+				execute = true;
+			}
+			ImGui::EndMenuBar();
+		}
+		{
+			ImGui::InputTextMultiline("##input", content.data(), content.size(), ImVec2(600, 400));
+		}
+		ImGui::End();
 	}
 
 	void RepositoryWindow(bool& show)
@@ -156,6 +183,7 @@ namespace GUI
 			ImGui::PushItemWidth(350);
 			if (ImGui::InputText(".obj", buffer.data(), buffer.size(), ImGuiInputTextFlags_EnterReturnsTrue))
 			{
+				FixPath(buffer.data());
 				Haze::Model* model = Haze::ModelLoader::Load(std::string(buffer.data()) + ".obj");
 				if (model) {
 					Haze::Object* object = new Haze::Object();
@@ -177,10 +205,11 @@ namespace GUI
 			static std::array<char, 200> buffer;
 
 			ImGui::Text("Filepath");
-			ImGui::PushItemWidth(350);
-			if (ImGui::InputText(".txt", buffer.data(), buffer.size(), ImGuiInputTextFlags_EnterReturnsTrue)) 
+			ImGui::PushItemWidth(380);
+			if (ImGui::InputText("##input", buffer.data(), buffer.size(), ImGuiInputTextFlags_EnterReturnsTrue)) 
 			{
-				Haze::Texture* skybox = Haze::TextureLoader::LoadCube(std::string(buffer.data()) + ".txt");
+				FixPath(buffer.data());
+				Haze::Texture* skybox = Haze::TextureLoader::LoadCube(std::string(buffer.data()));
 				if (skybox) 
 				{
 					if (scene->Skybox) 

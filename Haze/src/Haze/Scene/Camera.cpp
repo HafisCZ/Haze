@@ -13,7 +13,7 @@ namespace Haze
 
 	Camera::Camera() :
 		_Pitch(0.0f),
-		_Yaw(-90.0f),
+		_Yaw(0.0f),
 		_MoveSpeed(0.4f),
 		_LookSpeed(0.2f),
 		_WorldPosition(0.0f, 0.0f, 0.0f),

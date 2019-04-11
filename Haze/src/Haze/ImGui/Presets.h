@@ -11,10 +11,14 @@ namespace GUI
 
 	double Sample();
 
+	void FixPath(char* data);
+
 	void BigSeparator();
 	void BigSpace();
 
 	void Test();
+
+	void ScriptWindow(bool& show, std::array<char, 1000>& content, bool& execute);
 
 	void RepositoryWindow(bool& show);
 	void CameraWindow(bool& show, Haze::Camera* camera);
