@@ -140,6 +140,19 @@ void main()
 	{
 		color = vec3(specular);
 	}
+	else if (uDrawMode == 5) 
+	{
+		int sid = 0;
+		for (int i = 0; i < min(uLightCount, 64); ++i) 
+		{
+			float distance = length(uLight[i].Position - fragpos);
+			if (distance < uLight[i].Radius) 
+			{
+				float inte = uLight[i].Shadow ? 1.0 - getFragmentShadow(fragpos, uLight[i].Position, sid++) : 1.0;
+				color += vec3(inte);
+			}
+		}
+	}
 	else 
 	{
 		color = vec3(1.0);

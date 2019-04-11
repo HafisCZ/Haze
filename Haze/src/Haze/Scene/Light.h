@@ -21,6 +21,14 @@ namespace Haze
 			inline std::array<glm::vec3, 4>& GetData() { return _Data; }
 			inline bool& IsCastingShadow() { return _Shadow; }
 
+			void Set(glm::vec3 col, glm::vec3 vec, glm::vec3 itt, glm::vec3 att, bool shadow) {
+				Color(col);
+				Vector(vec);
+				Intensity(itt);
+				Attenuation(att);
+				Shadow(shadow);
+			}
+
 		protected:
 			void Color(glm::vec3 color) { _Data[0] = color; }
 			void Vector(glm::vec3 vector) { _Data[1] = vector; }
@@ -37,6 +45,7 @@ namespace Haze
 	class HAZE_API AmbientLight : public Light 
 	{
 		public:
+			AmbientLight() : AmbientLight(glm::vec3(1.0f), 0.0f) {}
 			AmbientLight(glm::vec3 color, float intensity) : Light(AMBIENT) 
 			{
 				Color(color);
@@ -47,6 +56,7 @@ namespace Haze
 	class HAZE_API VectorLight : public Light 
 	{
 		public:
+			VectorLight() : VectorLight(glm::vec3(1.0f), glm::vec3(0.0f), 0.0f, 0.0f) {}
 			VectorLight(glm::vec3 color, glm::vec3 direction, float di, float si) : Light(VECTOR) 
 			{
 				Color(color);
@@ -57,6 +67,7 @@ namespace Haze
 
 	class HAZE_API PointLight : public Light {
 		public:
+			PointLight() : PointLight(glm::vec3(1.0f), glm::vec3(0.0f), 0.0f, 0.0f, 0.002f, 0.0007f, false) {}
 			PointLight(glm::vec3 color, glm::vec3 position, float di, float si, float la, float qa, bool shadow = false) : Light(POINT) {
 				Color(color);
 				Vector(position);

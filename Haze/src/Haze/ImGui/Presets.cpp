@@ -230,6 +230,8 @@ namespace GUI
 	{
 		static std::string preview = "";
 
+		if (atoi(preview.data()) >= scene->Objects.size()) preview = "";
+
 		ImGui::Begin("Object Manager", &show, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
 		{
 			if (ImGui::BeginMenuBar()) 
@@ -431,7 +433,10 @@ namespace GUI
 					ImGui::InputFloat3("Position", &data[1].x);
 					ImGui::Spacing();
 					ImGui::SliderFloat("Intensity", &data[2].y, 0.0f, 1.0f);
-					ImGui::SliderFloat("Specular", &data[2].z, 0.0f, 1.0f);
+					ImGui::SliderFloat("Specular", &data[2].z, 0.0f, 1.0f);				
+					ImGui::Spacing();
+					ImGui::InputFloat("Linear", &data[3].y, 0, 0, "%.4f");
+					ImGui::InputFloat("Quadratic", &data[3].z, 0, 0, "%.4f");
 					ImGui::Spacing();
 					ImGui::Checkbox("Casts shadow", &light.value->IsCastingShadow());
 					ImGui::Spacing();

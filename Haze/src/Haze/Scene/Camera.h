@@ -4,6 +4,7 @@
 #include "Haze/Events/ApplicationEvent.h"
 
 #include "Haze/ImGui/Presets.h"
+#include "Haze/Scripts/Interpreter.h"
 
 #include <glm/glm.hpp>
 
@@ -14,6 +15,7 @@ namespace Haze
 	{
 		friend class RendererLayer;
 		friend void GUI::CameraWindow(bool&, Camera*);
+		friend void Interpreter::InvokeCommand(Command* cmd, Scene*& scene, Camera*& camera);
 
 		public:
 			Camera();

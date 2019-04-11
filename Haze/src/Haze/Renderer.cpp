@@ -5,7 +5,7 @@
 #include "MouseButtonCodes.h"
 #include "KeyCodes.h"
 #include "Application.h"
-#include "ScriptReader.h"
+#include "Scripts/Interpreter.h"
 
 #include "ImGui/Presets.h"
 
@@ -270,6 +270,7 @@ namespace Haze
 					GUI::BigSpace();
 					ImGui::RadioButton("Position", &_Mode, 1);
 					ImGui::RadioButton("Normals", &_Mode, 2);
+					ImGui::RadioButton("Shadows", &_Mode, 5);
 					GUI::BigSeparator();		
 					ImGui::Text("Textures");
 					GUI::BigSpace();
@@ -297,7 +298,7 @@ namespace Haze
 
 			if (script_execute) 
 			{
-				ScriptReader::Execute(script.data(), _Scene, _Camera);
+				Interpreter::ExecuteScript(script.data(), _Scene, _Camera);
 				script_execute = false;
 			}
 		}

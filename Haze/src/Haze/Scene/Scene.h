@@ -13,6 +13,7 @@ namespace Haze
 
 	class HAZE_API ModelMatrix 
 	{
+		friend class Interpreter;
 		friend void GUI::ObjectManagerWindow(bool&, bool&, Haze::Scene*);
 
 		public:
@@ -44,6 +45,9 @@ namespace Haze
 	class HAZE_API Object 
 	{
 		public:
+			Object() {}
+			Object(Model* model) : Model(model) {}
+
 			Model* Model;
 			ModelMatrix Matrix;
 	};
