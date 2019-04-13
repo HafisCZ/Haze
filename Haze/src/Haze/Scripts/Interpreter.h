@@ -35,7 +35,7 @@ namespace Haze
 		}
 
 		inline float Float(unsigned int index = 0) {
-			return atof(Args[index % Args.size()].data());
+			return (float) atof(Args[index % Args.size()].data());
 		}
 
 		inline glm::vec3 Vec(unsigned int index = 0) {
@@ -49,31 +49,6 @@ namespace Haze
 		inline int Int(unsigned int index = 0) {
 			return atoi(Args[index % Args.size()].data());
 		}
-
-		float NextFloat()
-		{
-			HZ_CORE_WARN("F{0}", ArgPtr);
-			return Float(ArgPtr++);
-		}
-
-		const std::string& NextString() 
-		{
-			HZ_CORE_WARN("S{0}", ArgPtr);
-			return String(ArgPtr++);
-		}
-
-		int NextInt() 
-		{
-			HZ_CORE_WARN("I{0}", ArgPtr);
-			return Int(ArgPtr++);
-		}
-
-		glm::vec3 NextVec() 
-		{
-			HZ_CORE_WARN("V{0}", ArgPtr);
-			return glm::vec3(NextFloat(), NextFloat(), NextFloat());
-		}
-
 	};
 
 	struct Interpreter 

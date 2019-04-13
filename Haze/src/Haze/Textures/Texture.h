@@ -8,14 +8,14 @@
 namespace Haze 
 {
 
-	class HAZE_API Texture 
+	class HAZE_API Texture
 	{
 		friend class TextureLoader;
 		friend class TextureAllocator;
 
 		friend class RendererLayer;
 
-		friend void GUI::ObjectManagerWindow(bool&, bool&, Haze::Scene*);
+		friend struct GUI;
 
 		public:
 			Texture();
@@ -34,7 +34,7 @@ namespace Haze
 			int _Format = -1;
 	};
 
-	class HAZE_API TextureAllocator 
+	class HAZE_API TextureAllocator
 	{
 		public:
 			TextureAllocator(unsigned int offset, unsigned int slots);
@@ -53,7 +53,7 @@ namespace Haze
 			static TextureAllocator* _Instance;
 	};
 
-	class HAZE_API Texture2D : public Texture 
+	class HAZE_API Texture2D : public Texture
 	{
 		public:
 			Texture2D() : Texture() {}
@@ -62,7 +62,7 @@ namespace Haze
 			virtual void Bind() override;
 	};
 
-	class HAZE_API TextureCube : public Texture 
+	class HAZE_API TextureCube : public Texture
 	{
 		public:
 			TextureCube() : Texture() {}
@@ -71,7 +71,7 @@ namespace Haze
 			virtual void Bind() override;
 	};
 
-	class HAZE_API TextureLoader 
+	class HAZE_API TextureLoader
 	{
 		public:
 			static Texture* Load(const std::string& path) { return static_cast<Texture*>(Repository::Request(path, lambda::make([&]() -> void* { return LoadImpl(path); }))); }

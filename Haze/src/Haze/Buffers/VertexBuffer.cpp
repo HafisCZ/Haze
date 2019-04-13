@@ -6,11 +6,11 @@
 namespace Haze 
 {
 
-	VertexBuffer::VertexBuffer(const void* data, unsigned int count)
+	VertexBuffer::VertexBuffer(const void* data, unsigned int count, const VertexFormat& format)
 	{
 		glGenBuffers(1, &_Handle);
 		glBindBuffer(GL_ARRAY_BUFFER, _Handle);
-		glBufferData(GL_ARRAY_BUFFER, count * 14 * sizeof(float), data, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, count * format.GetSize(), data, GL_STATIC_DRAW);
 	}
 
 	VertexBuffer::~VertexBuffer()

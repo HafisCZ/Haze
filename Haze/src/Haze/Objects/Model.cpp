@@ -4,13 +4,13 @@
 namespace Haze 
 {
 
-	Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<Triangle>& triangles) 
+	Mesh::Mesh(std::vector<Vertex>& vertices, std::vector<Triangle>& triangles, const VertexFormat& format) 
 	{
 		VAO = new VertexArray();
-		VBO = new VertexBuffer(vertices.data(), vertices.size());
-		IBO = new IndexBuffer(triangles.data(), triangles.size() * 3);
+		VBO = new VertexBuffer(vertices.data(), (int) vertices.size(), format);
+		IBO = new IndexBuffer(triangles.data(), (int) triangles.size() * 3);
 
-		VAO->BindBuffer(*VBO);
+		VAO->BindBuffer(*VBO, format);
 
 		Vertices = std::move(vertices);
 		Triangles = std::move(triangles);

@@ -1,31 +1,28 @@
 #pragma once
 
-namespace Haze 
+namespace Haze
 {
 	class Camera;
 	class Scene;
-}
 
-namespace GUI
-{
+	struct GUI 
+	{
+		static double Sample();
 
-	double Sample();
+		static void FixPath(char* data);
 
-	void FixPath(char* data);
+		static void BigSeparator();
+		static void BigSpace();
 
-	void BigSeparator();
-	void BigSpace();
+		static void ScriptWindow(bool& show, std::array<char, 1000>& content, bool& execute);
 
-	void Test();
+		static void RepositoryWindow(bool& show);
+		static void CameraWindow(bool& show, Haze::Camera* camera);
 
-	void ScriptWindow(bool& show, std::array<char, 1000>& content, bool& execute);
+		static void InsertObjectWindow(bool& show, Haze::Scene* scene);
+		static void SetSkyboxWindow(bool& show, Haze::Scene* scene);
 
-	void RepositoryWindow(bool& show);
-	void CameraWindow(bool& show, Haze::Camera* camera);
-
-	void InsertObjectWindow(bool& show, Haze::Scene* scene);
-	void SetSkyboxWindow(bool& show, Haze::Scene* scene);
-
-	void ObjectManagerWindow(bool& show, bool& show_insertobject, Haze::Scene* scene);
-	void LightManagerWindow(bool& show, Haze::Scene* scene, Haze::Camera* camera);
+		static void ObjectManagerWindow(bool& show, bool& show_insertobject, Haze::Scene* scene, Haze::Camera* camera);
+		static void LightManagerWindow(bool& show, Haze::Scene* scene, Haze::Camera* camera);
+	};
 }

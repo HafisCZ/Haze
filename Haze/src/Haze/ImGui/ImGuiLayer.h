@@ -9,7 +9,7 @@
 namespace Haze 
 {
 
-	class HAZE_API ImGuiLayer : public Layer 
+	class HAZE_API ImGuiLayer : public Layer
 	{
 		public:
 			ImGuiLayer();

@@ -6,7 +6,7 @@
 namespace Haze 
 {
 
-	class HAZE_API Layer 
+	class HAZE_API Layer
 	{
 		public:
 			Layer(const std::string& debugName = "Layer");

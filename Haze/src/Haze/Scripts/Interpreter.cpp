@@ -142,9 +142,9 @@ namespace Haze
 		{
 			Command* sub = cmd->Next;
 			
-			camera->_Yaw = sub->Float();
-			camera->_Pitch = sub->Float(1);
-			camera->_WorldPosition = sub->Vec(2);
+			camera->_WorldPosition = sub->Vec();
+			camera->_Yaw = sub->Float(3);
+			camera->_Pitch = sub->Float(4);
 			camera->UpdateMatrices();
 		} 
 		else if (Command::Match(cmd, OBJECT_ADD)) 

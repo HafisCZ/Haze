@@ -11,14 +11,14 @@
 namespace Haze 
 {
 
-	class HAZE_API Camera 
+	class HAZE_API Camera
 	{
 		friend class RendererLayer;
-		friend void GUI::CameraWindow(bool&, Camera*);
-		friend void Interpreter::InvokeCommand(Command* cmd, Scene*& scene, Camera*& camera);
+		friend struct Interpreter;
+		friend struct GUI;
 
 		public:
-			Camera();
+			Camera() { Reset(); }
 
 			inline const glm::mat4& GetProjectionMatrix() const { return _Projection; }
 			inline const glm::mat4& GetViewMatrix() const { return _View; }
@@ -28,12 +28,18 @@ namespace Haze
 
 			std::pair<glm::vec3, unsigned int> GetWorldPointer();
 
-			void Move(float x, float y, float z);
+			void Move(float x, float y, float z, bool worldY = false);
 			void Look(float y, float p);
 
 			void SetSpeed(float move, float look);
 			
 			void Set(float x, float y, float z, float yaw, float pitch);
+			void Set(float x, float y, float z);
+			void Set(float yaw, float pitch);
+
+			void SetFov(float fov);
+
+			void Reset();
 
 		private:
 			void UpdateMatrices();
@@ -51,10 +57,13 @@ namespace Haze
 			glm::vec3 _UpVector;
 			glm::vec3 _WorldUpVector;
 
+			const glm::vec3 _WUpVector = glm::vec3(0.0f, 1.0f, 0.0f);
+
 			glm::vec4 _Viewport;
 
 			float _Pitch;
 			float _Yaw;
+			float _Fov;
 
 			float _MoveSpeed;
 			float _LookSpeed;

@@ -7,13 +7,13 @@
 namespace Haze 
 {
 
-	class HAZE_API VertexArray 
+	class HAZE_API VertexArray
 	{
 		public:
 			VertexArray();
 			~VertexArray();
 
-			void BindBuffer(const VertexBuffer& buffer);
+			void BindBuffer(const VertexBuffer& buffer, const VertexFormat& format);
 
 			void Bind() const;
 			void Unbind() const;

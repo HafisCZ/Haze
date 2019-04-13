@@ -5,7 +5,7 @@
 namespace Haze 
 {
 
-	class HAZE_API IndexBuffer 
+	class HAZE_API IndexBuffer
 	{
 		public:
 			IndexBuffer(const void* data, unsigned int count);

@@ -14,14 +14,14 @@
 namespace Haze 
 {
 
-	struct HAZE_API Vertex 
+	struct HAZE_API Vertex
 	{
 		glm::vec3 Position, Normal;
 		glm::vec2 TextureUV;
 		glm::vec3 Tangent, Bitangent;
 	};
 
-	struct HAZE_API Triangle 
+	struct HAZE_API Triangle
 	{
 		unsigned int A, B, C;
 	};
@@ -30,7 +30,7 @@ namespace Haze
 	{
 		public:
 			Mesh() {}
-			Mesh(std::vector<Vertex>& vertices, std::vector<Triangle>& triangles);
+			Mesh(std::vector<Vertex>& vertices, std::vector<Triangle>& triangles, const VertexFormat& format = VertexFormat::GetDefault());
 
 		public:
 			std::vector<Vertex> Vertices;
@@ -52,7 +52,7 @@ namespace Haze
 		FlipUVCoords		= BIT(3)
 	};
 
-	class HAZE_API Model 
+	class HAZE_API Model
 	{
 		public:
 			Model() {}

@@ -11,10 +11,10 @@
 namespace Haze
 {
 
-	class HAZE_API ModelMatrix 
+	class HAZE_API ModelMatrix
 	{
-		friend class Interpreter;
-		friend void GUI::ObjectManagerWindow(bool&, bool&, Haze::Scene*);
+		friend struct Interpreter;
+		friend struct GUI;
 
 		public:
 			inline operator const glm::mat4& () { UpdateMatrices(); return _TempMatrix; }
@@ -42,7 +42,7 @@ namespace Haze
 			glm::mat4 _TempMatrixI = glm::mat4(1.0f);
 	};
 
-	class HAZE_API Object 
+	class HAZE_API Object
 	{
 		public:
 			Object() {}
@@ -52,7 +52,7 @@ namespace Haze
 			ModelMatrix Matrix;
 	};
 	
-	class HAZE_API Scene 
+	class HAZE_API Scene
 	{
 		private:
 			struct LightContainer
@@ -82,6 +82,8 @@ namespace Haze
 			std::vector<Object*> Objects;
 			LightContainer* Lights = new LightContainer();
 			TextureCube* Skybox;
+
+			Object* item = nullptr;
 	};
 
 }

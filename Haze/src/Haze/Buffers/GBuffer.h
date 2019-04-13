@@ -5,7 +5,7 @@
 namespace Haze 
 {
 
-	class HAZE_API GBuffer 
+	class HAZE_API GBuffer
 	{
 		public:
 			GBuffer(unsigned int width, unsigned int height);

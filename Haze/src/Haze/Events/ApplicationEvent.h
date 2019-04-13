@@ -4,7 +4,7 @@
 
 namespace Haze {
 
-	class HAZE_API WindowResizeEvent : public Event 
+	class HAZE_API WindowResizeEvent : public Event
 	{
 		public:
 			WindowResizeEvent(unsigned int width, unsigned int height) : _Width(width), _Height(height) { }

@@ -11,25 +11,16 @@ namespace Haze
 		glBindVertexArray(_Handle);
 	}
 
-	void VertexArray::BindBuffer(const VertexBuffer& buffer) 
+	void VertexArray::BindBuffer(const VertexBuffer& buffer, const VertexFormat& format)
 	{
 		Bind();
 		buffer.Bind();
-		
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (const void*)0);
-		glEnableVertexAttribArray(0);
-	
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (const void*)(3* sizeof(float)));
-		glEnableVertexAttribArray(1);
-		
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (const void*)(6 * sizeof(float)));
-		glEnableVertexAttribArray(2);
-		
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (const void*)(8 * sizeof(float)));
-		glEnableVertexAttribArray(3);
-		
-		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (const void*)(11 * sizeof(float)));
-		glEnableVertexAttribArray(4);
+
+		for (unsigned int i = 0, offset = 0; i < format.GetCount(); offset += format.GetSize(i++)) 
+		{
+			glEnableVertexAttribArray(i);
+			glVertexAttribPointer(i, format.GetCount(i), format.GetType(i), GL_FALSE, format.GetSize(), (const void *)(offset));
+		}
 	}
 
 	VertexArray::~VertexArray() {

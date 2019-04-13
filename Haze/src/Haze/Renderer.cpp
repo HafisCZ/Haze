@@ -9,6 +9,8 @@
 
 #include "ImGui/Presets.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -19,13 +21,45 @@ namespace Haze
 	void RendererLayer::OnUpdate()
 	{
 		if (!ImGui::IsAnyWindowFocused()) {
-			if (Input::IsKeyPressed(HZ_KEY_W)) _Camera->Move(0, 0, 1);
-			if (Input::IsKeyPressed(HZ_KEY_S)) _Camera->Move(0, 0, -1);
-			if (Input::IsKeyPressed(HZ_KEY_A)) _Camera->Move(-1, 0, 0);
-			if (Input::IsKeyPressed(HZ_KEY_D)) _Camera->Move(1, 0, 0);
+			static float dy = 0;
+			static bool jmp = true;
 
-			if (Input::IsKeyPressed(HZ_KEY_SPACE)) _Camera->Move(0, 1, 0);
-			if (Input::IsKeyPressed(HZ_KEY_C)) _Camera->Move(0, -1, 0);
+			if (Input::IsKeyPressed(HZ_KEY_W)) _Camera->Move(0, 0, 1, true);
+			if (Input::IsKeyPressed(HZ_KEY_S)) _Camera->Move(0, 0, -1, true);
+			if (Input::IsKeyPressed(HZ_KEY_A)) _Camera->Move(-1, 0, 0, true);
+			if (Input::IsKeyPressed(HZ_KEY_D)) _Camera->Move(1, 0, 0, true);
+
+			if (Input::IsKeyPressed(HZ_KEY_SPACE) && !jmp) 
+			{
+				jmp = true;
+				dy += 1.0f;
+			}
+
+			if (jmp) {
+				dy -= 0.1f;
+			}
+
+			_Camera->Move(0, dy, 0, true);
+			if (_Camera->GetWorldPosition().y < 2.0f) 
+			{
+				_Camera->_WorldPosition.y = 2.0f;
+				_Camera->UpdateMatrices();
+				jmp = false;
+				dy = 0.0f;
+			}
+
+			if (Input::IsKeyPressed(HZ_KEY_1)) {
+				/*
+				Haze::Model* model = Haze::ModelLoader::Load("");
+				if (model) {
+					Haze::Object* object = new Haze::Object();
+					object->Model = model;
+
+					_Scene->item = object;
+				}
+				*/
+			}
+			if (Input::IsKeyPressed(HZ_KEY_0)) _Scene->item = 0;
 
 			static bool lookMode = false;
 			static bool lookModeLast = false;
@@ -211,6 +245,30 @@ namespace Haze
 
 			glDepthFunc(GL_LESS);
 		}
+		
+		if (_Scene->item) {
+			_DefaultProgram->Bind();
+			
+			glm::mat4 cam = glm::inverse(glm::lookAt(_Camera->GetWorldPosition(), _Camera->GetWorldPosition() + _Camera->GetDirection(), glm::vec3(0.0f, 1.0f, 0.0f)));
+			cam = glm::translate(cam, glm::vec3(0.7f, -1.0f, -2.0f));
+			cam = glm::rotate(cam, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			cam = glm::scale(cam, glm::vec3(0.4f));
+
+			_DefaultProgram->SetUniform("uModelViewProjectionMatrix", _Camera->GetProjectionMatrix() * _Camera->GetViewMatrix() * cam);
+			_DefaultProgram->SetUniform("uColor", 0.0f, 0.0f, 0.0f);
+
+			for (auto m : _Scene->item->Model->Meshes) {
+				_DefaultProgram->SetUniform("uTexture[0]", m->Textures[0] != nullptr);
+				_DefaultProgram->SetUniform("uTexture[1]", m->Textures[1] != nullptr);
+				_DefaultProgram->SetUniform("uTexture[2]", m->Textures[2] != nullptr);
+
+				_DefaultProgram->SetUniform("uTexture0", TextureAllocator::Bind(m->Textures[0]));
+				_DefaultProgram->SetUniform("uTexture1", TextureAllocator::Bind(m->Textures[1]));
+				_DefaultProgram->SetUniform("uTexture2", TextureAllocator::Bind(m->Textures[2]));
+
+				Draw(m);
+			}
+		}
 	}
 
 	void RendererLayer::DrawQuad() 
@@ -252,7 +310,7 @@ namespace Haze
 		if (win_script) GUI::ScriptWindow(win_script, script, script_execute);
 		if (win_setskybox) GUI::SetSkyboxWindow(win_setskybox, _Scene);
 		if (win_insertobject) GUI::InsertObjectWindow(win_insertobject, _Scene);
-		if (win_objectmanager) GUI::ObjectManagerWindow(win_objectmanager, win_insertobject, _Scene);
+		if (win_objectmanager) GUI::ObjectManagerWindow(win_objectmanager, win_insertobject, _Scene, _Camera);
 		if (win_lightmanager) GUI::LightManagerWindow(win_lightmanager, _Scene, _Camera);
 
 		if (ImGui::BeginMainMenuBar()) 			

@@ -5,7 +5,7 @@
 namespace Haze 
 {
 
-	class HAZE_API KeyEvent : public Event 
+	class HAZE_API KeyEvent : public Event
 	{
 		public:
 			inline int GetKeyCode() const { return _KeyCode; }
@@ -18,7 +18,7 @@ namespace Haze
 			int _KeyCode;
 	};
 
-	class HAZE_API KeyPressedEvent : public KeyEvent 
+	class HAZE_API KeyPressedEvent : public KeyEvent
 	{
 		public:
 			KeyPressedEvent(int keycode, int repeatCount) : KeyEvent(keycode), _RepeatCount(repeatCount) { }

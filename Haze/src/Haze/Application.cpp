@@ -18,6 +18,8 @@ namespace Haze {
 		_Window->SetEventCallback(HZ_BIND_EVENT_FN(Application::OnEvent));
 
 		_ImGuiLayer = new ImGuiLayer();
+
+
 		PushOverlay(_ImGuiLayer);
 	}
 

@@ -16,7 +16,7 @@ namespace Haze
 		ShaderTypeGeometry		= BIT(2)
 	};
 
-	class HAZE_API Program 
+	class HAZE_API Program
 	{
 		friend class ProgramLoader;
 

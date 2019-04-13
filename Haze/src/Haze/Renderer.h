@@ -9,7 +9,7 @@
 namespace Haze 
 {
 	
-	class HAZE_API RendererLayer : public Layer
+	class HAZE_API  RendererLayer : public Layer
 	{
 		public:
 			RendererLayer() : 
@@ -19,7 +19,8 @@ namespace Haze
 				_GeometryAdapter(new GeometryPassAdapter(new Program("../shaders/geom", ShaderTypeFragment | ShaderTypeVertex))),
 				_ShadingAdapter(new ShadingPassAdapter(new Program("../shaders/shade", ShaderTypeGeometry | ShaderTypeFragment | ShaderTypeVertex))),
 				_LightingAdapter(new LightPassAdapter(new Program("../shaders/light", ShaderTypeFragment | ShaderTypeVertex))),
-				_SkyboxAdapter(new SkyboxAdapter(new Program("../shaders/skybox", ShaderTypeFragment | ShaderTypeVertex)))
+				_SkyboxAdapter(new SkyboxAdapter(new Program("../shaders/skybox", ShaderTypeFragment | ShaderTypeVertex))),
+				_DefaultProgram(new Program("../shaders/default", ShaderTypeFragment | ShaderTypeVertex))
 			{ 
 				Program* prog = _LightingAdapter->GetProgram();
 				
@@ -50,6 +51,8 @@ namespace Haze
 			ProgramAdapter* _ShadingAdapter;
 			ProgramAdapter* _LightingAdapter;
 			ProgramAdapter* _SkyboxAdapter;
+
+			Program* _DefaultProgram;
 
 			Camera* _Camera = new Camera();
 			Scene* _Scene = new Scene();
