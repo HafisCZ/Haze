@@ -1,6 +1,46 @@
 #include <Haze.h>
 
 #include "imgui/imgui.h"
+#include <glm/gtc/matrix_transform.hpp>
+
+using namespace Haze;
+
+class MyAdapter : public ProgramAdapter 
+{
+	public:
+		MyAdapter(Program* p) : ProgramAdapter(p) {}
+
+		virtual void Set(Scene* s, Camera* c) 
+		{
+			glm::mat4 cam = glm::inverse(glm::lookAt(c->GetWorldPosition(), c->GetWorldPosition() + c->GetDirection(), glm::vec3(0.0f, 1.0f, 0.0f)));
+			cam = glm::translate(cam, glm::vec3(0.7f, -1.0f, -2.0f));
+
+			cam = glm::rotate(cam, glm::radians(15.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			cam = glm::rotate(cam, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			cam = glm::rotate(cam, glm::radians(15.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+
+			cam = glm::scale(cam, glm::vec3(0.7f));
+
+			_Program->SetUniform("uModelViewProjectionMatrix", c->GetProjectionMatrix() * c->GetViewMatrix() * cam);
+			_Program->SetUniform("uColor", 0.0f, 0.0f, 0.0f);
+		}
+
+		virtual void Set(Object* o, Camera* c) 
+		{
+
+		}	
+		
+		virtual void Set(Mesh* m, Camera* c)
+		{
+			_Program->SetUniform("uTexture[0]", m->Textures[0] != nullptr);
+			_Program->SetUniform("uTexture[1]", m->Textures[1] != nullptr);
+			_Program->SetUniform("uTexture[2]", m->Textures[2] != nullptr);
+
+			_Program->SetUniform("uTexture0", TextureAllocator::Bind(m->Textures[0]));
+			_Program->SetUniform("uTexture1", TextureAllocator::Bind(m->Textures[1]));
+			_Program->SetUniform("uTexture2", TextureAllocator::Bind(m->Textures[2]));
+		}
+};
 
 class MyLayer : public Haze::Layer {
 
@@ -10,12 +50,31 @@ class MyLayer : public Haze::Layer {
 		dr(
 			glm::vec4(0.0f, 0.0f, 1280.0f, 720.0f),
 			2048, 5,
-			new Haze::GeometryPassAdapter(new Haze::Program("../shaders/geom", Haze::ShaderTypeFragment | Haze::ShaderTypeVertex)),
-			new Haze::ShadingPassAdapter(new Haze::Program("../shaders/shade", Haze::ShaderTypeGeometry | Haze::ShaderTypeFragment | Haze::ShaderTypeVertex)),
-			new Haze::LightingPassAdapter(new Haze::Program("../shaders/light", Haze::ShaderTypeFragment | Haze::ShaderTypeVertex))
-		),
-		fr(new Haze::ForwardPassAdapter(new Haze::Program("../shaders/default", Haze::ShaderTypeFragment | Haze::ShaderTypeVertex))),
-		skyb(new Haze::SkyboxAdapter(new Haze::Program("../shaders/skybox", Haze::ShaderTypeFragment | Haze::ShaderTypeVertex)))
+			new Haze::GeometryPassAdapter(new Haze::Program({
+				Haze::Shader::FromFile("../shaders/geom.frag", Haze::ShaderType::Fragment),
+				Haze::Shader::FromFile("../shaders/geom.vert", Haze::ShaderType::Vertex)
+			})),
+			new Haze::ShadingPassAdapter(new Haze::Program({ 
+				Haze::Shader::FromFile("../shaders/shade.frag", Haze::ShaderType::Fragment),
+				Haze::Shader::FromFile("../shaders/shade.vert", Haze::ShaderType::Vertex),
+				Haze::Shader::FromFile("../shaders/shade.geom", Haze::ShaderType::Geometry)
+			})),
+			new Haze::LightingPassAdapter(new Haze::Program({ 
+				Haze::Shader::FromFile("../shaders/light.frag", Haze::ShaderType::Fragment),
+				Haze::Shader::FromFile("../shaders/light.vert", Haze::ShaderType::Vertex)
+			}))),
+		fr(new Haze::ForwardPassAdapter(new Haze::Program({
+			Haze::Shader::FromFile("../shaders/default.frag", Haze::ShaderType::Fragment),
+			Haze::Shader::FromFile("../shaders/default.vert", Haze::ShaderType::Vertex)
+		}))),
+		skyb(new Haze::SkyboxAdapter(new Haze::Program({
+			Haze::Shader::FromFile("../shaders/skybox.frag", Haze::ShaderType::Fragment),
+			Haze::Shader::FromFile("../shaders/skybox.vert", Haze::ShaderType::Vertex)
+		}))),
+		weap(new MyAdapter(new Program({
+			Shader::FromFile("../shaders/default.frag", ShaderType::Fragment),
+			Shader::FromFile("../shaders/default.vert", ShaderType::Vertex)
+		})))
 	{}
 
 	void OnUpdate() override {
@@ -96,6 +155,11 @@ class MyLayer : public Haze::Layer {
 		{
 			skyb.Draw(&scene, &camera, Haze::Mesh::GetCUBE());
 		}
+
+		if (scene.Item) 
+		{
+			weap.Draw(&scene, &camera, scene.Item);
+		}
 	}
 
 	void OnImGuiRender() override 
@@ -113,7 +177,7 @@ class MyLayer : public Haze::Layer {
 	}
 
 	Haze::DeferredRenderer dr;
-	Haze::ForwardRenderer fr, skyb;
+	Haze::ForwardRenderer fr, skyb, weap;
 
 	Haze::Scene scene;
 	Haze::Camera camera;

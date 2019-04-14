@@ -94,10 +94,11 @@ namespace Haze
 					triangles[i] = { indices[i * 3 + 0], indices[i * 3 + 1], indices[i * 3 + 2] };
 				}
 
-				Texture* textures[3];
+				Texture* textures[4];
 				textures[0] = loadMaterial(aiTextureType_DIFFUSE);
 				textures[1] = loadMaterial(aiTextureType_HEIGHT);
 				textures[2] = loadMaterial(aiTextureType_SPECULAR);
+				textures[3] = loadMaterial(aiTextureType_AMBIENT);
 
 				Mesh* modelMesh = new Mesh(vertices, triangles);
 				for (unsigned int i = 0; i < 3; i++) 

@@ -40,7 +40,7 @@ namespace Haze
 			IndexBuffer* IBO;
 			VertexBuffer* VBO;
 
-			Texture* Textures[3] = { nullptr, nullptr, nullptr };
+			Texture* Textures[4] = { nullptr, nullptr, nullptr, nullptr };
 
 		public:
 			static Mesh* GetCUBE();

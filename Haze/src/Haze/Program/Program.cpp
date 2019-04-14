@@ -6,9 +6,17 @@
 namespace Haze 
 {
 
-	Program::Program(const std::string& path, unsigned int type) 
+	Program::Program(std::initializer_list<Shader*> shaders) 
 	{
-		_Handle = ProgramLoader::BuildProgram(path, type);
+		_Handle = glCreateProgram();
+
+		for (auto shader : shaders) 
+		{
+			glAttachShader(_Handle, shader->_Handle);
+		}
+
+		glLinkProgram(_Handle);
+		glValidateProgram(_Handle);
 	}
 
 	Program::~Program() 
@@ -39,13 +47,13 @@ namespace Haze
 	void Program::SetUniformImpl(int loc, glm::mat4 a) { glUniformMatrix4fv(loc, 1, GL_FALSE, &a[0][0]); }
 
 	int Program::GetUniformLocation(const std::string& name) {
-		if (_LocationCache.find(name) == _LocationCache.end()) 
+		if (_Cache.find(name) == _Cache.end())
 		{
 			int location;
 
 			if ((location = glGetUniformLocation(_Handle, name.c_str())) != -1)
 			{
-				_LocationCache[name] = location;
+				_Cache[name] = location;
 			}
 			else
 			{
@@ -54,33 +62,15 @@ namespace Haze
 			}
 		}
 
-		return _LocationCache[name];
+		return _Cache[name];
 	}
 
-	unsigned int ProgramLoader::GetType(unsigned int type) 
+	Shader::~Shader() 
 	{
-		switch (type)
-		{
-			case ShaderType::ShaderTypeVertex: return GL_VERTEX_SHADER;
-			case ShaderType::ShaderTypeFragment: return GL_FRAGMENT_SHADER;
-			case ShaderType::ShaderTypeGeometry: return GL_GEOMETRY_SHADER;
-			default: return -1;
-		}
+		glDeleteShader(_Handle);
 	}
 
-	std::string ProgramLoader::GetPath(const std::string& path, unsigned int type) 
-	{
-		switch (type) 
-		{
-			case ShaderType::ShaderTypeVertex: return path + ".vert";
-			case ShaderType::ShaderTypeFragment: return path + ".frag";
-			case ShaderType::ShaderTypeGeometry: return path + ".geom";
-			default: return path;
-		}
-	}
-
-	std::string ProgramLoader::ReadFile(const std::string& filepath)
-	{
+	Shader* Shader::FromFile(const std::string& filepath, ShaderType type) {
 		std::ifstream stream(filepath);
 
 		if (!stream.is_open()) {
@@ -90,71 +80,51 @@ namespace Haze
 		std::string token, line;
 		std::ostringstream output;
 
-		while (getline(stream, line))
-		{
-			std::istringstream input(line);
-
-			if (input >> token) 
-			{
-				if (token.compare("#import") == 0) 
-				{
-					input >> token;
-					output << ReadFile(filepath.substr(0, filepath.find_last_of('/') + 1) + token) << '\n';
-				}
-				else 
-				{
-					output << line << '\n';
-				}
-			} 
-			else 
-			{
-				output << '\n';
-			}
+		while (getline(stream, line)) {
+			output << line << '\n';
 		}
 
-		return output.str();
+		return FromString(output.str(), type);
 	}
 
-	unsigned int ProgramLoader::BuildShader(const std::string& path, unsigned int shader) {
-		unsigned int sid = glCreateShader(GetType(shader));
+	int Shader::GetType(ShaderType type) {
+		switch (type) 
+		{
+			case ShaderType::Vertex: return GL_VERTEX_SHADER;
+			case ShaderType::Fragment: return GL_FRAGMENT_SHADER;
+			case ShaderType::Geometry: return GL_GEOMETRY_SHADER;
+		}
 
-		std::string raw = ReadFile(GetPath(path, shader));
-		const char* src = raw.c_str();
+		return -1;
+	}
 
-		glShaderSource(sid, 1, &src, nullptr);
-		glCompileShader(sid);
+	Shader* Shader::FromString(const std::string& text, ShaderType type) {
+		Shader* shader = new Shader();
+		shader->_Handle = glCreateShader(GetType(type));
+
+		const char* src = text.data();
+
+		glShaderSource(shader->_Handle, 1, &src, nullptr);
+		glCompileShader(shader->_Handle);
 
 		int glcs;
-		glGetShaderiv(sid, GL_COMPILE_STATUS, &glcs);
+		glGetShaderiv(shader->_Handle, GL_COMPILE_STATUS, &glcs);
 
 		if (glcs == GL_FALSE) {
 			int length;
-			glGetShaderiv(sid, GL_INFO_LOG_LENGTH, &length);
+			glGetShaderiv(shader->_Handle, GL_INFO_LOG_LENGTH, &length);
 
 			char* message = (char*)alloca(length * sizeof(char));
-			glGetShaderInfoLog(sid, length, &length, message);
+			glGetShaderInfoLog(shader->_Handle, length, &length, message);
 
 			HZ_CORE_WARN("Shader error: {0}", message);
 
-			glDeleteShader(sid);
+			glDeleteShader(shader->_Handle);
 
 			return 0;
 		}
 
-		return sid;
-	}
-
-	unsigned int ProgramLoader::BuildProgram(const std::string& path, unsigned int shaders) {
-		unsigned int hid = glCreateProgram();
-
-		if (shaders & ShaderType::ShaderTypeFragment) glAttachShader(hid, BuildShader(path, ShaderType::ShaderTypeFragment));
-		if (shaders & ShaderType::ShaderTypeVertex) glAttachShader(hid, BuildShader(path, ShaderType::ShaderTypeVertex));
-		if (shaders & ShaderType::ShaderTypeGeometry) glAttachShader(hid, BuildShader(path, ShaderType::ShaderTypeGeometry));
-
-		glLinkProgram(hid);
-		glValidateProgram(hid);
-
-		return hid;
+		return shader;
 	}
 
 }
