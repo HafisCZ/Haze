@@ -23,6 +23,8 @@ namespace Haze
 			void SetVSync(bool enabled) override;
 			bool IsVSync() const override;
 
+			void SetHideCursor(bool enabled) override;
+
 			inline virtual void* GetNativeWindow() const { return _Window; }
 
 		private:

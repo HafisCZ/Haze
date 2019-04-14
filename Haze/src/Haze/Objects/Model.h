@@ -40,7 +40,11 @@ namespace Haze
 			IndexBuffer* IBO;
 			VertexBuffer* VBO;
 
-			Texture* Textures[3];
+			Texture* Textures[3] = { nullptr, nullptr, nullptr };
+
+		public:
+			static Mesh* GetCUBE();
+			static Mesh* GetPLANE();
 	};
 
 	enum ModelLoaderFlags 
@@ -56,10 +60,9 @@ namespace Haze
 	{
 		public:
 			Model() {}
-			~Model() { for (auto m : Meshes) delete m; }
+			Model(std::vector<Mesh*>& meshes) : Meshes(std::move(meshes)) {}
 
-			std::vector<Mesh*>::iterator begin() { return Meshes.begin(); }
-			std::vector<Mesh*>::iterator end() { return Meshes.end(); }
+			~Model() { for (auto m : Meshes) delete m; }
 
 			std::vector<Mesh*> Meshes;
 	};

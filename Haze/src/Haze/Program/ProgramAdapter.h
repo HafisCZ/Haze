@@ -16,15 +16,16 @@ namespace Haze
 			virtual void Set(Object* object, Camera* camera) = 0;
 			virtual void Set(Mesh* mesh, Camera* camera) = 0;
 
+			virtual void OnFinish() {}
+
 			inline void Bind() { _Program->Bind(); }
-			
 			inline Program* GetProgram() { return _Program; }
 
 		protected:
 			Program* _Program;
 	};
 
-	class GeometryPassAdapter : public ProgramAdapter 
+	class HAZE_API GeometryPassAdapter : public ProgramAdapter
 	{
 		public:
 			GeometryPassAdapter(Program* program) : ProgramAdapter(program) {}
@@ -34,7 +35,7 @@ namespace Haze
 			virtual void Set(Mesh* mesh, Camera* camera) override;
 	};
 
-	class ShadingPassAdapter : public ProgramAdapter {
+	class HAZE_API ShadingPassAdapter : public ProgramAdapter {
 		public:
 			ShadingPassAdapter(Program* program) : ProgramAdapter(program) {}
 
@@ -43,18 +44,28 @@ namespace Haze
 			virtual void Set(Mesh* mesh, Camera* camera) override;
 	};
 
-	class LightPassAdapter : public ProgramAdapter {
+	class HAZE_API LightingPassAdapter : public ProgramAdapter {
 		public:
-			LightPassAdapter(Program* program) : ProgramAdapter(program) {}
+			LightingPassAdapter(Program* program) : ProgramAdapter(program) {}
 
 			virtual void Set(Scene* scene, Camera* camera) override;
 			virtual void Set(Object* object, Camera* camera) override;
 			virtual void Set(Mesh* mesh, Camera* camera) override;
 	};
 
-	class SkyboxAdapter : public ProgramAdapter {
+	class HAZE_API SkyboxAdapter : public ProgramAdapter {
 		public:
 			SkyboxAdapter(Program* program) : ProgramAdapter(program) {}
+
+			virtual void Set(Scene* scene, Camera* camera) override;
+			virtual void Set(Object* object, Camera* camera) override;
+			virtual void Set(Mesh* mesh, Camera* camera) override;
+			virtual void OnFinish() override;
+	};
+
+	class HAZE_API ForwardPassAdapter : public ProgramAdapter {
+		public:
+			ForwardPassAdapter(Program* program) : ProgramAdapter(program) {}
 
 			virtual void Set(Scene* scene, Camera* camera) override;
 			virtual void Set(Object* object, Camera* camera) override;

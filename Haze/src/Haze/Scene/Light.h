@@ -29,6 +29,10 @@ namespace Haze
 				Shadow(shadow);
 			}
 
+			void Reset() {
+				Set(glm::vec3(1.0f), glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(0.0f), false);
+			}
+
 		protected:
 			void Color(glm::vec3 color) { _Data[0] = color; }
 			void Vector(glm::vec3 vector) { _Data[1] = vector; }

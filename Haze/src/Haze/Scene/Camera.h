@@ -41,7 +41,6 @@ namespace Haze
 
 			void Reset();
 
-		private:
 			void UpdateMatrices();
 			
 			void OnWindowResizeEvent(WindowResizeEvent& event);
@@ -56,8 +55,6 @@ namespace Haze
 			glm::vec3 _RightVector;
 			glm::vec3 _UpVector;
 			glm::vec3 _WorldUpVector;
-
-			const glm::vec3 _WUpVector = glm::vec3(0.0f, 1.0f, 0.0f);
 
 			glm::vec4 _Viewport;
 

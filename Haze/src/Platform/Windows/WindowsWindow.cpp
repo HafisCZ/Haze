@@ -175,6 +175,18 @@ namespace Haze
 		glfwSwapBuffers(_Window);
 	}
 
+	void WindowsWindow::SetHideCursor(bool enabled)
+	{
+		if (enabled) 
+		{
+			glfwSetInputMode(_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);		
+		} 
+		else 
+		{
+			glfwSetInputMode(_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
+	}
+
 	void WindowsWindow::SetVSync(bool enabled) 
 	{
 		if (enabled) 

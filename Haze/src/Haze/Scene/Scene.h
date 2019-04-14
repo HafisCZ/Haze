@@ -17,8 +17,8 @@ namespace Haze
 		friend struct GUI;
 
 		public:
-			inline operator const glm::mat4& () { UpdateMatrices(); return _TempMatrix; }
-			inline const glm::mat4& Inverse() { UpdateMatrices(); return _TempMatrixI; }
+			const glm::mat4& Matrix() { UpdateMatrices(); return _TempMatrix; }
+			const glm::mat4& Inverse() { UpdateMatrices(); return _TempMatrixI; }
 
 			inline const glm::vec3& GetRotation() const { return _Rotation; }
 			inline const glm::vec3& GetScale() const { return _Scale; }
@@ -51,39 +51,19 @@ namespace Haze
 			Model* Model;
 			ModelMatrix Matrix;
 	};
-	
+
 	class HAZE_API Scene
 	{
-		private:
-			struct LightContainer
-			{
-				Light* Ambient = new AmbientLight(glm::vec3(1.0f), 0.1f);
-				Light* Vector = new VectorLight(glm::vec3(1.0f), glm::vec3(0.0f), 0.1f, 0.1f);
-				std::vector<Light*> Point;
-
-				~LightContainer() {
-					delete Ambient;
-					delete Vector;
-					for (auto m : Point) {
-						delete m;
-					}
-				}
-			};
-
 		public:
-			~Scene() {
-				delete Lights;
-				delete Skybox;
-				for (auto o : Objects) {
-					delete o;
-				}
-			}
-
 			std::vector<Object*> Objects;
-			LightContainer* Lights = new LightContainer();
-			TextureCube* Skybox;
 
-			Object* item = nullptr;
+			std::vector<PointLight> Point;
+			AmbientLight Ambient;
+			VectorLight Vector;
+
+			TextureCube* Skybox = nullptr;
+
+			Object* Item = nullptr;
 	};
 
 }

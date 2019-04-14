@@ -47,6 +47,11 @@ namespace Haze
 		ImGui::Spacing();
 	}
 
+	bool GUI::InFocus() 
+	{
+		return !ImGui::IsAnyWindowFocused();
+	}
+
 	void GUI::ScriptWindow(bool& show, std::array<char, 1000>& content, bool& execute) {
 		ImGui::Begin("Script", &show, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
 		{
@@ -101,6 +106,71 @@ namespace Haze
 		ImGui::End();
 	}
 
+	void GUI::Menu(Scene* scene, Camera* camera, int& drawmode) 
+	{
+		static bool win_camera = false;
+		static bool win_repository = false;
+		static bool win_setskybox = false;
+		static bool win_insertobject = false;
+		static bool win_objectmanager = false;
+		static bool win_lightmanager = false;
+		static bool win_script = false;
+
+		static std::array<char, 1000> script;
+		static bool script_execute = false;
+
+		if (win_camera) GUI::CameraWindow(win_camera, camera);
+		if (win_repository) GUI::RepositoryWindow(win_repository);
+		if (win_script) GUI::ScriptWindow(win_script, script, script_execute);
+		if (win_setskybox) GUI::SetSkyboxWindow(win_setskybox, scene);
+		if (win_insertobject) GUI::InsertObjectWindow(win_insertobject, scene);
+		if (win_objectmanager) GUI::ObjectManagerWindow(win_objectmanager, win_insertobject, scene, camera);
+		if (win_lightmanager) GUI::LightManagerWindow(win_lightmanager, scene, camera);
+
+		if (ImGui::BeginMainMenuBar()) {
+			if (ImGui::BeginMenu("HAZE")) {
+				double frametime = GUI::Sample();
+				if (frametime < 0.018) ImGui::TextColored(ImVec4(RGBTOF(23, 91, 37)), "%F", frametime);
+				else if (frametime < 0.021) ImGui::TextColored(ImVec4(RGBTOF(211, 214, 23)), "%F", frametime);
+				else ImGui::TextColored(ImVec4(RGBTOF(214, 64, 23)), "%F", frametime);
+				GUI::BigSeparator();
+				if (ImGui::BeginMenu("Drawing mode")) {
+					ImGui::RadioButton("Default", &drawmode, 0);
+					GUI::BigSpace();
+					ImGui::RadioButton("Position", &drawmode, 1);
+					ImGui::RadioButton("Normals", &drawmode, 2);
+					ImGui::RadioButton("Shadows", &drawmode, 5);
+					GUI::BigSeparator();
+					ImGui::Text("Textures");
+					GUI::BigSpace();
+					ImGui::RadioButton("Diffuse", &drawmode, 3);
+					ImGui::RadioButton("Specular", &drawmode, 4);
+					ImGui::EndMenu();
+				}
+				GUI::BigSeparator();
+				ImGui::MenuItem("Repository", 0, &win_repository);
+				ImGui::EndMenu();
+			}
+			ImGui::Separator();
+			if (ImGui::BeginMenu("Scene")) {
+				ImGui::MenuItem("Objects", 0, &win_objectmanager);
+				GUI::BigSpace();
+				ImGui::MenuItem("Lights", 0, &win_lightmanager);
+				GUI::BigSeparator();
+				ImGui::MenuItem("Skybox", 0, &win_setskybox);
+				ImGui::EndMenu();
+			}
+			ImGui::MenuItem("Camera", 0, &win_camera);
+			ImGui::MenuItem("Script", 0, &win_script);
+			ImGui::EndMainMenuBar();
+
+			if (script_execute) {
+				Interpreter::ExecuteScript(script.data(), scene, camera);
+				script_execute = false;
+			}
+		}
+	}
+
 	void GUI::CameraWindow(bool& show, Camera* camera) {
 		ImGui::Begin("Camera", &show, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoResize);
 		ImGui::SetWindowSize(ImVec2(400, 185));
@@ -120,9 +190,16 @@ namespace Haze
 
 			refresh |= ImGui::SliderFloat("Yaw", &camera->_Yaw, -360.0f, 360.0f, "%.0f");
 			refresh |= ImGui::SliderFloat("Pitch", &camera->_Pitch, -89.0f, 89.0f, "%.0f");
-
+		
 			if (refresh) {
 				camera->UpdateMatrices();
+			}
+
+			ImGui::Spacing();
+			bool refresh2 = ImGui::SliderFloat("Fov", &camera->_Fov, 30.0f, 120.0f, "%.0f");
+
+			if (refresh2) {
+				camera->SetFov(camera->_Fov);
 			}
 
 			ImGui::Spacing();
@@ -334,17 +411,13 @@ namespace Haze
 		{
 			if (ImGui::BeginMenuBar()) {
 				if (ImGui::MenuItem("Reset")) {
-					delete scene->Lights->Ambient;
-					delete scene->Lights->Vector;
-					for (auto& l : scene->Lights->Point) delete l;
-
-					scene->Lights->Ambient = new AmbientLight(glm::vec3(1.0f), 0.1f);
-					scene->Lights->Vector = new VectorLight(glm::vec3(1.0f), glm::vec3(0.0f, 1.0f, 0.0f), 0.1f, 0.1f);
-					scene->Lights->Point.clear();
+					scene->Ambient.Reset();
+					scene->Vector.Reset();
+					scene->Point.clear();
 				}
 
 				if (ImGui::MenuItem("Add light")) {
-					scene->Lights->Point.push_back(new PointLight(glm::vec3(1.0f), glm::vec3(0.0f), 0.0f, 0.0f, 0.007f, 0.0002f, false));
+					scene->Point.emplace_back(glm::vec3(1.0f), glm::vec3(0.0f), 0.0f, 0.0f, 0.007f, 0.0002f, false);
 				}
 
 				ImGui::EndMenuBar();
@@ -353,42 +426,39 @@ namespace Haze
 		{
 			if (ImGui::CollapsingHeader("Ambient light")) {
 				ImGui::Spacing();
-				ImGui::ColorEdit3("Color##ambient", &scene->Lights->Ambient->GetData()[0].x);
+				ImGui::ColorEdit3("Color##ambient", &scene->Ambient.GetData()[0].x);
 				ImGui::Spacing();
-				ImGui::SliderFloat("Intensity##ambient", &scene->Lights->Ambient->GetData()[2].x, 0.0f, 1.0f);
+				ImGui::SliderFloat("Intensity##ambient", &scene->Ambient.GetData()[2].x, 0.0f, 1.0f);
 			}
 
 			GUI::BigSpace();
 
 			if (ImGui::CollapsingHeader("Vector light")) {
 				ImGui::Spacing();
-				ImGui::ColorEdit3("Color##vector", &scene->Lights->Vector->GetData()[0].x);
+				ImGui::ColorEdit3("Color##vector", &scene->Vector.GetData()[0].x);
 				ImGui::Spacing();
-				ImGui::InputFloat3("Direction##vector", &scene->Lights->Vector->GetData()[1].x);
+				ImGui::InputFloat3("Direction##vector", &scene->Vector.GetData()[1].x);
 				ImGui::Spacing();
-				ImGui::SliderFloat("Intensity##vector", &scene->Lights->Vector->GetData()[2].y, 0.0f, 1.0f);
-				ImGui::SliderFloat("Specular##vector", &scene->Lights->Vector->GetData()[2].z, 0.0f, 1.0f);
+				ImGui::SliderFloat("Intensity##vector", &scene->Vector.GetData()[2].y, 0.0f, 1.0f);
+				ImGui::SliderFloat("Specular##vector", &scene->Vector.GetData()[2].z, 0.0f, 1.0f);
 				ImGui::Spacing();
-				if (ImGui::Button("Set using camera")) scene->Lights->Vector->GetData()[1] = camera->GetDirection();
+				if (ImGui::Button("Set using camera")) scene->Vector.GetData()[1] = camera->GetDirection();
 			}
 
 			BigSpace();
 
-			for (auto light : enumerate(scene->Lights->Point)) {
+			for (auto& light : enumerate(scene->Point)) {
 				ImGui::PushID((int) light.index);
 
 				bool expanded = ImGui::CollapsingHeader("Point light", ImGuiTreeNodeFlags_AllowOverlapMode);
 				ImGui::SameLine(ImGui::GetWindowWidth() - 70);
 				if (ImGui::Button("Remove")) {
-					auto l = light.value;
-					scene->Lights->Point.erase(scene->Lights->Point.begin() + light.index);
-					delete l;
-
+					scene->Point.erase(scene->Point.begin() + light.index);
 					ImGui::PopID();
 					break;
 				}
 
-				auto& data = light.value->GetData();
+				auto& data = light.value.GetData();
 
 				if (expanded) {
 					ImGui::Spacing();
@@ -402,7 +472,7 @@ namespace Haze
 					ImGui::InputFloat("Linear", &data[3].y, 0, 0, "%.4f");
 					ImGui::InputFloat("Quadratic", &data[3].z, 0, 0, "%.4f");
 					ImGui::Spacing();
-					ImGui::Checkbox("Casts shadow", &light.value->IsCastingShadow());
+					ImGui::Checkbox("Casts shadow", &light.value.IsCastingShadow());
 					ImGui::Spacing();
 					ImGui::Columns(2, 0, false);
 					if (ImGui::Button("Set using camera")) data[1] = camera->GetWorldPosition();

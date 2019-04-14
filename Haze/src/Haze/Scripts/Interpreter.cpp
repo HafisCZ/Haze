@@ -9,7 +9,7 @@
 namespace Haze
 {
 
-	void Interpreter::ExecuteScript(char* script, Scene*& scene, Camera*& camera) {
+	void Interpreter::ExecuteScript(char* script, Scene* scene, Camera* camera) {
 		std::vector<Command*> commands;
 		Interpreter::TranslateScript(script, commands);
 
@@ -111,7 +111,7 @@ namespace Haze
 		}
 	}
 
-	void Interpreter::InvokeCommand(Command* cmd, Scene*& scene, Camera*& camera) {
+	void Interpreter::InvokeCommand(Command* cmd, Scene* scene, Camera* camera) {
 		using OP = Haze::Instruction;
 		using CheckVector = std::vector<std::pair<Instruction, int>>;
 		
@@ -194,25 +194,25 @@ namespace Haze
 		{
 			Command* sub = cmd->Next;
 		
-			scene->Lights->Vector = new VectorLight(sub->Vec(), sub->Vec(3), sub->Float(6), sub->Float(7));
+			scene->Vector.Set(sub->Vec(), sub->Vec(3), glm::vec3(0.0f, sub->Float(6), sub->Float(7)), glm::vec3(0.0f), false);
 		}
 		else if (Command::Match(cmd, LIGHT_AMBIENT)) 
 		{
 			Command* sub = cmd->Next;
 
-			scene->Lights->Ambient = new AmbientLight(sub->Vec(), sub->Float(3));
+			scene->Vector.Set(sub->Vec(), glm::vec3(0.0f), glm::vec3(sub->Float(3), 0.0f, 0.0f), glm::vec3(0.0f), false);
 		}
 		else if (Command::Match(cmd, LIGHT_RESET)) 
 		{
-			scene->Lights->Ambient = new AmbientLight();
-			scene->Lights->Vector = new VectorLight();
-			scene->Lights->Point.clear();
+			scene->Ambient.Reset();
+			scene->Vector.Reset();
+			scene->Point.clear();
 		}
 		else if (Command::Match(cmd, LIGHT_ADD)) 
 		{
 			Command* sub = cmd->Next;
 
-			scene->Lights->Point.push_back(new PointLight(sub->Vec(), sub->Vec(3), sub->Float(6), sub->Float(7), sub->Float(8), sub->Float(9), sub->Int(10)));
+			scene->Point.emplace_back(sub->Vec(), sub->Vec(3), sub->Float(6), sub->Float(7), sub->Float(8), sub->Float(9), sub->Int(10));
 		}
 		else if (Command::Match(cmd, LIGHT_SELECT)) 
 		{
@@ -222,10 +222,10 @@ namespace Haze
 
 			if (Command::Match(sub, SET_11)) 
 			{
-				scene->Lights->Point[index]->Set(sub->Vec(), sub->Vec(3), glm::vec3(0.0f, sub->Float(6), sub->Float(7)), glm::vec3(1.0f, sub->Float(8), sub->Float(9)), sub->Int(10));
+				scene->Point[index].Set(sub->Vec(), sub->Vec(3), glm::vec3(0.0f, sub->Float(6), sub->Float(7)), glm::vec3(1.0f, sub->Float(8), sub->Float(9)), sub->Int(10));
 			}
 			else if (Command::Match(sub, REMOVE)) {
-				scene->Lights->Point.erase(scene->Lights->Point.begin() + index);
+				scene->Point.erase(scene->Point.begin() + index);
 			}
 		}
 		else if (Command::Match(cmd, SKYBOX_SET))

@@ -8,9 +8,15 @@
 #include "Haze/KeyCodes.h"
 #include "Haze/MouseButtonCodes.h"
 
+#include "Haze/Events/Event.h"
+#include "Haze/Events/ApplicationEvent.h"
+#include "Haze/Events/KeyEvent.h"
+#include "Haze/Events/MouseEvent.h"
+
+#include "Haze/Renderer/Renderer.h"
+
 #include "Haze/Objects/AssimpLoader.h"
 #include "Haze/Program/Program.h"
-#include "Haze/Renderer.h"
 
 #include "Haze/ImGui/ImGuiLayer.h"
 
