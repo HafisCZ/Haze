@@ -14,7 +14,7 @@ namespace Haze
 
 	Model* AssimpLoader::LoadImpl(const std::string& path, ModelLoaderFlags flags)
 	{
-		Model* model = new Model();
+		Model* model = new Model(path);
 
 		Assimp::Importer importer;
 		

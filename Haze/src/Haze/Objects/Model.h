@@ -60,11 +60,13 @@ namespace Haze
 	{
 		public:
 			Model() {}
+			Model(const std::string& name) : Name(name) {}
 			Model(std::vector<Mesh*>& meshes) : Meshes(std::move(meshes)) {}
 
 			~Model() { for (auto m : Meshes) delete m; }
 
 			std::vector<Mesh*> Meshes;
+			std::string Name;
 	};
 
 	class HAZE_API ModelLoader

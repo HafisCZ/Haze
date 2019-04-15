@@ -14,7 +14,7 @@ namespace Haze
 		static void BigSeparator();
 		static void BigSpace();
 
-		static void ScriptWindow(bool& show, std::array<char, 1000>& content, bool& execute);
+		static void ScriptWindow(bool& show, Scene* scene, Camera* camera);
 
 		static void RepositoryWindow(bool& show);
 		static void CameraWindow(bool& show, Haze::Camera* camera);

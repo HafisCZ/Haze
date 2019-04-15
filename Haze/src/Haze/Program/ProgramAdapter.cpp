@@ -141,7 +141,7 @@ namespace Haze
 				_Program->SetUniform("uFace[" + std::to_string(index * 6 + i) + "]", perspective * glm::lookAt(light.GetData()[1], light.GetData()[1] + vectors[i], i == 2 ? vectors[4] : (i == 3 ? vectors[5] : vectors[3])));
 			}
 
-			if (++index > 5) {
+			if (++index >= 5) {
 				break;
 			}
 		}

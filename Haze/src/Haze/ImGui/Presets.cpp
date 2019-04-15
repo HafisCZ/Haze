@@ -52,17 +52,45 @@ namespace Haze
 		return !ImGui::IsAnyWindowFocused();
 	}
 
-	void GUI::ScriptWindow(bool& show, std::array<char, 1000>& content, bool& execute) {
+	void GUI::ScriptWindow(bool& show, Scene* scene, Camera* camera) 
+	{
+		static std::array<char, 5000> script;
+		static std::array<char, 100> script_dump_location;
+
 		ImGui::Begin("Script", &show, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
 		{
 			ImGui::BeginMenuBar();
 			if (ImGui::MenuItem("Run")) {
-				execute = true;
+				Interpreter::ExecuteScript(script.data(), scene, camera);
 			}
+
+			ImGui::Separator();
+
+			ImGui::Text("File: ");
+
+			if (ImGui::MenuItem("Dump")) {
+				if (std::string(script_dump_location.data()).size() > 0) {
+					Interpreter::Dump(std::string(script_dump_location.data()), scene, camera);
+				} else {
+					Interpreter::Dump(script, scene, camera);
+				}
+			}
+			if (ImGui::MenuItem("Run")) {
+				std::fstream ifs(std::string(script_dump_location.data()) , std::ios::in);
+				if (ifs.is_open()) {
+					std::stringstream ss;
+					std::string s;
+					while (getline(ifs, s)) ss << s;
+
+					Interpreter::ExecuteScript(ss.str().data(), scene, camera);
+				}
+			}
+		
+			ImGui::InputText("##outscript", script_dump_location.data(), script_dump_location.size());
 			ImGui::EndMenuBar();
 		}
 		{
-			ImGui::InputTextMultiline("##input", content.data(), content.size(), ImVec2(600, 400));
+			ImGui::InputTextMultiline("##input", script.data(), script.size(), ImVec2(600, 400));
 		}
 		ImGui::End();
 	}
@@ -116,12 +144,9 @@ namespace Haze
 		static bool win_lightmanager = false;
 		static bool win_script = false;
 
-		static std::array<char, 1000> script;
-		static bool script_execute = false;
-
 		if (win_camera) GUI::CameraWindow(win_camera, camera);
 		if (win_repository) GUI::RepositoryWindow(win_repository);
-		if (win_script) GUI::ScriptWindow(win_script, script, script_execute);
+		if (win_script) GUI::ScriptWindow(win_script, scene, camera);
 		if (win_setskybox) GUI::SetSkyboxWindow(win_setskybox, scene);
 		if (win_insertobject) GUI::InsertObjectWindow(win_insertobject, scene);
 		if (win_objectmanager) GUI::ObjectManagerWindow(win_objectmanager, win_insertobject, scene, camera);
@@ -163,17 +188,12 @@ namespace Haze
 			ImGui::MenuItem("Camera", 0, &win_camera);
 			ImGui::MenuItem("Script", 0, &win_script);
 			ImGui::EndMainMenuBar();
-
-			if (script_execute) {
-				Interpreter::ExecuteScript(script.data(), scene, camera);
-				script_execute = false;
-			}
 		}
 	}
 
 	void GUI::CameraWindow(bool& show, Camera* camera) {
 		ImGui::Begin("Camera", &show, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoResize);
-		ImGui::SetWindowSize(ImVec2(400, 185));
+		ImGui::SetWindowSize(ImVec2(400, 210));
 		{
 			ImGui::BeginMenuBar();
 			if (ImGui::MenuItem("Reset")) {
@@ -330,12 +350,17 @@ namespace Haze
 					scene->Objects.erase(scene->Objects.begin() + index);
 					delete obj;
 					preview = "";
+
+					ImGui::End();
+					return;
 				}
 
 				ImGui::SameLine(ImGui::GetWindowWidth() - 100);
 				if (ImGui::Button("Move to aim")) {
 					scene->Objects[index]->Matrix.SetPosition(camera->GetWorldPointer().first);
 				}
+
+				ImGui::Text(obj->Model->Name.data());
 
 				if (ImGui::CollapsingHeader("Details")) {
 					bool expanded = ImGui::TreeNode("Meshes");

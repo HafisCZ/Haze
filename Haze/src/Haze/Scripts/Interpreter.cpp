@@ -4,6 +4,7 @@
 #include "Haze/Scene/Scene.h"
 #include "Haze/Scene/Camera.h"
 
+#include <iomanip>
 #include <regex>
 
 namespace Haze
@@ -16,6 +17,79 @@ namespace Haze
 		for (auto command : commands) {
 			Interpreter::InvokeCommand(command, scene, camera);
 		}
+	}
+
+	void Interpreter::Dump(std::array<char, 5000>& out, Scene* scene, Camera* camera)
+	{
+		std::stringstream stream;
+
+		stream << std::setprecision(3);
+
+		stream << "light reset;\n";
+		stream << "object reset;\n";
+		stream << "camera set(" << camera->_WorldPosition.x << "," << camera->_WorldPosition.y << "," << camera->_WorldPosition.z << "," << camera->_Yaw << "," << camera->_Pitch << "," << camera->_Fov << ");\n";
+
+		for (int i = 0; i < scene->Objects.size(); i++) {
+			auto obj = scene->Objects[i];
+			stream << "object add(" << obj->Model->Name << ");\n";
+			stream << "object(" << i << ") position(" << obj->Matrix._Position.x << "," << obj->Matrix._Position.y << "," << obj->Matrix._Position.z << ");\n";
+			stream << "object(" << i << ") rotation(" << obj->Matrix._Rotation.x << "," << obj->Matrix._Rotation.y << "," << obj->Matrix._Rotation.z << ");\n";
+			stream << "object(" << i << ") scale(" << obj->Matrix._Scale.x << "," << obj->Matrix._Scale.y << "," << obj->Matrix._Scale.z << ");\n";
+		}
+
+		stream << "light ambient(" << scene->Ambient.GetData()[0].x << "," << scene->Ambient.GetData()[0].y << "," << scene->Ambient.GetData()[0].z << "," << scene->Ambient.GetData()[2].x << ");\n";
+		stream << "light vector(" << scene->Vector.GetData()[0].x << "," << scene->Vector.GetData()[0].y << "," << scene->Vector.GetData()[0].z << "," << scene->Vector.GetData()[1].x << "," << scene->Vector.GetData()[1].y << "," << scene->Vector.GetData()[1].z << "," << scene->Vector.GetData()[2].y << scene->Vector.GetData()[2].z << ");\n";
+
+		for (int i = 0; i < scene->Point.size(); i++) {
+			auto l = scene->Point[i];
+			stream << "light add(" <<
+				l.GetData()[0].x << "," << l.GetData()[0].y << "," << l.GetData()[0].z << "," <<
+				l.GetData()[1].x << "," << l.GetData()[1].y << "," << l.GetData()[1].z << "," <<
+				l.GetData()[2].y << "," << l.GetData()[2].z << "," <<
+				l.GetData()[3].y << "," << l.GetData()[3].z << "," <<  (l.IsCastingShadow() ? "1" : "0") << ");\n";
+		}
+
+		out.fill(0);
+
+		unsigned int pos = 0;
+		for (auto c : stream.str()) 
+		{
+			if (pos >= out.size()) break;
+			out[pos++] = c;
+		}
+	}
+
+	void Interpreter::Dump(const std::string& out, Scene* scene, Camera* camera) {
+		std::stringstream stream;
+
+		stream << std::setprecision(3);
+
+		stream << "light reset;\n";
+		stream << "object reset;\n";
+		stream << "camera set(" << camera->_WorldPosition.x << "," << camera->_WorldPosition.y << "," << camera->_WorldPosition.z << "," << camera->_Yaw << "," << camera->_Pitch << "," << camera->_Fov << ");\n";
+
+		for (int i = 0; i < scene->Objects.size(); i++) {
+			auto obj = scene->Objects[i];
+			stream << "object add(" << obj->Model->Name << ");\n";
+			stream << "object(" << i << ") position(" << obj->Matrix._Position.x << "," << obj->Matrix._Position.y << "," << obj->Matrix._Position.z << ");\n";
+			stream << "object(" << i << ") rotation(" << obj->Matrix._Rotation.x << "," << obj->Matrix._Rotation.y << "," << obj->Matrix._Rotation.z << ");\n";
+			stream << "object(" << i << ") scale(" << obj->Matrix._Scale.x << "," << obj->Matrix._Scale.y << "," << obj->Matrix._Scale.z << ");\n";
+		}
+
+		stream << "light ambient(" << scene->Ambient.GetData()[0].x << "," << scene->Ambient.GetData()[0].y << "," << scene->Ambient.GetData()[0].z << "," << scene->Ambient.GetData()[2].x << ");\n";
+		stream << "light vector(" << scene->Vector.GetData()[0].x << "," << scene->Vector.GetData()[0].y << "," << scene->Vector.GetData()[0].z << "," << scene->Vector.GetData()[1].x << "," << scene->Vector.GetData()[1].y << "," << scene->Vector.GetData()[1].z << "," << scene->Vector.GetData()[2].y << scene->Vector.GetData()[2].z << ");\n";
+
+		for (int i = 0; i < scene->Point.size(); i++) {
+			auto l = scene->Point[i];
+			stream << "light add(" <<
+				l.GetData()[0].x << "," << l.GetData()[0].y << "," << l.GetData()[0].z << "," <<
+				l.GetData()[1].x << "," << l.GetData()[1].y << "," << l.GetData()[1].z << "," <<
+				l.GetData()[2].y << "," << l.GetData()[2].z << "," <<
+				l.GetData()[3].y << "," << l.GetData()[3].z << "," << (l.IsCastingShadow() ? "1" : "0") << ");\n";
+		}
+
+		std::fstream ostr(out, std::ios::trunc | std::ios::out);
+		ostr << stream.str();
 	}
 
 	void Interpreter::TranslateScript(char* sscript, std::vector<Command*>& commands) {
@@ -115,7 +189,7 @@ namespace Haze
 		using OP = Haze::Instruction;
 		using CheckVector = std::vector<std::pair<Instruction, int>>;
 		
-		static CheckVector CAMERA_SET{ {OP::Camera, 0}, {OP::Set, 5} };
+		static CheckVector CAMERA_SET{ {OP::Camera, 0}, {OP::Set, 6} };
 
 		static CheckVector OBJECT_ADD{ {OP::Object, 0}, {OP::Add, 1} };
 		static CheckVector OBJECT_RESET{ {OP::Object, 0}, {OP::Reset, 0} };
@@ -145,6 +219,7 @@ namespace Haze
 			camera->_WorldPosition = sub->Vec();
 			camera->_Yaw = sub->Float(3);
 			camera->_Pitch = sub->Float(4);
+			camera->_Fov = sub->Float(5);
 			camera->UpdateMatrices();
 		} 
 		else if (Command::Match(cmd, OBJECT_ADD)) 
@@ -200,7 +275,7 @@ namespace Haze
 		{
 			Command* sub = cmd->Next;
 
-			scene->Vector.Set(sub->Vec(), glm::vec3(0.0f), glm::vec3(sub->Float(3), 0.0f, 0.0f), glm::vec3(0.0f), false);
+			scene->Ambient.Set(sub->Vec(), glm::vec3(0.0f), glm::vec3(sub->Float(3), 0.0f, 0.0f), glm::vec3(0.0f), false);
 		}
 		else if (Command::Match(cmd, LIGHT_RESET)) 
 		{
