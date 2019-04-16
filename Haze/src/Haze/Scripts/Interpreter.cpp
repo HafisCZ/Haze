@@ -38,7 +38,7 @@ namespace Haze
 		}
 
 		stream << "light ambient(" << scene->Ambient.GetData()[0].x << "," << scene->Ambient.GetData()[0].y << "," << scene->Ambient.GetData()[0].z << "," << scene->Ambient.GetData()[2].x << ");\n";
-		stream << "light vector(" << scene->Vector.GetData()[0].x << "," << scene->Vector.GetData()[0].y << "," << scene->Vector.GetData()[0].z << "," << scene->Vector.GetData()[1].x << "," << scene->Vector.GetData()[1].y << "," << scene->Vector.GetData()[1].z << "," << scene->Vector.GetData()[2].y << scene->Vector.GetData()[2].z << ");\n";
+		stream << "light vector(" << scene->Vector.GetData()[0].x << "," << scene->Vector.GetData()[0].y << "," << scene->Vector.GetData()[0].z << "," << scene->Vector.GetData()[1].x << "," << scene->Vector.GetData()[1].y << "," << scene->Vector.GetData()[1].z << "," << scene->Vector.GetData()[2].y << "," << scene->Vector.GetData()[2].z << ");\n";
 
 		for (int i = 0; i < scene->Point.size(); i++) {
 			auto l = scene->Point[i];
@@ -77,7 +77,7 @@ namespace Haze
 		}
 
 		stream << "light ambient(" << scene->Ambient.GetData()[0].x << "," << scene->Ambient.GetData()[0].y << "," << scene->Ambient.GetData()[0].z << "," << scene->Ambient.GetData()[2].x << ");\n";
-		stream << "light vector(" << scene->Vector.GetData()[0].x << "," << scene->Vector.GetData()[0].y << "," << scene->Vector.GetData()[0].z << "," << scene->Vector.GetData()[1].x << "," << scene->Vector.GetData()[1].y << "," << scene->Vector.GetData()[1].z << "," << scene->Vector.GetData()[2].y << scene->Vector.GetData()[2].z << ");\n";
+		stream << "light vector(" << scene->Vector.GetData()[0].x << "," << scene->Vector.GetData()[0].y << "," << scene->Vector.GetData()[0].z << "," << scene->Vector.GetData()[1].x << "," << scene->Vector.GetData()[1].y << "," << scene->Vector.GetData()[1].z << "," << scene->Vector.GetData()[2].y << "," << scene->Vector.GetData()[2].z << ");\n";
 
 		for (int i = 0; i < scene->Point.size(); i++) {
 			auto l = scene->Point[i];
