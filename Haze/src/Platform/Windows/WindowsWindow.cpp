@@ -64,6 +64,8 @@ namespace Haze
 		
 		SetVSync(true);
 
+		glEnable(GL_MULTISAMPLE);
+
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 

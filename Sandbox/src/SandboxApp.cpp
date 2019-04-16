@@ -164,7 +164,7 @@ class MyLayer : public Haze::Layer {
 
 	void OnImGuiRender() override 
 	{
-		Haze::GUI::Menu(&scene, &camera, dr._DrawMode);
+		Haze::GUI::Menu(&scene, &camera, dr._DrawMode, dr._DrawNormals);
 	}
 
 	void OnEvent(Haze::Event& event) override {

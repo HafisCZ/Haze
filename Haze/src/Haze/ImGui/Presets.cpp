@@ -134,7 +134,7 @@ namespace Haze
 		ImGui::End();
 	}
 
-	void GUI::Menu(Scene* scene, Camera* camera, int& drawmode) 
+	void GUI::Menu(Scene* scene, Camera* camera, int& drawmode, int& normals)
 	{
 		static bool win_camera = false;
 		static bool win_repository = false;
@@ -143,6 +143,7 @@ namespace Haze
 		static bool win_objectmanager = false;
 		static bool win_lightmanager = false;
 		static bool win_script = false;
+		static bool win_normals[2] = { false, false };
 
 		if (win_camera) GUI::CameraWindow(win_camera, camera);
 		if (win_repository) GUI::RepositoryWindow(win_repository);
@@ -173,6 +174,12 @@ namespace Haze
 					ImGui::EndMenu();
 				}
 				GUI::BigSeparator();
+				if (ImGui::BeginMenu("Overlays")) {
+					ImGui::Checkbox("(V) Normals", win_normals);
+					ImGui::Checkbox("(F) Normals", win_normals + 1);
+					ImGui::EndMenu();
+				}
+				GUI::BigSeparator();
 				ImGui::MenuItem("Repository", 0, &win_repository);
 				ImGui::EndMenu();
 			}
@@ -188,6 +195,9 @@ namespace Haze
 			ImGui::MenuItem("Camera", 0, &win_camera);
 			ImGui::MenuItem("Script", 0, &win_script);
 			ImGui::EndMainMenuBar();
+
+			normals = normals & ~BIT(0) | (win_normals[0] << 0);
+			normals = normals & ~BIT(1) | (win_normals[1] << 1);
 		}
 	}
 

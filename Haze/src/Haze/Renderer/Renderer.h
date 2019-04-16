@@ -22,6 +22,7 @@ namespace Haze
 
 		public:
 			int _DrawMode = 0;
+			int _DrawNormals = 0;
 	};
 
 	class HAZE_API ForwardRenderer : public Renderer 

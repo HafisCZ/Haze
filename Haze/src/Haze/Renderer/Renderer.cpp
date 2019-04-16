@@ -148,6 +148,29 @@ namespace Haze
 		Renderer::Draw(Mesh::GetPLANE());
 		
 		_GBuffer.Copy();
+
+		if (_DrawNormals > 0)
+		{
+			static Program p({
+				Shader::FromFile("../shaders/nvisual.vert", ShaderType::Vertex),
+				Shader::FromFile("../shaders/nvisual.frag", ShaderType::Fragment),
+				Shader::FromFile("../shaders/nvisual.geom", ShaderType::Geometry)
+			});
+
+			p.Bind();
+			p.SetUniform("uVertexNormalColor", 244.0f / 255.0f, 235.0f / 255.0f, 66.0f / 255.0f, 1.0f);
+			p.SetUniform("uFaceNormalColor", 66.0f / 255.0f, 134.0f / 255.0f, 244.0f / 255.0f, 1.0f);
+			p.SetUniform("uVertexNormalE", _DrawNormals & BIT(0));
+			p.SetUniform("uFaceNormalE", _DrawNormals & BIT(1));
+			p.SetUniform("uNormalLength", 0.25f);
+
+			for (auto obj : scene->Objects) {
+				p.SetUniform("uModelViewProjectionMatrix", camera->GetProjectionMatrix() * camera->GetViewMatrix() * obj->Matrix.Matrix());
+				for (auto mesh : obj->Model->Meshes) {
+					Renderer::Draw(mesh);
+				}
+			}
+		}
 	}
 
 	void DeferredRenderer::OnWindowResizeEvent(WindowResizeEvent& event)
