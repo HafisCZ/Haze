@@ -143,7 +143,7 @@ namespace Haze
 		static bool win_objectmanager = false;
 		static bool win_lightmanager = false;
 		static bool win_script = false;
-		static bool win_normals[2] = { false, false };
+		static bool win_normals[3] = { false, false, false };
 
 		if (win_camera) GUI::CameraWindow(win_camera, camera);
 		if (win_repository) GUI::RepositoryWindow(win_repository);
@@ -177,6 +177,7 @@ namespace Haze
 				if (ImGui::BeginMenu("Overlays")) {
 					ImGui::Checkbox("(V) Normals", win_normals);
 					ImGui::Checkbox("(F) Normals", win_normals + 1);
+					ImGui::Checkbox("No CULLFACE", win_normals + 2);
 					ImGui::EndMenu();
 				}
 				GUI::BigSeparator();
@@ -198,6 +199,7 @@ namespace Haze
 
 			normals = normals & ~BIT(0) | (win_normals[0] << 0);
 			normals = normals & ~BIT(1) | (win_normals[1] << 1);
+			normals = normals & ~BIT(2) | (win_normals[2] << 2);
 		}
 	}
 

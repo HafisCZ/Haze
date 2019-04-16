@@ -82,6 +82,8 @@ namespace Haze
 
 	void DeferredRenderer::Draw(Scene* scene, Camera* camera)
 	{
+		if (_DrawOverlayMode & BIT(2)) glDisable(GL_CULL_FACE);
+
 		_GBuffer.Bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -149,7 +151,7 @@ namespace Haze
 		
 		_GBuffer.Copy();
 
-		if (_DrawNormals > 0)
+		if (_DrawOverlayMode > 0)
 		{
 			static Program p({
 				Shader::FromFile("../shaders/nvisual.vert", ShaderType::Vertex),
@@ -160,8 +162,8 @@ namespace Haze
 			p.Bind();
 			p.SetUniform("uVertexNormalColor", 244.0f / 255.0f, 235.0f / 255.0f, 66.0f / 255.0f, 1.0f);
 			p.SetUniform("uFaceNormalColor", 66.0f / 255.0f, 134.0f / 255.0f, 244.0f / 255.0f, 1.0f);
-			p.SetUniform("uVertexNormalE", _DrawNormals & BIT(0));
-			p.SetUniform("uFaceNormalE", _DrawNormals & BIT(1));
+			p.SetUniform("uVertexNormalE", _DrawOverlayMode & BIT(0));
+			p.SetUniform("uFaceNormalE", _DrawOverlayMode & BIT(1));
 			p.SetUniform("uNormalLength", 0.25f);
 
 			for (auto obj : scene->Objects) {
@@ -171,6 +173,8 @@ namespace Haze
 				}
 			}
 		}
+
+		if (_DrawOverlayMode & BIT(2)) glEnable(GL_CULL_FACE);
 	}
 
 	void DeferredRenderer::OnWindowResizeEvent(WindowResizeEvent& event)

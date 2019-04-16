@@ -78,30 +78,42 @@ class MyLayer : public Haze::Layer {
 	{}
 
 	void OnUpdate() override {
+		static bool fpsCamStyle = true, fpsCamStyleLast = false;
+
 		if (Haze::GUI::InFocus()) {
-			static float dy = 0, dx = 0;
 			static bool jmp = true;
 
-			if (Haze::Input::IsKeyPressed(HZ_KEY_W)) camera.Move(0, 0, 1, true);
-			if (Haze::Input::IsKeyPressed(HZ_KEY_S)) camera.Move(0, 0, -1, true);
-			if (Haze::Input::IsKeyPressed(HZ_KEY_A)) camera.Move(-1, 0, 0, true);
-			if (Haze::Input::IsKeyPressed(HZ_KEY_D)) camera.Move(1, 0, 0, true);
+			if (fpsCamStyle) {
+				static float dy = 0, dx = 0;
+		
+				if (Haze::Input::IsKeyPressed(HZ_KEY_W)) camera.Move(0, 0, 1, true);
+				if (Haze::Input::IsKeyPressed(HZ_KEY_S)) camera.Move(0, 0, -1, true);
+				if (Haze::Input::IsKeyPressed(HZ_KEY_A)) camera.Move(-1, 0, 0, true);
+				if (Haze::Input::IsKeyPressed(HZ_KEY_D)) camera.Move(1, 0, 0, true);
 
-			if (Haze::Input::IsKeyPressed(HZ_KEY_SPACE) && !jmp) {
-				jmp = true;
-				dy += 1.0f;
-			}
+				if (Haze::Input::IsKeyPressed(HZ_KEY_SPACE) && !jmp) {
+					jmp = true;
+					dy += 1.0f;
+				}
 
-			if (jmp) {
-				dy -= 0.05f;
-			}
+				if (jmp) {
+					dy -= 0.05f;
+				}
 
-			camera.Move(0, dy, 0, true);
-			if (camera.GetWorldPosition().y < 2.0f) {
-				camera.Set(camera.GetWorldPosition().x, 2.0f, camera.GetWorldPosition().z);
-				camera.UpdateMatrices();
-				jmp = false;
-				dy = 0.0f;
+				camera.Move(0, dy, 0, true);
+				if (camera.GetWorldPosition().y < 2.0f) {
+					camera.Set(camera.GetWorldPosition().x, 2.0f, camera.GetWorldPosition().z);
+					camera.UpdateMatrices();
+					jmp = false;
+					dy = 0.0f;
+				}
+			} else {
+				if (Haze::Input::IsKeyPressed(HZ_KEY_W)) camera.Move(0, 0, 1);
+				if (Haze::Input::IsKeyPressed(HZ_KEY_S)) camera.Move(0, 0, -1);
+				if (Haze::Input::IsKeyPressed(HZ_KEY_A)) camera.Move(-1, 0, 0);
+				if (Haze::Input::IsKeyPressed(HZ_KEY_D)) camera.Move(1, 0, 0);
+				if (Haze::Input::IsKeyPressed(HZ_KEY_SPACE)) camera.Move(0, 1, 0);
+				if (Haze::Input::IsKeyPressed(HZ_KEY_C)) camera.Move(0, -1, 0);
 			}
 
 			if (Haze::Input::IsKeyPressed(HZ_KEY_1)) {
@@ -114,8 +126,7 @@ class MyLayer : public Haze::Layer {
 			}
 			if (Haze::Input::IsKeyPressed(HZ_KEY_0)) scene.Item = nullptr;
 
-			static bool lookMode = false;
-			static bool lookModeLast = false;
+			static bool lookMode = false, lookModeLast = false;
 			bool lookModeNow = Haze::Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_2);
 
 			if (!lookModeLast && lookModeNow) {
@@ -147,6 +158,15 @@ class MyLayer : public Haze::Layer {
 				lastx = x;
 				lasty = y;
 			}
+
+			bool fpsCamStyleNow = Haze::Input::IsKeyPressed(HZ_KEY_Q);
+
+			if (!fpsCamStyleLast && fpsCamStyleNow) {
+				fpsCamStyle = !fpsCamStyle;
+				jmp = true;
+			}
+
+			fpsCamStyleLast = fpsCamStyleNow;
 		}
 		
 		dr.Draw(&scene, &camera);
@@ -164,7 +184,7 @@ class MyLayer : public Haze::Layer {
 
 	void OnImGuiRender() override 
 	{
-		Haze::GUI::Menu(&scene, &camera, dr._DrawMode, dr._DrawNormals);
+		Haze::GUI::Menu(&scene, &camera, dr._DrawMode, dr._DrawOverlayMode);
 	}
 
 	void OnEvent(Haze::Event& event) override {
