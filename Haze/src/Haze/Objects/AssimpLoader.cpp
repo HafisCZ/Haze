@@ -83,7 +83,7 @@ namespace Haze
 					}
 					return nullptr;
 				};
-
+				
 				if (indices.size() % 3 != 0) 
 				{
 					HZ_CORE_ERROR("Incompatible model! Model has to be composed only of triangles!");
