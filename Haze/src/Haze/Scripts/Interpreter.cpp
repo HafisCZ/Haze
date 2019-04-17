@@ -19,46 +19,6 @@ namespace Haze
 		}
 	}
 
-	void Interpreter::Dump(std::array<char, 5000>& out, Scene* scene, Camera* camera)
-	{
-		std::stringstream stream;
-
-		stream << std::setprecision(3);
-
-		stream << "light reset;\n";
-		stream << "object reset;\n";
-		stream << "camera set(" << camera->_WorldPosition.x << "," << camera->_WorldPosition.y << "," << camera->_WorldPosition.z << "," << camera->_Yaw << "," << camera->_Pitch << "," << camera->_Fov << ");\n";
-
-		for (int i = 0; i < scene->Objects.size(); i++) {
-			auto obj = scene->Objects[i];
-			stream << "object add(" << obj->Model->Name << ");\n";
-			stream << "object(" << i << ") position(" << obj->Matrix._Position.x << "," << obj->Matrix._Position.y << "," << obj->Matrix._Position.z << ");\n";
-			stream << "object(" << i << ") rotation(" << obj->Matrix._Rotation.x << "," << obj->Matrix._Rotation.y << "," << obj->Matrix._Rotation.z << ");\n";
-			stream << "object(" << i << ") scale(" << obj->Matrix._Scale.x << "," << obj->Matrix._Scale.y << "," << obj->Matrix._Scale.z << ");\n";
-		}
-
-		stream << "light ambient(" << scene->Ambient.GetData()[0].x << "," << scene->Ambient.GetData()[0].y << "," << scene->Ambient.GetData()[0].z << "," << scene->Ambient.GetData()[2].x << ");\n";
-		stream << "light vector(" << scene->Vector.GetData()[0].x << "," << scene->Vector.GetData()[0].y << "," << scene->Vector.GetData()[0].z << "," << scene->Vector.GetData()[1].x << "," << scene->Vector.GetData()[1].y << "," << scene->Vector.GetData()[1].z << "," << scene->Vector.GetData()[2].y << "," << scene->Vector.GetData()[2].z << ");\n";
-
-		for (int i = 0; i < scene->Point.size(); i++) {
-			auto l = scene->Point[i];
-			stream << "light add(" <<
-				l.GetData()[0].x << "," << l.GetData()[0].y << "," << l.GetData()[0].z << "," <<
-				l.GetData()[1].x << "," << l.GetData()[1].y << "," << l.GetData()[1].z << "," <<
-				l.GetData()[2].y << "," << l.GetData()[2].z << "," <<
-				l.GetData()[3].y << "," << l.GetData()[3].z << "," <<  (l.IsCastingShadow() ? "1" : "0") << ");\n";
-		}
-
-		out.fill(0);
-
-		unsigned int pos = 0;
-		for (auto c : stream.str()) 
-		{
-			if (pos >= out.size()) break;
-			out[pos++] = c;
-		}
-	}
-
 	void Interpreter::Dump(const std::string& out, Scene* scene, Camera* camera) {
 		std::stringstream stream;
 

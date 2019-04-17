@@ -26,10 +26,10 @@ namespace Haze
 
 		glDrawBuffers(3, new unsigned int[3] { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 });
 
-		glGenRenderbuffers(1, &_Depth);
-		glBindRenderbuffer(GL_RENDERBUFFER, _Depth);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, _Depth);
+		glGenRenderbuffers(1, &_DepthStencil);
+		glBindRenderbuffer(GL_RENDERBUFFER, _DepthStencil);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, _DepthStencil);
 
 		unsigned int status;
 		if ((status = glCheckFramebufferStatus(GL_FRAMEBUFFER)) != GL_FRAMEBUFFER_COMPLETE) 
@@ -50,8 +50,8 @@ namespace Haze
 			glTexImage2D(GL_TEXTURE_2D, 0, i == TEXTURE ? GL_RGBA : GL_RGB16F, width, height, 0, i == TEXTURE ? GL_RGBA : GL_RGB, i == TEXTURE ? GL_UNSIGNED_BYTE : GL_FLOAT, nullptr);
 		}
 
-		glBindRenderbuffer(GL_RENDERBUFFER, _Depth);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+		glBindRenderbuffer(GL_RENDERBUFFER, _DepthStencil);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 	}
@@ -83,7 +83,9 @@ namespace Haze
 		glBindFramebuffer(GL_READ_FRAMEBUFFER, _Handle);
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-		glBlitFramebuffer(0, 0, viewport[2], viewport[3], 0, 0, viewport[2], viewport[3], GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+		glBlitFramebuffer(0, 0, viewport[2], viewport[3], 0, 0, viewport[2], viewport[3], GL_DEPTH_BUFFER_BIT, GL_NEAREST);	
+		glBlitFramebuffer(0, 0, viewport[2], viewport[3], 0, 0, viewport[2], viewport[3], GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 

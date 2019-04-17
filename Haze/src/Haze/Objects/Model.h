@@ -32,6 +32,14 @@ namespace Haze
 			Mesh() {}
 			Mesh(std::vector<Vertex>& vertices, std::vector<Triangle>& triangles, const VertexFormat& format = VertexFormat::GetDefault());
 
+			~Mesh() {
+				for (unsigned int i = 0; i < 4; i++) {
+					if (Textures[i]) {
+						Repository::Unload(Textures[i]);
+					}
+				}
+			}
+
 		public:
 			std::vector<Vertex> Vertices;
 			std::vector<Triangle> Triangles;
@@ -67,13 +75,16 @@ namespace Haze
 
 			std::vector<Mesh*> Meshes;
 			std::string Name;
+
+			unsigned long Vertices = 0;
+			unsigned long Triangles = 0;
 	};
 
 	class HAZE_API ModelLoader
 	{
 		public:
 			static Model* Load(const std::string& path, ModelLoaderFlags flags = All) {
-				return static_cast<Model*>(Repository::Request(path, lambda::make([&]() -> void* { return _Instance->LoadImpl(path, flags); })));
+				return static_cast<Model*>(Repository::Load(path, lambda::make([&]() -> void* { return _Instance->LoadImpl(path, flags); })));
 			}
 
 			virtual Model* LoadImpl(const std::string& path, ModelLoaderFlags flags) = 0;

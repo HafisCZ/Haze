@@ -75,7 +75,12 @@ class MyLayer : public Haze::Layer {
 			Shader::FromFile("../shaders/default.frag", ShaderType::Fragment),
 			Shader::FromFile("../shaders/default.vert", ShaderType::Vertex)
 		})))
-	{}
+	{
+		dr.SampleCfg[0] = 1280 / 2;
+		dr.SampleCfg[1] = 720 / 2;
+		dr.SampleCfg[2] = 1;
+		dr.SampleCfg[3] = 1;
+	}
 
 	void OnUpdate() override {
 		static bool fpsCamStyle = true, fpsCamStyleLast = false;
@@ -185,6 +190,7 @@ class MyLayer : public Haze::Layer {
 	void OnImGuiRender() override 
 	{
 		Haze::GUI::Menu(&scene, &camera, dr._DrawMode, dr._DrawOverlayMode);
+		Haze::UI::ShowUI(&scene, &camera, dr.Sample);
 	}
 
 	void OnEvent(Haze::Event& event) override {
@@ -193,6 +199,11 @@ class MyLayer : public Haze::Layer {
 
 			camera.OnWindowResizeEvent(we);
 			dr.OnWindowResizeEvent(we);
+			
+			dr.SampleCfg[0] = we.GetWidth() / 2;
+			dr.SampleCfg[1] = we.GetHeight() / 2;
+			dr.SampleCfg[2] = 1;
+			dr.SampleCfg[3] = 1;
 		}
 	}
 

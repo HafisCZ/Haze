@@ -25,19 +25,16 @@ namespace Haze
 		_ShadowMapBufferArray(shadowResolution, shadowCount),
 		_GeometryPassAdapter(geometry),
 		_ShadingPassAdapter(shading),
-		_LightingPassAdapter(lighting)
-	{ 
+		_LightingPassAdapter(lighting) {
 
 	}
 
 	ForwardRenderer::ForwardRenderer(ProgramAdapter* program) :
-		_ForwardPassAdapter(program)
-	{
+		_ForwardPassAdapter(program) {
 
 	}
 
-	void ForwardRenderer::Draw(Scene* scene, Camera* camera, Mesh* mesh) 
-	{
+	void ForwardRenderer::Draw(Scene* scene, Camera* camera, Mesh* mesh) {
 		_ForwardPassAdapter->Bind();
 		_ForwardPassAdapter->Set(scene, camera);
 		_ForwardPassAdapter->Set(mesh, camera);
@@ -47,8 +44,7 @@ namespace Haze
 		_ForwardPassAdapter->OnFinish();
 	}
 
-	void ForwardRenderer::Draw(Scene* scene, Camera* camera, Object* object) 
-	{
+	void ForwardRenderer::Draw(Scene* scene, Camera* camera, Object* object) {
 		_ForwardPassAdapter->Bind();
 		_ForwardPassAdapter->Set(scene, camera);
 		_ForwardPassAdapter->Set(object, camera);
@@ -62,8 +58,7 @@ namespace Haze
 		_ForwardPassAdapter->OnFinish();
 	}
 
-	void ForwardRenderer::Draw(Scene* scene, Camera* camera) 
-	{
+	void ForwardRenderer::Draw(Scene* scene, Camera* camera) {
 		_ForwardPassAdapter->Bind();
 		_ForwardPassAdapter->Set(scene, camera);
 
@@ -90,9 +85,13 @@ namespace Haze
 		_GeometryPassAdapter->Bind();
 		_GeometryPassAdapter->Set(scene, camera);
 
+		unsigned int stencilIndex = 1;
+
 		for (auto object : scene->Objects) 
 		{
 			_GeometryPassAdapter->Set(object, camera);
+
+			glStencilFunc(GL_ALWAYS, stencilIndex++, 0xFF);
 
 			for (auto mesh : object->Model->Meshes) 
 			{
@@ -175,6 +174,9 @@ namespace Haze
 		}
 
 		if (_DrawOverlayMode & BIT(2)) glEnable(GL_CULL_FACE);
+
+		glReadPixels(SampleCfg[0], SampleCfg[1], SampleCfg[2], SampleCfg[3], GL_DEPTH_COMPONENT, GL_FLOAT, &Sample.first);
+		glReadPixels(SampleCfg[0], SampleCfg[1], SampleCfg[2], SampleCfg[3], GL_STENCIL_INDEX, GL_UNSIGNED_INT, &Sample.second);
 	}
 
 	void DeferredRenderer::OnWindowResizeEvent(WindowResizeEvent& event)

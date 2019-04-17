@@ -48,6 +48,8 @@ namespace Haze
 			Object() {}
 			Object(Model* model) : Model(model) {}
 
+			~Object() { Repository::Unload(Model); }
+
 			Model* Model;
 			ModelMatrix Matrix;
 	};

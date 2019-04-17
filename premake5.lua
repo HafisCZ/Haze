@@ -63,9 +63,8 @@ project "Haze"
 		"Glad",
 		"ImGui",
 		"opengl32.lib",
-		"%{prj.name}/../vendor/assimp/build/contrib/irrXML/Debug/IrrXML.lib",
-		"%{prj.name}/../vendor/assimp/build/contrib/zlib/Debug/zlibstaticd.lib",
-		"%{prj.name}/../vendor/assimp/build/code/Debug/assimp-vc140-mt.lib"
+		"%{prj.name}/../vendor/assimp/build/contrib/irrXML/%{cfg.buildcfg}/IrrXML.lib",
+		"%{prj.name}/../vendor/assimp/build/code/%{cfg.buildcfg}/assimp-vc140-mt.lib"
 	}
 
 	filter "system:windows"
@@ -90,15 +89,30 @@ project "Haze"
 		runtime "Debug"
 		symbols "On"
 
+		links 
+		{
+			"%{prj.name}/../vendor/assimp/build/contrib/zlib/%{cfg.buildcfg}/zlibstaticd.lib"
+		}
+
 	filter "configurations:Release"
 		defines "HZ_RELEASE"
 		runtime "Release"
 		optimize "On"
 
+		links 
+		{
+			"%{prj.name}/../vendor/assimp/build/contrib/zlib/%{cfg.buildcfg}/zlibstatic.lib"
+		}
+
 	filter "configurations:Dist"
 		defines "HZ_DIST"
 		runtime "Release"
 		optimize "On"
+
+		links 
+		{
+			"%{prj.name}/../vendor/assimp/build/contrib/zlib/%{cfg.buildcfg}/zlibstatic.lib"
+		}
 
 project "Sandbox"
 	location "Sandbox"

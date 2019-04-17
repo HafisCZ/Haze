@@ -86,7 +86,7 @@ namespace Haze
 				
 				if (indices.size() % 3 != 0) 
 				{
-					HZ_CORE_ERROR("Incompatible model! Model has to be composed only of triangles!");
+					HZ_CORE_WARN("Incompatible model! Model has to be composed only of triangles!");
 				}
 
 				std::vector<Triangle> triangles(indices.size() / 3);
@@ -99,6 +99,9 @@ namespace Haze
 				textures[1] = loadMaterial(aiTextureType_HEIGHT);
 				textures[2] = loadMaterial(aiTextureType_SPECULAR);
 				textures[3] = loadMaterial(aiTextureType_AMBIENT);
+
+				model->Triangles += triangles.size();
+				model->Vertices += vertices.size();
 
 				Mesh* modelMesh = new Mesh(vertices, triangles);
 				for (unsigned int i = 0; i < 3; i++) 

@@ -28,16 +28,17 @@ namespace Haze
 		friend struct GUI;
 
 		public:
-			inline static void* Request(const std::string& id, std::function<void*()> value_gen) { return _Instance.RequestImpl(id, value_gen); }
-			inline static void* Seek(const std::string& id) { return _Instance.SeekImpl(id); }
+			inline static void* Load(const std::string& id, std::function<void*()> gen) { return _Instance.LoadImpl(id, gen); }
+			inline static void Unload(void* ptr) { _Instance.UnloadImpl(ptr); }
 
-			void* RequestImpl(const std::string& id, std::function<void*()>& value_gen);
-			void* SeekImpl(const std::string& id);
+			void* LoadImpl(const std::string& id, std::function<void*()>& gen);
+			void UnloadImpl(void* ptr);
 
 		private:
 			static Repository _Instance;
 
-			std::unordered_map<std::string, void*> _Pointers;
+			std::unordered_map<std::string, void*> _PtrNameMap;
+			std::unordered_map<void*, int> _PtrCallMap;
 	};
 
 }

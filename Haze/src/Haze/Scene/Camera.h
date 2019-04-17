@@ -26,7 +26,7 @@ namespace Haze
 			inline const glm::vec3& GetWorldPosition() const { return _WorldPosition; }
 			inline const glm::vec3& GetDirection() const { return _Direction; }
 
-			std::pair<glm::vec3, unsigned int> GetWorldPointer();
+			std::pair<glm::vec3, unsigned int> GetWorldPointer(std::pair<float, unsigned int> raw);
 
 			void Move(float x, float y, float z, bool worldY = false);
 			void Look(float y, float p);

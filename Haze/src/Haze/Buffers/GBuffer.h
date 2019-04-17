@@ -21,7 +21,7 @@ namespace Haze
 		private:
 			unsigned int _Handle;
 			unsigned int _TextureHandles[3];
-			unsigned int _Depth;
+			unsigned int _DepthStencil;
 
 			enum TextureIndexes 
 			{

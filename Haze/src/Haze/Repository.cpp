@@ -6,27 +6,40 @@ namespace Haze
 
 	Repository Repository::_Instance;
 
-	void* Repository::RequestImpl(const std::string& id, std::function<void*()>& value_gen) 
+	void* Repository::LoadImpl(const std::string& id, std::function<void*()>& gen)
 	{
-		auto it = _Pointers.lower_bound(id);
-		if (it == std::end(_Pointers))
+		auto iterator = _PtrNameMap.lower_bound(id);
+		if (iterator == std::end(_PtrNameMap))
 		{
-			it = _Pointers.insert(it, std::make_pair(id, value_gen()));
+			iterator = _PtrNameMap.insert(iterator, std::make_pair(id, gen()));
+			_PtrCallMap.insert(_PtrCallMap.end(), std::make_pair(iterator->second, 0));
 		}
 
-		return it->second;
+		_PtrCallMap[iterator->second]++;
+
+		return iterator->second;
 	}
 
-	void* Repository::SeekImpl(const std::string& id) 
+	void Repository::UnloadImpl(void* ptr)
 	{
-		auto it = _Pointers.lower_bound(id);
-		if (it == _Pointers.end()) 
+		auto iterator = _PtrCallMap.lower_bound(ptr);
+		if (iterator != std::end(_PtrCallMap)) 
 		{
-			return nullptr;
-		} 
-		else
-		{
-			return it->second;
+			iterator->second--;
+
+			if (iterator->second <= 0) 
+			{
+				for (auto it = _PtrNameMap.begin(); it != _PtrNameMap.end(); it++) {
+					if (it->second == ptr) {
+						_PtrNameMap.erase(it);
+						break;
+					}
+				}
+
+				delete iterator->first;
+
+				_PtrCallMap.erase(iterator);
+			}
 		}
 	}
 

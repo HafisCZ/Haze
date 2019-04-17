@@ -23,6 +23,9 @@ namespace Haze
 		public:
 			int _DrawMode = 0;
 			int _DrawOverlayMode = 0;
+
+			int SampleCfg[4] = { 0, 0, 0 ,0 };
+			std::pair<float, unsigned int> Sample = { 0.0f, 0 };
 	};
 
 	class HAZE_API ForwardRenderer : public Renderer 

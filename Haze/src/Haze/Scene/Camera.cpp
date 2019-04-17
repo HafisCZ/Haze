@@ -104,14 +104,9 @@ namespace Haze
 		_View = glm::lookAt(_WorldPosition, _WorldPosition + _Direction, _UpVector);
 	}
 
-	std::pair<glm::vec3, unsigned int> Camera::GetWorldPointer() 
+	std::pair<glm::vec3, unsigned int> Camera::GetWorldPointer(std::pair<float, unsigned int> raw)
 	{
-		unsigned int index;
-		float depth;
-		glReadPixels((int) _Viewport.z / 2, (int) _Viewport.w / 2, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depth);
-		glReadPixels((int)_Viewport.z / 2, (int) _Viewport.w / 2, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &index);
-		
-		return { glm::unProject(glm::vec3(_Viewport.z / 2.0f, _Viewport.w / 2.0f, depth), _View, _Projection, _Viewport), index };
+		return { glm::unProject(glm::vec3(_Viewport.z / 2.0f, _Viewport.w / 2.0f, raw.first), _View, _Projection, _Viewport), raw.second };
 	}
 
 	void Camera::OnWindowResizeEvent(WindowResizeEvent& event)

@@ -19,5 +19,6 @@
 #include "Haze/Program/Program.h"
 
 #include "Haze/ImGui/ImGuiLayer.h"
+#include "Haze/ImGui/UI.h"
 
 #include "Haze/EntryPoint.h"

@@ -60,7 +60,6 @@ namespace Haze
 
 		static void InvokeCommand(Command* command, Scene* scene, Camera* camera);
 
-		static void Dump(std::array<char, 5000>& out, Scene* scene, Camera* camera);
 		static void Dump(const std::string& out, Scene* scene, Camera* camera);
 	};
 

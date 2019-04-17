@@ -18,14 +18,20 @@ namespace Haze
 
 	double GUI::Sample() {
 		static double last = glfwGetTime();
-		static double time = 0;
-		static double delt = 0;
+		static double samples[120];
+		static int samples_cnt = 0;
 
-		time = glfwGetTime();
-		delt = time - last;
+		double time = glfwGetTime();
+		samples[samples_cnt++ % 120] = time - last;
 		last = time;
 
-		return delt;
+		double average = 0.0;
+		for (int i = 0; i < 120; i++) 
+		{
+			average += samples[i];
+		}
+
+		return average / 120.0;
 	}
 
 	void GUI::FixPath(char* data) {
@@ -71,8 +77,6 @@ namespace Haze
 			if (ImGui::MenuItem("Dump")) {
 				if (std::string(script_dump_location.data()).size() > 0) {
 					Interpreter::Dump(std::string(script_dump_location.data()), scene, camera);
-				} else {
-					Interpreter::Dump(script, scene, camera);
 				}
 			}
 			if (ImGui::MenuItem("Run")) {
@@ -98,17 +102,10 @@ namespace Haze
 	void GUI::RepositoryWindow(bool& show) {
 		ImGui::Begin("Repository", &show, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
 		{
-			ImGui::BeginMenuBar();
-			if (ImGui::MenuItem("Clear")) {
-				Repository::_Instance._Pointers.clear();
-			}
-			ImGui::EndMenuBar();
-		}
-		{
-			for (auto pair : enumerate(Repository::_Instance._Pointers)) {
+			for (auto pair : enumerate(Repository::_Instance._PtrNameMap)) {
 				ImGui::Columns(3, 0, false);
-				ImGui::SetColumnWidth(0, ImGui::GetWindowWidth() - 160);
-				ImGui::SetColumnWidth(1, 80);
+				ImGui::SetColumnWidth(0, ImGui::GetWindowWidth() - 180);
+				ImGui::SetColumnWidth(1, 100);
 				ImGui::SetColumnWidth(2, 80);
 
 				ImGui::Text(pair.value.first.data());
@@ -117,18 +114,9 @@ namespace Haze
 				ImGui::Text("%X", pair.value.second);
 
 				ImGui::NextColumn();
-				ImGui::PushItemWidth(ImGui::GetWindowWidth() - 75);
-
-				ImGui::PushID((int) pair.index);
-				if (ImGui::Button("Remove")) {
-					Repository::_Instance._Pointers.erase(pair.value.first);
-					ImGui::PopID();
-					break;
-				}
+				ImGui::Text("%d", Repository::_Instance._PtrCallMap[pair.value.second]);
 
 				ImGui::Columns(1);
-
-				ImGui::PopID();
 			}
 		}
 		ImGui::End();
@@ -154,12 +142,13 @@ namespace Haze
 		if (win_lightmanager) GUI::LightManagerWindow(win_lightmanager, scene, camera);
 
 		if (ImGui::BeginMainMenuBar()) {
+			double frametime = GUI::Sample();
+			if (frametime < 0.018) ImGui::TextColored(ImVec4(RGBTOF(23, 91, 37)), "%.4F", frametime);
+			else if (frametime < 0.021) ImGui::TextColored(ImVec4(RGBTOF(211, 214, 23)), "%.4F", frametime);
+			else ImGui::TextColored(ImVec4(RGBTOF(214, 64, 23)), "%.4F", frametime);
+			GUI::BigSeparator();
+
 			if (ImGui::BeginMenu("HAZE")) {
-				double frametime = GUI::Sample();
-				if (frametime < 0.018) ImGui::TextColored(ImVec4(RGBTOF(23, 91, 37)), "%F", frametime);
-				else if (frametime < 0.021) ImGui::TextColored(ImVec4(RGBTOF(211, 214, 23)), "%F", frametime);
-				else ImGui::TextColored(ImVec4(RGBTOF(214, 64, 23)), "%F", frametime);
-				GUI::BigSeparator();
 				if (ImGui::BeginMenu("Drawing mode")) {
 					ImGui::RadioButton("Default", &drawmode, 0);
 					GUI::BigSpace();
@@ -184,7 +173,7 @@ namespace Haze
 				ImGui::MenuItem("Repository", 0, &win_repository);
 				ImGui::EndMenu();
 			}
-			ImGui::Separator();
+			GUI::BigSeparator();
 			if (ImGui::BeginMenu("Scene")) {
 				ImGui::MenuItem("Objects", 0, &win_objectmanager);
 				GUI::BigSpace();
@@ -368,10 +357,6 @@ namespace Haze
 				}
 
 				ImGui::SameLine(ImGui::GetWindowWidth() - 100);
-				if (ImGui::Button("Move to aim")) {
-					scene->Objects[index]->Matrix.SetPosition(camera->GetWorldPointer().first);
-				}
-
 				ImGui::Text(obj->Model->Name.data());
 
 				if (ImGui::CollapsingHeader("Details")) {
