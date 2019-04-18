@@ -13,9 +13,6 @@ namespace Haze
 
 		static void ShowUI(Scene* scene, Camera* camera, std::pair<float, unsigned int> raw);
 
-		private:
-			static int GetAverageFps();
-
 	};
 
 }
