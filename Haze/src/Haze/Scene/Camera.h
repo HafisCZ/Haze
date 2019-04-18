@@ -11,7 +11,7 @@
 namespace Haze 
 {
 
-	class HAZE_API Camera
+	class Camera
 	{
 		friend class RendererLayer;
 		friend struct Interpreter;

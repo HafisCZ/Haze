@@ -11,7 +11,7 @@
 namespace Haze
 {
 
-	class HAZE_API ModelMatrix
+	class ModelMatrix
 	{
 		friend struct Interpreter;
 		friend struct GUI;
@@ -42,7 +42,7 @@ namespace Haze
 			glm::mat4 _TempMatrixI = glm::mat4(1.0f);
 	};
 
-	class HAZE_API Object
+	class Object
 	{
 		public:
 			Object() {}
@@ -54,7 +54,7 @@ namespace Haze
 			ModelMatrix Matrix;
 	};
 
-	class HAZE_API Scene
+	class Scene
 	{
 		public:
 			std::vector<Object*> Objects;

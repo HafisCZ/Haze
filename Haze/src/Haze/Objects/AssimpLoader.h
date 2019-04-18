@@ -5,7 +5,7 @@
 namespace Haze 
 {
 
-	class HAZE_API AssimpLoader : public ModelLoader
+	class AssimpLoader : public ModelLoader
 	{
 		public:
 			virtual Model* LoadImpl(const std::string& path, ModelLoaderFlags flags) override;

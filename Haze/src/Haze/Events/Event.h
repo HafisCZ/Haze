@@ -31,7 +31,7 @@ namespace Haze
 
 	#define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags() const override { return category; }
 
-	class HAZE_API Event
+	class  Event
 	{
 		public:
 			virtual EventType GetEventType() const = 0;
@@ -47,7 +47,7 @@ namespace Haze
 			bool Handled = false;
 	};
 
-	class HAZE_API EventDispatcher
+	class  EventDispatcher
 	{
 		template <typename T> using EventFn = std::function<bool(T&)>;
 

@@ -51,7 +51,7 @@ namespace Haze
 		}
 	};
 
-	struct HAZE_API Interpreter
+	struct Interpreter
 	{
 		static void ExecuteScript(char* script, Scene* scene, Camera* camera);
 		static void TranslateScript(char* script, std::vector<Command*>& commands);

@@ -6,7 +6,6 @@
 #include "Haze/Repository.h"
 #include "Haze/Scene/Camera.h"
 #include "Haze/Scene/Scene.h"
-#include "Haze/Scene/Light.h"
 
 #include "imgui.h"
 

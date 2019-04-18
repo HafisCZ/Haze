@@ -7,7 +7,7 @@
 namespace Haze 
 {
 
-	class HAZE_API VertexArray
+	class VertexArray
 	{
 		public:
 			VertexArray();

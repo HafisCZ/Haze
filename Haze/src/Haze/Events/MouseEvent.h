@@ -5,7 +5,7 @@
 namespace Haze 
 {
 
-	class HAZE_API MouseMovedEvent : public Event {
+	class  MouseMovedEvent : public Event {
 		public:
 			MouseMovedEvent(float x, float y) : _MouseX(x), _MouseY(y) { }
 
@@ -25,7 +25,7 @@ namespace Haze
 			float _MouseX, _MouseY;
 	};
 
-	class HAZE_API MouseScrolledEvent : public Event {
+	class  MouseScrolledEvent : public Event {
 		public:
 			MouseScrolledEvent(float xOffset, float yOffset) : _XOffset(xOffset), _YOffset(yOffset) { }
 
@@ -45,7 +45,7 @@ namespace Haze
 			float _XOffset, _YOffset;
 	};
 
-	class HAZE_API MouseButtonEvent : public Event {
+	class  MouseButtonEvent : public Event {
 		public:
 			inline int GetMouseButton() const { return m_Button; }
 
@@ -57,7 +57,7 @@ namespace Haze
 			int m_Button;
 	};
 
-	class HAZE_API MouseButtonPressedEvent : public MouseButtonEvent {
+	class  MouseButtonPressedEvent : public MouseButtonEvent {
 		public:
 			MouseButtonPressedEvent(int button)	: MouseButtonEvent(button) { }
 
@@ -70,7 +70,7 @@ namespace Haze
 			EVENT_CLASS_TYPE(MouseButtonPressed)
 	};
 
-	class HAZE_API MouseButtonReleasedEvent : public MouseButtonEvent {
+	class  MouseButtonReleasedEvent : public MouseButtonEvent {
 		public:
 			MouseButtonReleasedEvent(int button) : MouseButtonEvent(button) { }
 

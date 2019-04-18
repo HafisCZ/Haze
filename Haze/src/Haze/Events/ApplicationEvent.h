@@ -4,7 +4,7 @@
 
 namespace Haze {
 
-	class HAZE_API WindowResizeEvent : public Event
+	class WindowResizeEvent : public Event
 	{
 		public:
 			WindowResizeEvent(unsigned int width, unsigned int height) : _Width(width), _Height(height) { }
@@ -25,7 +25,7 @@ namespace Haze {
 			unsigned int _Width, _Height;
 	};
 
-	class HAZE_API WindowCloseEvent : public Event {
+	class WindowCloseEvent : public Event {
 		public:
 			WindowCloseEvent() {}
 
@@ -33,7 +33,7 @@ namespace Haze {
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
-	class HAZE_API AppTickEvent : public Event {
+	class  AppTickEvent : public Event {
 		public:
 			AppTickEvent() {}
 
@@ -41,7 +41,7 @@ namespace Haze {
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
-	class HAZE_API AppUpdateEvent : public Event {
+	class  AppUpdateEvent : public Event {
 		public:
 			AppUpdateEvent() {}
 
@@ -49,7 +49,7 @@ namespace Haze {
 			EVENT_CLASS_CATEGORY(EventCategoryApplication)
 	};
 
-	class HAZE_API AppRenderEvent : public Event {
+	class  AppRenderEvent : public Event {
 		public:
 			AppRenderEvent() {}
 

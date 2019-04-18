@@ -9,12 +9,12 @@
 namespace Haze
 {
 
-	enum class HAZE_API ShaderType 
+	enum class  ShaderType 
 	{
 		Fragment, Vertex, Geometry
 	};
 
-	class HAZE_API Shader 
+	class  Shader 
 	{
 		friend class Program;
 
@@ -33,7 +33,7 @@ namespace Haze
 			unsigned int _Handle;
 	};
 
-	class HAZE_API Program 
+	class  Program 
 	{
 		public:
 			Program(std::initializer_list<Shader*> shaders);
@@ -47,18 +47,18 @@ namespace Haze
 		private:
 			int GetUniformLocation(const std::string& name);
 
-			inline void SetUniformImpl(int location) {}
-			inline void SetUniformImpl(int loc, float a);
-			inline void SetUniformImpl(int loc, float a, float b);
-			inline void SetUniformImpl(int loc, float a, float b, float c);
-			inline void SetUniformImpl(int loc, float a, float b, float c, float d);
-			inline void SetUniformImpl(int loc, const glm::vec2& a);
-			inline void SetUniformImpl(int loc, const glm::vec3& a);
-			inline void SetUniformImpl(int loc, const glm::vec4& a);
-			inline void SetUniformImpl(int loc, bool a);
-			inline void SetUniformImpl(int loc, int a);
-			inline void SetUniformImpl(int loc, unsigned int a);
-			inline void SetUniformImpl(int loc, glm::mat4 a);
+			void SetUniformImpl(int location) {}
+			void SetUniformImpl(int loc, float a);
+			void SetUniformImpl(int loc, float a, float b);
+			void SetUniformImpl(int loc, float a, float b, float c);
+			void SetUniformImpl(int loc, float a, float b, float c, float d);
+			void SetUniformImpl(int loc, const glm::vec2& a);
+			void SetUniformImpl(int loc, const glm::vec3& a);
+			void SetUniformImpl(int loc, const glm::vec4& a);
+			void SetUniformImpl(int loc, bool a);
+			void SetUniformImpl(int loc, int a);
+			void SetUniformImpl(int loc, unsigned int a);
+			void SetUniformImpl(int loc, glm::mat4 a);
 
 		private:
 			unsigned int _Handle;

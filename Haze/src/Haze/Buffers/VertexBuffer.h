@@ -6,7 +6,7 @@
 namespace Haze 
 {
 
-	class HAZE_API VertexBuffer
+	class VertexBuffer
 	{
 		public:
 			VertexBuffer(const void* data, unsigned int count, const VertexFormat& format);

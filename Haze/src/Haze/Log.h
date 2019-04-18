@@ -6,7 +6,7 @@
 
 namespace Haze {
 
-	class HAZE_API Log
+	class Log
 	{
 		public:
 			static void Init();

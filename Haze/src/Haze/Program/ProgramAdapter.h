@@ -7,7 +7,7 @@
 namespace Haze 
 {
 
-	class HAZE_API ProgramAdapter
+	class ProgramAdapter
 	{
 		public:
 			ProgramAdapter(Program* program) : _Program(program) {}
@@ -25,7 +25,7 @@ namespace Haze
 			Program* _Program;
 	};
 
-	class HAZE_API GeometryPassAdapter : public ProgramAdapter
+	class GeometryPassAdapter : public ProgramAdapter
 	{
 		public:
 			GeometryPassAdapter(Program* program) : ProgramAdapter(program) {}
@@ -35,7 +35,7 @@ namespace Haze
 			virtual void Set(Mesh* mesh, Camera* camera) override;
 	};
 
-	class HAZE_API ShadingPassAdapter : public ProgramAdapter {
+	class ShadingPassAdapter : public ProgramAdapter {
 		public:
 			ShadingPassAdapter(Program* program) : ProgramAdapter(program) {}
 
@@ -44,7 +44,7 @@ namespace Haze
 			virtual void Set(Mesh* mesh, Camera* camera) override;
 	};
 
-	class HAZE_API LightingPassAdapter : public ProgramAdapter {
+	class LightingPassAdapter : public ProgramAdapter {
 		public:
 			LightingPassAdapter(Program* program) : ProgramAdapter(program) {}
 
@@ -53,7 +53,7 @@ namespace Haze
 			virtual void Set(Mesh* mesh, Camera* camera) override;
 	};
 
-	class HAZE_API SkyboxAdapter : public ProgramAdapter {
+	class SkyboxAdapter : public ProgramAdapter {
 		public:
 			SkyboxAdapter(Program* program) : ProgramAdapter(program) {}
 
@@ -63,7 +63,7 @@ namespace Haze
 			virtual void OnFinish() override;
 	};
 
-	class HAZE_API ForwardPassAdapter : public ProgramAdapter {
+	class ForwardPassAdapter : public ProgramAdapter {
 		public:
 			ForwardPassAdapter(Program* program) : ProgramAdapter(program) {}
 

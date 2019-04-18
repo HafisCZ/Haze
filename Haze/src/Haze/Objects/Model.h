@@ -14,19 +14,19 @@
 namespace Haze 
 {
 
-	struct HAZE_API Vertex
+	struct  Vertex
 	{
 		glm::vec3 Position, Normal;
 		glm::vec2 TextureUV;
 		glm::vec3 Tangent, Bitangent;
 	};
 
-	struct HAZE_API Triangle
+	struct  Triangle
 	{
 		unsigned int A, B, C;
 	};
 
-	class HAZE_API Mesh
+	class  Mesh
 	{
 		public:
 			Mesh() {}
@@ -64,7 +64,7 @@ namespace Haze
 		FlipUVCoords		= BIT(3)
 	};
 
-	class HAZE_API Model
+	class  Model
 	{
 		public:
 			Model() {}
@@ -80,7 +80,7 @@ namespace Haze
 			unsigned long Triangles = 0;
 	};
 
-	class HAZE_API ModelLoader
+	class  ModelLoader
 	{
 		public:
 			static Model* Load(const std::string& path, ModelLoaderFlags flags = All) {

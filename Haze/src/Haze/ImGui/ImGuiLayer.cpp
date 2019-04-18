@@ -7,8 +7,6 @@
 #include "examples/imgui_impl_opengl3.h"
 
 #include "Haze/Application.h"
-#include "Haze/Program/Program.h"
-#include "Haze/Objects/AssimpLoader.h"
 
 #include <glfw/glfw3.h>
 #include <glad/glad.h>

@@ -8,7 +8,7 @@ namespace Haze
 	class Scene;
 	class Camera;
 
-	struct HAZE_API UI 
+	struct UI 
 	{
 
 		static void ShowUI(Scene* scene, Camera* camera, std::pair<float, unsigned int> raw);

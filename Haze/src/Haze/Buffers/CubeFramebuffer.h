@@ -5,7 +5,7 @@
 namespace Haze 
 {
 
-	class HAZE_API CubeFramebufferArray
+	class CubeFramebufferArray
 	{
 		public:
 			CubeFramebufferArray(unsigned int size, unsigned int count);

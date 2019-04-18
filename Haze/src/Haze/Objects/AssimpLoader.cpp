@@ -100,8 +100,8 @@ namespace Haze
 				textures[2] = loadMaterial(aiTextureType_SPECULAR);
 				textures[3] = loadMaterial(aiTextureType_AMBIENT);
 
-				model->Triangles += triangles.size();
-				model->Vertices += vertices.size();
+				model->Triangles += (unsigned long) triangles.size();
+				model->Vertices += (unsigned long) vertices.size();
 
 				Mesh* modelMesh = new Mesh(vertices, triangles);
 				for (unsigned int i = 0; i < 3; i++) 

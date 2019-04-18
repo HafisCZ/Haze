@@ -8,7 +8,7 @@
 namespace Haze 
 {
 
-	class HAZE_API Renderer
+	class Renderer
 	{
 		public:
 			virtual void Draw(Scene* scene, Camera* camera) = 0;
@@ -28,7 +28,7 @@ namespace Haze
 			std::pair<float, unsigned int> Sample = { 0.0f, 0 };
 	};
 
-	class HAZE_API ForwardRenderer : public Renderer 
+	class ForwardRenderer : public Renderer 
 	{
 		public:
 			ForwardRenderer(ProgramAdapter* program);
@@ -41,7 +41,7 @@ namespace Haze
 			ProgramAdapter* _ForwardPassAdapter;
 	};
 
-	class HAZE_API DeferredRenderer : public Renderer
+	class DeferredRenderer : public Renderer
 	{
 		public:
 			DeferredRenderer(glm::vec4 viewport, int shadowResolution, int shadowCount, ProgramAdapter* geometry, ProgramAdapter* shading, ProgramAdapter* lighting);

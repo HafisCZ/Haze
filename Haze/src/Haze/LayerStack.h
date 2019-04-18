@@ -8,7 +8,7 @@
 namespace Haze 
 {
 
-	class HAZE_API LayerStack
+	class LayerStack
 	{
 		public:
 			LayerStack();

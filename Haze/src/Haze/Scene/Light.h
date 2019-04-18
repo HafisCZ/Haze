@@ -12,7 +12,7 @@ namespace Haze
 		AMBIENT, VECTOR, POINT
 	};
 
-	class HAZE_API Light
+	class Light
 	{
 		public:
 			Light(LightType type) : _Type(type) {}
@@ -46,7 +46,7 @@ namespace Haze
 			std::array<glm::vec3, 4> _Data;
 	};
 
-	class HAZE_API AmbientLight : public Light
+	class AmbientLight : public Light
 	{
 		public:
 			AmbientLight() : AmbientLight(glm::vec3(1.0f), 0.0f) {}
@@ -57,7 +57,7 @@ namespace Haze
 			}
 	};
 
-	class HAZE_API VectorLight : public Light
+	class VectorLight : public Light
 	{
 		public:
 			VectorLight() : VectorLight(glm::vec3(1.0f), glm::vec3(0.0f), 0.0f, 0.0f) {}
@@ -69,7 +69,7 @@ namespace Haze
 			}
 	};
 
-	class HAZE_API PointLight : public Light {
+	class PointLight : public Light {
 		public:
 			PointLight() : PointLight(glm::vec3(1.0f), glm::vec3(0.0f), 0.0f, 0.0f, 0.002f, 0.0007f, false) {}
 			PointLight(glm::vec3 color, glm::vec3 position, float di, float si, float la, float qa, bool shadow = false) : Light(POINT) {

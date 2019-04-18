@@ -5,7 +5,7 @@
 namespace Haze 
 {
 
-	class HAZE_API VertexFormat
+	class VertexFormat
 	{
 		private:
 			struct VertexSubFormat 

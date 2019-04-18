@@ -12,7 +12,7 @@
 
 namespace Haze {
 
-	class HAZE_API Application
+	class Application
 	{
 		public:
 			Application();

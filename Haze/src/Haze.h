@@ -15,8 +15,8 @@
 
 #include "Haze/Renderer/Renderer.h"
 
-#include "Haze/Objects/AssimpLoader.h"
 #include "Haze/Program/Program.h"
+#include "Haze/Program/ProgramAdapter.h"
 
 #include "Haze/ImGui/ImGuiLayer.h"
 #include "Haze/ImGui/UI.h"

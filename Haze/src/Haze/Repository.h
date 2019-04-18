@@ -23,7 +23,7 @@ namespace lambda
 
 namespace Haze 
 {
-	class HAZE_API Repository 
+	class Repository 
 	{
 		friend struct GUI;
 

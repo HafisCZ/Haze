@@ -5,7 +5,7 @@ namespace Haze
 	class Camera;
 	class Scene;
 
-	struct HAZE_API GUI
+	struct GUI
 	{
 		static double Sample();
 
