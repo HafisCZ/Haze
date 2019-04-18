@@ -11,7 +11,7 @@ namespace Haze
 	struct UI 
 	{
 
-		static void ShowUI(Scene* scene, Camera* camera, std::pair<float, unsigned int> raw);
+		static void ShowUI(Scene* scene, Camera* camera, std::pair<float, unsigned int>& raw);
 
 	};
 

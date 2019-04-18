@@ -11,7 +11,7 @@
 
 namespace Haze 
 {
-	void UI::ShowUI(Scene* scene, Camera* camera, std::pair<float, unsigned int> raw) 
+	void UI::ShowUI(Scene* scene, Camera* camera, std::pair<float, unsigned int>& raw) 
 	{
 		ImGui::Begin("UI", nullptr, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoTitleBar);
 		ImGui::SetWindowPos("UI", ImGui::GetWindowPos());

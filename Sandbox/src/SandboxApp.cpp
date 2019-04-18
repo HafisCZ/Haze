@@ -51,35 +51,32 @@ class MyLayer : public Haze::Layer {
 			glm::vec4(0.0f, 0.0f, 1280.0f, 720.0f),
 			2048, 5,
 			new Haze::GeometryPassAdapter(new Haze::Program({
-				Haze::Shader::FromFile("../shaders/geom.frag", Haze::ShaderType::Fragment),
-				Haze::Shader::FromFile("../shaders/geom.vert", Haze::ShaderType::Vertex)
+				Haze::Shader::FromFile("shaders/geom.frag", Haze::ShaderType::Fragment),
+				Haze::Shader::FromFile("shaders/geom.vert", Haze::ShaderType::Vertex)
 			})),
 			new Haze::ShadingPassAdapter(new Haze::Program({ 
-				Haze::Shader::FromFile("../shaders/shade.frag", Haze::ShaderType::Fragment),
-				Haze::Shader::FromFile("../shaders/shade.vert", Haze::ShaderType::Vertex),
-				Haze::Shader::FromFile("../shaders/shade.geom", Haze::ShaderType::Geometry)
+				Haze::Shader::FromFile("shaders/shade.frag", Haze::ShaderType::Fragment),
+				Haze::Shader::FromFile("shaders/shade.vert", Haze::ShaderType::Vertex),
+				Haze::Shader::FromFile("shaders/shade.geom", Haze::ShaderType::Geometry)
 			})),
 			new Haze::LightingPassAdapter(new Haze::Program({ 
-				Haze::Shader::FromFile("../shaders/light.frag", Haze::ShaderType::Fragment),
-				Haze::Shader::FromFile("../shaders/light.vert", Haze::ShaderType::Vertex)
+				Haze::Shader::FromFile("shaders/light.frag", Haze::ShaderType::Fragment),
+				Haze::Shader::FromFile("shaders/light.vert", Haze::ShaderType::Vertex)
 			}))),
 		fr(new Haze::ForwardPassAdapter(new Haze::Program({
-			Haze::Shader::FromFile("../shaders/default.frag", Haze::ShaderType::Fragment),
-			Haze::Shader::FromFile("../shaders/default.vert", Haze::ShaderType::Vertex)
+			Haze::Shader::FromFile("shaders/default.frag", Haze::ShaderType::Fragment),
+			Haze::Shader::FromFile("shaders/default.vert", Haze::ShaderType::Vertex)
 		}))),
 		skyb(new Haze::SkyboxAdapter(new Haze::Program({
-			Haze::Shader::FromFile("../shaders/skybox.frag", Haze::ShaderType::Fragment),
-			Haze::Shader::FromFile("../shaders/skybox.vert", Haze::ShaderType::Vertex)
+			Haze::Shader::FromFile("shaders/skybox.frag", Haze::ShaderType::Fragment),
+			Haze::Shader::FromFile("shaders/skybox.vert", Haze::ShaderType::Vertex)
 		}))),
 		weap(new MyAdapter(new Program({
-			Shader::FromFile("../shaders/default.frag", ShaderType::Fragment),
-			Shader::FromFile("../shaders/default.vert", ShaderType::Vertex)
+			Shader::FromFile("shaders/default.frag", ShaderType::Fragment),
+			Shader::FromFile("shaders/default.vert", ShaderType::Vertex)
 		})))
 	{
-		dr.SampleCfg[0] = 1280 / 2;
-		dr.SampleCfg[1] = 720 / 2;
-		dr.SampleCfg[2] = 1;
-		dr.SampleCfg[3] = 1;
+
 	}
 
 	void OnUpdate() override {
@@ -190,7 +187,7 @@ class MyLayer : public Haze::Layer {
 	void OnImGuiRender() override 
 	{
 		Haze::GUI::Menu(&scene, &camera, dr._DrawMode, dr._DrawOverlayMode);
-		Haze::UI::ShowUI(&scene, &camera, dr.Sample);
+		Haze::UI::ShowUI(&scene, &camera, dr.Sample());
 	}
 
 	void OnEvent(Haze::Event& event) override {
@@ -199,11 +196,6 @@ class MyLayer : public Haze::Layer {
 
 			camera.OnWindowResizeEvent(we);
 			dr.OnWindowResizeEvent(we);
-			
-			dr.SampleCfg[0] = we.GetWidth() / 2;
-			dr.SampleCfg[1] = we.GetHeight() / 2;
-			dr.SampleCfg[2] = 1;
-			dr.SampleCfg[3] = 1;
 		}
 	}
 

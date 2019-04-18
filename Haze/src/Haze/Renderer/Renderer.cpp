@@ -21,12 +21,14 @@ namespace Haze
 	}
 
 	DeferredRenderer::DeferredRenderer(glm::vec4 viewport, int shadowResolution, int shadowCount, ProgramAdapter* geometry, ProgramAdapter* shading, ProgramAdapter* lighting) :
-		_GBuffer(viewport.z, viewport.w),
+		_GBuffer((unsigned int) viewport.z, (unsigned int) viewport.w),
 		_ShadowMapBufferArray(shadowResolution, shadowCount),
 		_GeometryPassAdapter(geometry),
 		_ShadingPassAdapter(shading),
-		_LightingPassAdapter(lighting) {
-
+		_LightingPassAdapter(lighting)
+	{
+		_Viewport[0] = (unsigned int) viewport.z;
+		_Viewport[1] = (unsigned int) viewport.w;
 	}
 
 	ForwardRenderer::ForwardRenderer(ProgramAdapter* program) :
@@ -175,12 +177,20 @@ namespace Haze
 
 		if (_DrawOverlayMode & BIT(2)) glEnable(GL_CULL_FACE);
 
-		glReadPixels(SampleCfg[0], SampleCfg[1], SampleCfg[2], SampleCfg[3], GL_DEPTH_COMPONENT, GL_FLOAT, &Sample.first);
-		glReadPixels(SampleCfg[0], SampleCfg[1], SampleCfg[2], SampleCfg[3], GL_STENCIL_INDEX, GL_UNSIGNED_INT, &Sample.second);
+		glReadPixels(_Viewport[0] / 2, _Viewport[1] / 2, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &_Sample.first);
+		glReadPixels(_Viewport[0] / 2, _Viewport[1] / 2, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &_Sample.second);
+	}
+
+	void Renderer::OnWindowResizeEvent(WindowResizeEvent& event) 
+	{
+		_Viewport[0] = event.GetWidth();
+		_Viewport[1] = event.GetHeight();
 	}
 
 	void DeferredRenderer::OnWindowResizeEvent(WindowResizeEvent& event)
 	{
+		Renderer::OnWindowResizeEvent(event);
+
 		_GBuffer.Resize(event.GetWidth(), event.GetHeight());
 	}
 
