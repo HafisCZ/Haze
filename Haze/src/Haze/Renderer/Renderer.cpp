@@ -27,8 +27,7 @@ namespace Haze
 		_ShadingPassAdapter(shading),
 		_LightingPassAdapter(lighting)
 	{
-		_Viewport[0] = (unsigned int) viewport.z;
-		_Viewport[1] = (unsigned int) viewport.w;
+
 	}
 
 	ForwardRenderer::ForwardRenderer(ProgramAdapter* program) :
@@ -177,20 +176,12 @@ namespace Haze
 
 		if (_DrawOverlayMode & BIT(2)) glEnable(GL_CULL_FACE);
 
-		glReadPixels(_Viewport[0] / 2, _Viewport[1] / 2, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &_Sample.first);
-		glReadPixels(_Viewport[0] / 2, _Viewport[1] / 2, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &_Sample.second);
-	}
-
-	void Renderer::OnWindowResizeEvent(WindowResizeEvent& event) 
-	{
-		_Viewport[0] = event.GetWidth();
-		_Viewport[1] = event.GetHeight();
+		//glReadPixels(_Viewport[0] / 2, _Viewport[1] / 2, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &_Sample.first);
+		//glReadPixels(_Viewport[0] / 2, _Viewport[1] / 2, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_INT, &_Sample.second);
 	}
 
 	void DeferredRenderer::OnWindowResizeEvent(WindowResizeEvent& event)
 	{
-		Renderer::OnWindowResizeEvent(event);
-
 		_GBuffer.Resize(event.GetWidth(), event.GetHeight());
 	}
 

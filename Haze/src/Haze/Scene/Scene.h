@@ -5,6 +5,7 @@
 #include "Haze/Scene/Light.h"
 
 #include "Haze/ImGui/Presets.h"
+#include "Haze/Utils/Utils.h"
 
 #include <glm/glm.hpp>
 
@@ -52,6 +53,20 @@ namespace Haze
 
 			Model* Model;
 			ModelMatrix Matrix;
+
+			inline std::pair<bool, float> IntersectsRay(glm::vec3 rayOrigin, glm::vec3 rayDir) {
+				std::pair<bool, float> intersection;
+
+				for (auto mesh : Model->Meshes) {
+					auto meshIntersection = Math::Intersects_OBB_RAY(mesh->AABB_MIN, mesh->AABB_MAX, Matrix.Matrix(), rayOrigin, rayDir);
+
+					if (meshIntersection.first) {
+						if (intersection.second == 0 || intersection.second > meshIntersection.second) intersection = meshIntersection;
+					}
+				}
+
+				return intersection;
+			}
 	};
 
 	class Scene

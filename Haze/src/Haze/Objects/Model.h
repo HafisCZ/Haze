@@ -1,59 +1,12 @@
 #pragma once
 
 #include "Haze/Core.h"
-
-#include "Haze/Buffers/IndexBuffer.h"
-#include "Haze/Buffers/VertexArray.h"
-#include "Haze/Textures/Texture.h"
-#include "Haze/Repository.h"
+#include "Haze/Objects/Mesh.h"
 
 #include <vector>
 
-#include <glm/glm.hpp>
-
 namespace Haze 
 {
-
-	struct  Vertex
-	{
-		glm::vec3 Position, Normal;
-		glm::vec2 TextureUV;
-		glm::vec3 Tangent, Bitangent;
-	};
-
-	struct  Triangle
-	{
-		unsigned int A, B, C;
-	};
-
-	class  Mesh
-	{
-		public:
-			Mesh() {}
-			Mesh(std::vector<Vertex>& vertices, std::vector<Triangle>& triangles, const VertexFormat& format = VertexFormat::GetDefault());
-
-			~Mesh() {
-				for (unsigned int i = 0; i < 4; i++) {
-					if (Textures[i]) {
-						Repository::Unload(Textures[i]);
-					}
-				}
-			}
-
-		public:
-			std::vector<Vertex> Vertices;
-			std::vector<Triangle> Triangles;
-
-			VertexArray* VAO;
-			IndexBuffer* IBO;
-			VertexBuffer* VBO;
-
-			Texture* Textures[4] = { nullptr, nullptr, nullptr, nullptr };
-
-		public:
-			static Mesh* GetCUBE();
-			static Mesh* GetPLANE();
-	};
 
 	enum ModelLoaderFlags 
 	{

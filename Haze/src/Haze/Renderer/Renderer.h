@@ -18,17 +18,11 @@ namespace Haze
 			void Draw(Mesh* mesh);
 			void Clear();
 
-			virtual void OnWindowResizeEvent(WindowResizeEvent& event);
-
-			inline std::pair<float, unsigned int>& Sample() { return _Sample; }
+			virtual void OnWindowResizeEvent(WindowResizeEvent& event) {}
 
 		public:
 			int _DrawMode = 0;
 			int _DrawOverlayMode = 0;
-
-		protected:
-			unsigned int _Viewport[2];
-			std::pair<float, unsigned int> _Sample;
 	};
 
 	class ForwardRenderer : public Renderer 

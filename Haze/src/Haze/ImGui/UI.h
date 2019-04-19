@@ -7,11 +7,12 @@ namespace Haze
 
 	class Scene;
 	class Camera;
+	class Object;
 
 	struct UI 
 	{
 
-		static void ShowUI(Scene* scene, Camera* camera, std::pair<float, unsigned int>& raw);
+		static void ShowUI(Scene* scene, Camera* camera, Object* selected = nullptr);
 
 	};
 

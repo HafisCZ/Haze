@@ -79,7 +79,7 @@ class MyLayer : public Haze::Layer {
 
 	}
 
-	void OnUpdate() override {
+	void OnUpdate() override {		
 		static bool fpsCamStyle = true, fpsCamStyleLast = false;
 
 		if (Haze::GUI::InFocus()) {
@@ -186,8 +186,24 @@ class MyLayer : public Haze::Layer {
 
 	void OnImGuiRender() override 
 	{
+		Object* selected = nullptr;
+		float lowest = -1.0f;
+		for (auto obj : scene.Objects) {
+			if (lowest == -1.0f) {
+				lowest = 0.0f;
+				continue;
+			}
+			auto intersection = obj->IntersectsRay(camera.GetWorldPosition(), camera.GetDirection());
+			if (intersection.first) {
+				if (selected == nullptr || intersection.second < lowest) {
+					lowest = intersection.second;
+					selected = obj;
+				}
+			}
+		}
+
 		Haze::GUI::Menu(&scene, &camera, dr._DrawMode, dr._DrawOverlayMode);
-		Haze::UI::ShowUI(&scene, &camera, dr.Sample());
+		Haze::UI::ShowUI(&scene, &camera, selected);
 	}
 
 	void OnEvent(Haze::Event& event) override {

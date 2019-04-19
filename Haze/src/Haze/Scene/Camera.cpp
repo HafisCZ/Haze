@@ -28,7 +28,7 @@ namespace Haze
 
 		UpdateMatrices();
 	}
-	
+
 	void Camera::Move(float x, float y, float z, bool worldY) 
 	{
 		if (worldY)
