@@ -54,18 +54,17 @@ namespace Haze
 			Model* Model;
 			ModelMatrix Matrix;
 
-			inline std::pair<bool, float> IntersectsRay(glm::vec3 rayOrigin, glm::vec3 rayDir) {
-				std::pair<bool, float> intersection;
+			inline std::pair<Mesh*, float> IntersectsRay(glm::vec3 rayOrigin, glm::vec3 rayDir) {
+				std::pair<Mesh*, float> ir = { nullptr, 0.0f };
 
-				for (auto mesh : Model->Meshes) {
-					auto meshIntersection = Math::Intersects_OBB_RAY(mesh->AABB_MIN, mesh->AABB_MAX, Matrix.Matrix(), rayOrigin, rayDir);
-
-					if (meshIntersection.first) {
-						if (intersection.second == 0 || intersection.second > meshIntersection.second) intersection = meshIntersection;
+				for (auto m : Model->Meshes) {
+					auto mi = Math::Intersects_OBB_RAY(m->AABB_MIN, m->AABB_MAX, Matrix.Matrix(), rayOrigin, rayDir);
+					if (mi.first && (ir.first == nullptr || mi.second < ir.second)) {
+						ir = { m, mi.second };
 					}
 				}
 
-				return intersection;
+				return ir;
 			}
 	};
 

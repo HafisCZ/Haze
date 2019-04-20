@@ -182,28 +182,51 @@ class MyLayer : public Haze::Layer {
 		{
 			weap.Draw(&scene, &camera, scene.Item);
 		}
+
+		float lowest = 0.0f;
+		Object* so = nullptr;
+		Mesh* sm = nullptr;
+
+		for (auto obj : scene.Objects) {
+			if (obj == selObj) break;
+
+			auto ir = obj->IntersectsRay(camera.GetWorldPosition(), camera.GetDirection());
+			if (ir.first && (so == nullptr || ir.second < lowest)) {
+				lowest = ir.second;
+				sm = ir.first;
+				so = obj;
+			}
+		}
+
+		static bool last = false;
+		bool now = Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_1);
+		if (now && !last) {
+			if (so && sm) {
+				selObj = so;
+				selMesh = sm;
+			} else {
+				selObj = nullptr;
+				selMesh = nullptr;
+			}
+		}
+
+		last = now;
+
+		if (selObj && so && Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_3))
+		{
+			auto position = camera.GetWorldPosition() + camera.GetDirection() * lowest;
+			selObj->Matrix.SetPosition(position);
+		}
+
+		static OBBRenderer obbr;
+		obbr.Draw(&scene, &camera, selObj, selMesh);
 	}
 
 	void OnImGuiRender() override 
 	{
-		Object* selected = nullptr;
-		float lowest = -1.0f;
-		for (auto obj : scene.Objects) {
-			if (lowest == -1.0f) {
-				lowest = 0.0f;
-				continue;
-			}
-			auto intersection = obj->IntersectsRay(camera.GetWorldPosition(), camera.GetDirection());
-			if (intersection.first) {
-				if (selected == nullptr || intersection.second < lowest) {
-					lowest = intersection.second;
-					selected = obj;
-				}
-			}
-		}
+		Haze::UI::ShowUI(&scene, &camera, selObj, selMesh);
 
 		Haze::GUI::Menu(&scene, &camera, dr._DrawMode, dr._DrawOverlayMode);
-		Haze::UI::ShowUI(&scene, &camera, selected);
 	}
 
 	void OnEvent(Haze::Event& event) override {
@@ -220,6 +243,9 @@ class MyLayer : public Haze::Layer {
 
 	Haze::Scene scene;
 	Haze::Camera camera;
+
+	Object* selObj = nullptr;
+	Mesh* selMesh = nullptr;
 };
 
 class Sandbox : public Haze::Application

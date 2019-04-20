@@ -23,3 +23,4 @@
 #define HZ_BIND_EVENT_FN(fn) std::bind(&fn, this, std::placeholders::_1)
 
 #define RGBTOF(x, y, z) x##.0f / 255.0f, y##.0f / 255.0f, z##.0f / 255.0f, 1.0f
+#define RGB3TOF(x, y, z) x##.0f / 255.0f, y##.0f / 255.0f, z##.0f / 255.0f

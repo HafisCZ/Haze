@@ -8,11 +8,12 @@ namespace Haze
 	class Scene;
 	class Camera;
 	class Object;
+	class Mesh;
 
 	struct UI 
 	{
 
-		static void ShowUI(Scene* scene, Camera* camera, Object* selected = nullptr);
+		static void ShowUI(Scene* scene, Camera* camera, Object* so = nullptr, Mesh* sm = nullptr);
 
 	};
 

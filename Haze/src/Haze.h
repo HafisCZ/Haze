@@ -14,6 +14,7 @@
 #include "Haze/Events/MouseEvent.h"
 
 #include "Haze/Renderer/Renderer.h"
+#include "Haze/Renderer/OBBRenderer.h"
 
 #include "Haze/Program/Program.h"
 #include "Haze/Program/ProgramAdapter.h"

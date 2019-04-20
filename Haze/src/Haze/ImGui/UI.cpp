@@ -11,7 +11,7 @@
 
 namespace Haze 
 {
-	void UI::ShowUI(Scene* scene, Camera* camera, Object* selected)
+	void UI::ShowUI(Scene* scene, Camera* camera, Object* so, Mesh* sm)
 	{
 		ImVec2 wp = ImGui::GetWindowPos();
 		ImGui::SetNextWindowPos({ wp.x - 60, wp.y - 40 }, ImGuiCond_Always);
@@ -42,22 +42,22 @@ namespace Haze
 		ImGui::SetCursorPos(ImVec2(140, 30));	ImGui::Text("%.2f", dir.y);
 		ImGui::SetCursorPos(ImVec2(200, 30));	ImGui::Text("%.2f", dir.z);
 
-		if (selected) 
+		if (so) 
 		{
-			pos = selected->Matrix.GetPosition();
-			auto sca = selected->Matrix.GetScale();
-			auto rot = selected->Matrix.GetRotation();
+			pos = so->Matrix.GetPosition();
+			auto sca = so->Matrix.GetScale();
+			auto rot = so->Matrix.GetRotation();
 
 			ImGui::SetCursorPos(ImVec2(20, 60));	ImGui::Text("FP");
-			ImGui::SetCursorPos(ImVec2(80, 60));	ImGui::Text("%s", selected->Model->Name.data());
+			ImGui::SetCursorPos(ImVec2(80, 60));	ImGui::Text("%s", so->Model->Name.data());
 
 			ImGui::SetCursorPos(ImVec2(20, 75));	ImGui::Text("MC");
-			ImGui::SetCursorPos(ImVec2(80, 75));	ImGui::Text("%d", selected->Model->Meshes.size());
+			ImGui::SetCursorPos(ImVec2(80, 75));	ImGui::Text("%d", so->Model->Meshes.size());
 
 			ImGui::SetCursorPos(ImVec2(20, 90));	ImGui::Text("V");
-			ImGui::SetCursorPos(ImVec2(80, 90));	ImGui::Text("%d", selected->Model->Vertices);
+			ImGui::SetCursorPos(ImVec2(80, 90));	ImGui::Text("%d", so->Model->Vertices);
 			ImGui::SetCursorPos(ImVec2(140, 90));	ImGui::Text("T");
-			ImGui::SetCursorPos(ImVec2(200, 90));	ImGui::Text("%d", selected->Model->Triangles);
+			ImGui::SetCursorPos(ImVec2(200, 90));	ImGui::Text("%d", so->Model->Triangles);
 
 			ImGui::SetCursorPos(ImVec2(20, 105));	ImGui::Text("P");
 			ImGui::SetCursorPos(ImVec2(80, 105));	ImGui::Text("%.2f", pos.x);
@@ -74,18 +74,31 @@ namespace Haze
 			ImGui::SetCursorPos(ImVec2(140, 135));	ImGui::Text("%.2f", sca.y);
 			ImGui::SetCursorPos(ImVec2(200, 135));	ImGui::Text("%.2f", sca.z);
 
-			for (unsigned int i = 0; i < selected->Model->Meshes.size(); i++) {
-				auto m = selected->Model->Meshes[i];
+			if (sm)
+			{
+				ImGui::SetCursorPos(ImVec2(20, 165));	ImGui::Text("V");
+				ImGui::SetCursorPos(ImVec2(80, 165));	ImGui::Text("%d", sm->Vertices.size());
+				ImGui::SetCursorPos(ImVec2(140, 165));	ImGui::Text("T");
+				ImGui::SetCursorPos(ImVec2(200, 165));	ImGui::Text("%d", sm->Triangles.size());
 
-				ImGui::SetCursorPos(ImVec2(20, 165 + i * 40));	ImGui::Text("Bm");
-				ImGui::SetCursorPos(ImVec2(80, 165 + i * 40));	ImGui::Text("%.2f", m->AABB_MIN.x);
-				ImGui::SetCursorPos(ImVec2(140, 165 + i * 40));	ImGui::Text("%.2f", m->AABB_MIN.y);
-				ImGui::SetCursorPos(ImVec2(200, 165 + i * 40));	ImGui::Text("%.2f", m->AABB_MIN.z);
+				ImGui::SetCursorPos(ImVec2(20, 180));	ImGui::Text("Bm");
+				ImGui::SetCursorPos(ImVec2(80, 180));	ImGui::Text("%.2f", sm->AABB_MIN.x);
+				ImGui::SetCursorPos(ImVec2(140, 180));	ImGui::Text("%.2f", sm->AABB_MIN.y);
+				ImGui::SetCursorPos(ImVec2(200, 180));	ImGui::Text("%.2f", sm->AABB_MIN.z);
 
-				ImGui::SetCursorPos(ImVec2(20, 180 + i * 40));	ImGui::Text("BM");
-				ImGui::SetCursorPos(ImVec2(80, 180 + i * 40));	ImGui::Text("%.2f", m->AABB_MAX.x);
-				ImGui::SetCursorPos(ImVec2(140, 180 + i * 40));	ImGui::Text("%.2f", m->AABB_MAX.y);
-				ImGui::SetCursorPos(ImVec2(200, 180 + i * 40));	ImGui::Text("%.2f", m->AABB_MAX.z);
+				ImGui::SetCursorPos(ImVec2(20, 195));	ImGui::Text("BM");
+				ImGui::SetCursorPos(ImVec2(80, 195));	ImGui::Text("%.2f", sm->AABB_MAX.x);
+				ImGui::SetCursorPos(ImVec2(140, 195));	ImGui::Text("%.2f", sm->AABB_MAX.y);
+				ImGui::SetCursorPos(ImVec2(200, 195));	ImGui::Text("%.2f", sm->AABB_MAX.z);
+
+				ImGui::SetCursorPos(ImVec2(20, 210));	ImGui::Text("Td");
+				ImGui::SetCursorPos(ImVec2(80, 210));	ImGui::Text("%s", sm->Textures[0] ? "true" : "false");
+				ImGui::SetCursorPos(ImVec2(140, 210));	ImGui::Text("Tn");
+				ImGui::SetCursorPos(ImVec2(200, 210));	ImGui::Text("%s", sm->Textures[1] ? "true" : "false");
+				ImGui::SetCursorPos(ImVec2(20, 225));	ImGui::Text("Ts");
+				ImGui::SetCursorPos(ImVec2(80, 225));	ImGui::Text("%s", sm->Textures[2] ? "true" : "false");
+				ImGui::SetCursorPos(ImVec2(140, 225));	ImGui::Text("Ta");
+				ImGui::SetCursorPos(ImVec2(200, 225));	ImGui::Text("%s", sm->Textures[3] ? "true" : "false");
 			}
 		}
 
