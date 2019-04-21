@@ -57,7 +57,7 @@ class RenderLayer : public Layer {
 			static KeyLock KP_M3;
 			static KeyLock KP_Q;
 
-			if (KP_M1(Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_1))) {
+			if (KP_M1(Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_1)) && KP_M3()) {
 				if (s.size() > 0) {
 					if (si == -1) si = 0;
 					else si = ++si % s.size();
@@ -74,6 +74,9 @@ class RenderLayer : public Layer {
 			
 			KP_Q(Input::IsKeyPressed(HZ_KEY_Q));
 
+			static float yDelta = 0.0f;
+			static bool yInAir = false;
+
 			if (KP_M3()) {
 				auto[x, y] = Input::GetMousePosition();
 				static float lx = x, ly = y;
@@ -83,9 +86,6 @@ class RenderLayer : public Layer {
 				lx = x; ly = y;
 
 				if (!KP_Q()) {
-					static float yDelta = 0.0f;
-					static bool yInAir = false;
-
 					if (Input::IsKeyPressed(HZ_KEY_W)) camera.Move(0, 0, +1, true);
 					if (Input::IsKeyPressed(HZ_KEY_S)) camera.Move(0, 0, -1, true);
 					if (Input::IsKeyPressed(HZ_KEY_D)) camera.Move(+1, 0, 0, true);
@@ -94,21 +94,6 @@ class RenderLayer : public Layer {
 						yInAir = true;
 						yDelta = 1.0f;
 					}
-
-					if (yInAir) {
-						yDelta -= 0.05f;
-						camera.Move(0.0, yDelta, 0.0, true);
-					}
-
-					glm::vec3 pos = camera.GetWorldPosition();
-
-					if (pos.y > 2.0f) {
-						yInAir = true;
-					} else if (pos.y < 2.0f) {
-						yInAir = false;
-						camera.Set(pos.x, 2.0f, pos.z);
-					}
-
 				} else {
 					if (Input::IsKeyPressed(HZ_KEY_W)) camera.Move(0, 0, +1);
 					if (Input::IsKeyPressed(HZ_KEY_S)) camera.Move(0, 0, -1);
@@ -116,6 +101,22 @@ class RenderLayer : public Layer {
 					if (Input::IsKeyPressed(HZ_KEY_A)) camera.Move(-1, 0, 0);
 					if (Input::IsKeyPressed(HZ_KEY_SPACE)) camera.Move(0, +1, 0);
 					if (Input::IsKeyPressed(HZ_KEY_C)) camera.Move(0, -1, 0);
+				}
+			}
+			
+			if (!KP_Q()) {
+				if (yInAir) {
+					yDelta -= 0.05f;
+					camera.Move(0.0, yDelta, 0.0, true);
+				}
+
+				glm::vec3 pos = camera.GetWorldPosition();
+
+				if (pos.y > 2.0f) {
+					yInAir = true;
+				} else if (pos.y < 2.0f) {
+					yInAir = false;
+					camera.Set(pos.x, 2.0f, pos.z);
 				}
 			}
 		}

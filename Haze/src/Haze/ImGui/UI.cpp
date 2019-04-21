@@ -4,10 +4,9 @@
 #include "Haze/Scene/Scene.h"
 #include "Haze/Scene/Camera.h"
 
-#include "imgui.h"
+#include "Haze/Application.h"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "imgui.h"
 
 namespace Haze 
 {
@@ -16,7 +15,7 @@ namespace Haze
 		ImVec2 wp = ImGui::GetWindowPos();
 		ImGui::SetNextWindowPos({ wp.x - 60, wp.y - 40 }, ImGuiCond_Always);
 
-		ImGui::Begin("UI", nullptr,
+		ImGui::Begin("UI0", nullptr,
 			ImGuiWindowFlags_NoBackground | 
 			ImGuiWindowFlags_NoInputs | 
 			ImGuiWindowFlags_NoCollapse |
@@ -105,6 +104,58 @@ namespace Haze
 		ImGui::PopStyleColor();
 		ImGui::End();
 
+		/*
+		
+		*/
+
+		float ws = Application::Get().GetWindow().GetWidth();
+		ImGui::SetNextWindowPos({ wp.x + ws - 350.0f, wp.y - 40 }, ImGuiCond_Always);
+
+		ImGui::Begin("UI1", nullptr,
+			ImGuiWindowFlags_NoBackground |
+			ImGuiWindowFlags_NoInputs |
+			ImGuiWindowFlags_NoCollapse |
+			ImGuiWindowFlags_NoDecoration |
+			ImGuiWindowFlags_NoSavedSettings |
+			ImGuiWindowFlags_NoTitleBar |
+			ImGuiWindowFlags_NoDocking |
+			ImGuiWindowFlags_AlwaysAutoResize
+		);
+
+		ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 0.5f));
+
+		ImGui::SetCursorPos(ImVec2(10, 15));	ImGui::Text("W");
+		ImGui::SetCursorPos(ImVec2(110, 15));	ImGui::Text("Move forward");	
+		
+		ImGui::SetCursorPos(ImVec2(10, 30));	ImGui::Text("S");
+		ImGui::SetCursorPos(ImVec2(110, 30));	ImGui::Text("Move back");
+
+		ImGui::SetCursorPos(ImVec2(10, 45));	ImGui::Text("A");
+		ImGui::SetCursorPos(ImVec2(110, 45));	ImGui::Text("Move left");
+
+		ImGui::SetCursorPos(ImVec2(10, 60));	ImGui::Text("D");
+		ImGui::SetCursorPos(ImVec2(110, 60));	ImGui::Text("Move right");
+
+		ImGui::SetCursorPos(ImVec2(10, 75));	ImGui::Text("Space");
+		ImGui::SetCursorPos(ImVec2(110, 75));	ImGui::Text("Move up / Jump");
+
+		ImGui::SetCursorPos(ImVec2(10, 90));	ImGui::Text("C");
+		ImGui::SetCursorPos(ImVec2(110, 90));	ImGui::Text("Move down");
+
+		ImGui::SetCursorPos(ImVec2(10, 105));	ImGui::Text("Q");
+		ImGui::SetCursorPos(ImVec2(110, 105));	ImGui::Text("Switch camera mode");
+
+		ImGui::SetCursorPos(ImVec2(10, 120));	ImGui::Text("Left Mouse");
+		ImGui::SetCursorPos(ImVec2(110, 120));	ImGui::Text("Select / Cycle objects");
+
+		ImGui::SetCursorPos(ImVec2(10, 135));	ImGui::Text("Right Mouse");
+		ImGui::SetCursorPos(ImVec2(110, 135));	ImGui::Text("-");
+
+		ImGui::SetCursorPos(ImVec2(10, 150));	ImGui::Text("Middle Mouse");
+		ImGui::SetCursorPos(ImVec2(110, 150));	ImGui::Text("Enable movement");
+
+		ImGui::PopStyleColor();
+		ImGui::End();
 	}
 
 
