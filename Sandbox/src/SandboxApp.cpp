@@ -188,9 +188,9 @@ class MyLayer : public Haze::Layer {
 		Mesh* sm = nullptr;
 
 		for (auto obj : scene.Objects) {
-			if (obj == selObj) break;
+			if (obj == selObj) continue;
 
-			auto ir = obj->IntersectsRay(camera.GetWorldPosition(), camera.GetDirection());
+			auto ir = obj->IntersectsRay(camera.GetWorldPosition(), glm::normalize(camera.GetDirection()));
 			if (ir.first && (so == nullptr || ir.second < lowest)) {
 				lowest = ir.second;
 				sm = ir.first;

@@ -4,6 +4,8 @@
 
 #include <glm/glm.hpp>
 
+#include "Haze/Scene/ModelMatrix.h"
+
 namespace Math
 {
 
@@ -44,11 +46,11 @@ namespace Math
 		float min = 0.0f;
 		float max = std::numeric_limits<float>::max();
 
-		glm::vec3 OBB_origin = { modelMatrix[3].x, modelMatrix[3].y, modelMatrix[3].z };
-		glm::vec3 OBB_RAY_delta = OBB_origin - rayOrigin;
+		glm::vec3 modelOrigin = { modelMatrix[3].x, modelMatrix[3].y, modelMatrix[3].z };
+		glm::vec3 delta = modelOrigin - rayOrigin;
 
 		glm::vec3 xAxis = { modelMatrix[0].x, modelMatrix[0].y, modelMatrix[0].z };
-		float e = glm::dot(xAxis, OBB_RAY_delta);
+		float e = glm::dot(xAxis, delta);
 		float f = glm::dot(rayDir, xAxis);
 		
 		if (fabs(f) > 0.001f) {
@@ -69,7 +71,7 @@ namespace Math
 		}
 		
 		glm::vec3 yAxis = { modelMatrix[1].x, modelMatrix[1].y, modelMatrix[1].z };
-		e = glm::dot(yAxis, OBB_RAY_delta);
+		e = glm::dot(yAxis, delta);
 		f = glm::dot(rayDir, yAxis);
 
 		if (fabs(f) > 0.001f) {
@@ -90,7 +92,7 @@ namespace Math
 		}
 
 		glm::vec3 zAxis = { modelMatrix[2].x, modelMatrix[2].y, modelMatrix[2].z };
-		e = glm::dot(zAxis, OBB_RAY_delta);
+		e = glm::dot(zAxis, delta);
 		f = glm::dot(rayDir, zAxis);
 
 		if (fabs(f) > 0.001f) {

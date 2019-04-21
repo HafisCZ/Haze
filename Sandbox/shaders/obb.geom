@@ -1,7 +1,7 @@
 #version 440 core
 
 layout (points) in;
-layout (line_strip, max_vertices = 24) out;
+layout (line_strip, max_vertices = 34) out;
 
 uniform vec3 uMin;
 uniform vec3 uMax;
