@@ -25,7 +25,7 @@ namespace Haze
 				std::pair<Mesh*, float> ir = { nullptr, 0.0f };
 
 				for (auto m : Model->Meshes) {
-					auto mi = Math::Intersects_OBB_RAY(m->AABB_MIN, m->AABB_MAX, Matrix.Matrix(), rayOrigin, rayDir);
+					auto mi = Math::Intersects_OBB_RAY(m->AABB_MIN, m->AABB_MAX, Matrix.GetScale(), Matrix.Matrix(), rayOrigin, rayDir);
 					if (mi.first && (ir.first == nullptr || mi.second < ir.second)) {
 						ir = { m, mi.second };
 					}

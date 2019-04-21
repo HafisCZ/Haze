@@ -41,10 +41,13 @@ namespace Math
 		return RotationMat3X(xangle) * RotationMat3Y(yangle) * RotationMat3Z(zangle);
 	}
 
-	inline std::pair<bool, float> Intersects_OBB_RAY(glm::vec3 mAABB, glm::vec3 MAABB, const glm::mat4& modelMatrix, glm::vec3 rayOrigin, glm::vec3 rayDir) 
+	inline std::pair<bool, float> Intersects_OBB_RAY(glm::vec3 obb_min, glm::vec3 obb_max, glm::vec3 obb_scale, const glm::mat4& modelMatrix, glm::vec3 rayOrigin, glm::vec3 rayDir) 
 	{
 		float min = 0.0f;
 		float max = std::numeric_limits<float>::max();
+
+		glm::vec3 bmin = obb_min * obb_scale * obb_scale;
+		glm::vec3 bmax = obb_max * obb_scale * obb_scale;
 
 		glm::vec3 modelOrigin = { modelMatrix[3].x, modelMatrix[3].y, modelMatrix[3].z };
 		glm::vec3 delta = modelOrigin - rayOrigin;
@@ -54,8 +57,8 @@ namespace Math
 		float f = glm::dot(rayDir, xAxis);
 		
 		if (fabs(f) > 0.001f) {
-			float t1 = (e + mAABB.x) / f;
-			float t2 = (e + MAABB.x) / f;
+			float t1 = (e + bmin.x) / f;
+			float t2 = (e + bmax.x) / f;
 
 			if (t1 > t2) {
 				float w = t1;
@@ -67,7 +70,7 @@ namespace Math
 			if (t1 > min) min = t1;
 			if (max < min) return { false, -1.0f };
 		} else {
-			if (mAABB.x - e > 0.0f || MAABB.x - e < 0.0f) return { false, -1.0f };
+			if (bmin.x - e > 0.0f || bmax.x - e < 0.0f) return { false, -1.0f };
 		}
 		
 		glm::vec3 yAxis = { modelMatrix[1].x, modelMatrix[1].y, modelMatrix[1].z };
@@ -75,8 +78,8 @@ namespace Math
 		f = glm::dot(rayDir, yAxis);
 
 		if (fabs(f) > 0.001f) {
-			float t1 = (e + mAABB.y) / f;
-			float t2 = (e + MAABB.y) / f;
+			float t1 = (e + bmin.y) / f;
+			float t2 = (e + bmax.y) / f;
 
 			if (t1 > t2) {
 				float w = t1;
@@ -88,7 +91,7 @@ namespace Math
 			if (t1 > min) min = t1;
 			if (max < min) return { false, -1.0f };
 		} else {
-			if (mAABB.y - e > 0.0f || MAABB.y - e < 0.0f) return { false, -1.0f };
+			if (bmin.y - e > 0.0f || bmax.y - e < 0.0f) return { false, -1.0f };
 		}
 
 		glm::vec3 zAxis = { modelMatrix[2].x, modelMatrix[2].y, modelMatrix[2].z };
@@ -96,8 +99,8 @@ namespace Math
 		f = glm::dot(rayDir, zAxis);
 
 		if (fabs(f) > 0.001f) {
-			float t1 = (e + mAABB.z) / f;
-			float t2 = (e + MAABB.z) / f;
+			float t1 = (e + bmin.z) / f;
+			float t2 = (e + bmax.z) / f;
 
 			if (t1 > t2) {
 				float w = t1;
@@ -109,7 +112,7 @@ namespace Math
 			if (t1 > min) min = t1;
 			if (max < min) return { false, -1.0f };
 		} else {
-			if (mAABB.z - e > 0.0f || MAABB.z - e < 0.0f) return { false, -1.0f };
+			if (bmin.z - e > 0.0f || bmax.z - e < 0.0f) return { false, -1.0f };
 		}
 
 		return { true, min };

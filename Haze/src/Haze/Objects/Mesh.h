@@ -25,11 +25,9 @@ namespace Haze
 			Mesh() {}
 			Mesh(std::vector<Vertex>& vertices, std::vector<Triangle>& triangles, const VertexFormat& format = VertexFormat::GetDefault());
 
-			~Mesh() {
-				for (unsigned int i = 0; i < 4; i++) {
-					if (Textures[i]) {
-						Repository::Unload(Textures[i]);
-					}
+			virtual ~Mesh() {
+				for (auto texture : Textures) {
+					Repository::Unload(texture);
 				}
 			}
 

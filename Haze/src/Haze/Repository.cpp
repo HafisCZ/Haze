@@ -8,7 +8,7 @@ namespace Haze
 
 	void* Repository::LoadImpl(const std::string& id, std::function<void*()>& gen)
 	{
-		auto iterator = _PtrNameMap.lower_bound(id);
+		auto iterator = _PtrNameMap.find(id);
 		if (iterator == std::end(_PtrNameMap))
 		{
 			iterator = _PtrNameMap.insert(iterator, std::make_pair(id, gen()));
@@ -22,23 +22,21 @@ namespace Haze
 
 	void Repository::UnloadImpl(void* ptr)
 	{
-		auto iterator = _PtrCallMap.lower_bound(ptr);
-		if (iterator != std::end(_PtrCallMap)) 
-		{
-			iterator->second--;
-
-			if (iterator->second <= 0) 
-			{
-				for (auto it = _PtrNameMap.begin(); it != _PtrNameMap.end(); it++) {
-					if (it->second == ptr) {
-						_PtrNameMap.erase(it);
-						break;
+		if (ptr) {
+			auto iterator = _PtrCallMap.find(ptr);
+			if (iterator != _PtrCallMap.end()) {
+				_PtrCallMap[ptr]--;
+				if (iterator->second <= 0) {
+					for (auto it = _PtrNameMap.begin(); it != _PtrNameMap.end(); it++) {
+						if (it->second == ptr) {
+							_PtrNameMap.erase(it);
+							break;
+						}
 					}
+
+					delete ptr;
+					_PtrCallMap.erase(iterator);
 				}
-
-				delete iterator->first;
-
-				_PtrCallMap.erase(iterator);
 			}
 		}
 	}

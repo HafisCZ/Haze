@@ -41,7 +41,7 @@ namespace Haze
 	class DeferredRenderer : public Renderer
 	{
 		public:
-			DeferredRenderer(glm::vec4 viewport, int shadowResolution, int shadowCount, ProgramAdapter* geometry, ProgramAdapter* shading, ProgramAdapter* lighting);
+			DeferredRenderer(glm::vec4 viewport, int shadowResolution, int shadowCount);
 
 			virtual void Draw(Scene* scene, Camera* camera) override;
 			virtual void Draw(Scene* scene, Camera* camera, Object* object) override {}

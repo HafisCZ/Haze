@@ -20,12 +20,22 @@ namespace Haze
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	}
 
-	DeferredRenderer::DeferredRenderer(glm::vec4 viewport, int shadowResolution, int shadowCount, ProgramAdapter* geometry, ProgramAdapter* shading, ProgramAdapter* lighting) :
+	DeferredRenderer::DeferredRenderer(glm::vec4 viewport, int shadowResolution, int shadowCount) :
 		_GBuffer((unsigned int) viewport.z, (unsigned int) viewport.w),
 		_ShadowMapBufferArray(shadowResolution, shadowCount),
-		_GeometryPassAdapter(geometry),
-		_ShadingPassAdapter(shading),
-		_LightingPassAdapter(lighting)
+		_GeometryPassAdapter(new GeometryPassAdapter(new Program({
+			Shader::FromFile("shaders/geom.frag", ShaderType::Fragment),
+			Shader::FromFile("shaders/geom.vert", ShaderType::Vertex)
+		}))),
+		_ShadingPassAdapter(new ShadingPassAdapter(new Program({
+			Shader::FromFile("shaders/shade.frag", ShaderType::Fragment),
+			Shader::FromFile("shaders/shade.vert", ShaderType::Vertex),
+			Shader::FromFile("shaders/shade.geom", ShaderType::Geometry)
+		}))),
+		_LightingPassAdapter(new LightingPassAdapter(new Program({
+			Shader::FromFile("shaders/light.frag", ShaderType::Fragment),
+			Shader::FromFile("shaders/light.vert", ShaderType::Vertex)
+		})))
 	{
 
 	}

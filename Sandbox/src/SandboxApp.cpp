@@ -1,251 +1,178 @@
 #include <Haze.h>
 
-#include "imgui/imgui.h"
 #include <glm/gtc/matrix_transform.hpp>
 
 using namespace Haze;
 
-class MyAdapter : public ProgramAdapter 
-{
+class KeyLock {
+	private:
+		bool _Value = false;
+		bool _State = false;
+		bool _Last = false;
+
 	public:
-		MyAdapter(Program* p) : ProgramAdapter(p) {}
-
-		virtual void Set(Scene* s, Camera* c) 
-		{
-			glm::mat4 cam = glm::inverse(glm::lookAt(c->GetWorldPosition(), c->GetWorldPosition() + c->GetDirection(), glm::vec3(0.0f, 1.0f, 0.0f)));
-			cam = glm::translate(cam, glm::vec3(0.7f, -1.0f, -2.0f));
-
-			cam = glm::rotate(cam, glm::radians(15.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-			cam = glm::rotate(cam, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-			cam = glm::rotate(cam, glm::radians(15.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-
-			cam = glm::scale(cam, glm::vec3(0.7f));
-
-			_Program->SetUniform("uModelViewProjectionMatrix", c->GetProjectionMatrix() * c->GetViewMatrix() * cam);
-			_Program->SetUniform("uColor", 0.0f, 0.0f, 0.0f);
+		bool operator()() {
+			return _State;
 		}
 
-		virtual void Set(Object* o, Camera* c) 
-		{
+		bool operator()(bool value) {
+			bool result = value && !_Value;
+			_Value = value;		
+			_Last = result;
+			if (result) _State = !_State;
+			return result;
+		}
 
-		}	
-		
-		virtual void Set(Mesh* m, Camera* c)
-		{
-			_Program->SetUniform("uTexture[0]", m->Textures[0] != nullptr);
-			_Program->SetUniform("uTexture[1]", m->Textures[1] != nullptr);
-			_Program->SetUniform("uTexture[2]", m->Textures[2] != nullptr);
-
-			_Program->SetUniform("uTexture0", TextureAllocator::Bind(m->Textures[0]));
-			_Program->SetUniform("uTexture1", TextureAllocator::Bind(m->Textures[1]));
-			_Program->SetUniform("uTexture2", TextureAllocator::Bind(m->Textures[2]));
+		bool last() {
+			return _Last;
 		}
 };
 
-class MyLayer : public Haze::Layer {
+class RenderLayer : public Layer {
+	private:
+		DeferredRenderer dr;
+		OBBRenderer or ;
+		ForwardRenderer sk;
 
-	public:
+		Camera camera;
+		Scene scene;
 
-	MyLayer() :
-		dr(
-			glm::vec4(0.0f, 0.0f, 1280.0f, 720.0f),
-			2048, 5,
-			new Haze::GeometryPassAdapter(new Haze::Program({
-				Haze::Shader::FromFile("shaders/geom.frag", Haze::ShaderType::Fragment),
-				Haze::Shader::FromFile("shaders/geom.vert", Haze::ShaderType::Vertex)
-			})),
-			new Haze::ShadingPassAdapter(new Haze::Program({ 
-				Haze::Shader::FromFile("shaders/shade.frag", Haze::ShaderType::Fragment),
-				Haze::Shader::FromFile("shaders/shade.vert", Haze::ShaderType::Vertex),
-				Haze::Shader::FromFile("shaders/shade.geom", Haze::ShaderType::Geometry)
-			})),
-			new Haze::LightingPassAdapter(new Haze::Program({ 
-				Haze::Shader::FromFile("shaders/light.frag", Haze::ShaderType::Fragment),
-				Haze::Shader::FromFile("shaders/light.vert", Haze::ShaderType::Vertex)
-			}))),
-		fr(new Haze::ForwardPassAdapter(new Haze::Program({
-			Haze::Shader::FromFile("shaders/default.frag", Haze::ShaderType::Fragment),
-			Haze::Shader::FromFile("shaders/default.vert", Haze::ShaderType::Vertex)
-		}))),
-		skyb(new Haze::SkyboxAdapter(new Haze::Program({
-			Haze::Shader::FromFile("shaders/skybox.frag", Haze::ShaderType::Fragment),
-			Haze::Shader::FromFile("shaders/skybox.vert", Haze::ShaderType::Vertex)
-		}))),
-		weap(new MyAdapter(new Program({
-			Shader::FromFile("shaders/default.frag", ShaderType::Fragment),
-			Shader::FromFile("shaders/default.vert", ShaderType::Vertex)
-		})))
-	{
+		std::vector<std::pair<Object*, Mesh*>> s;
+		int si = -1;
 
-	}
-
-	void OnUpdate() override {		
-		static bool fpsCamStyle = true, fpsCamStyleLast = false;
-
-		if (Haze::GUI::InFocus()) {
-			static bool jmp = true;
-
-			if (fpsCamStyle) {
-				static float dy = 0, dx = 0;
-		
-				if (Haze::Input::IsKeyPressed(HZ_KEY_W)) camera.Move(0, 0, 1, true);
-				if (Haze::Input::IsKeyPressed(HZ_KEY_S)) camera.Move(0, 0, -1, true);
-				if (Haze::Input::IsKeyPressed(HZ_KEY_A)) camera.Move(-1, 0, 0, true);
-				if (Haze::Input::IsKeyPressed(HZ_KEY_D)) camera.Move(1, 0, 0, true);
-
-				if (Haze::Input::IsKeyPressed(HZ_KEY_SPACE) && !jmp) {
-					jmp = true;
-					dy += 1.0f;
-				}
-
-				if (jmp) {
-					dy -= 0.05f;
-				}
-
-				camera.Move(0, dy, 0, true);
-				if (camera.GetWorldPosition().y < 2.0f) {
-					camera.Set(camera.GetWorldPosition().x, 2.0f, camera.GetWorldPosition().z);
-					camera.UpdateMatrices();
-					jmp = false;
-					dy = 0.0f;
-				}
-			} else {
-				if (Haze::Input::IsKeyPressed(HZ_KEY_W)) camera.Move(0, 0, 1);
-				if (Haze::Input::IsKeyPressed(HZ_KEY_S)) camera.Move(0, 0, -1);
-				if (Haze::Input::IsKeyPressed(HZ_KEY_A)) camera.Move(-1, 0, 0);
-				if (Haze::Input::IsKeyPressed(HZ_KEY_D)) camera.Move(1, 0, 0);
-				if (Haze::Input::IsKeyPressed(HZ_KEY_SPACE)) camera.Move(0, 1, 0);
-				if (Haze::Input::IsKeyPressed(HZ_KEY_C)) camera.Move(0, -1, 0);
-			}
-
-			if (Haze::Input::IsKeyPressed(HZ_KEY_1)) {
-				Haze::Model* model = Haze::ModelLoader::Load("C:/users/mar21/desktop/mga/models/sword.obj");
-				if (model) {
-					Haze::Object* object = new Haze::Object();
-					object->Model = model;
-					scene.Item = object;
-				}
-			}
-			if (Haze::Input::IsKeyPressed(HZ_KEY_0)) scene.Item = nullptr;
-
-			static bool lookMode = false, lookModeLast = false;
-			bool lookModeNow = Haze::Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_2);
-
-			if (!lookModeLast && lookModeNow) {
-				if (lookMode) {
-					Haze::Application::Get().GetWindow().SetHideCursor(true);
-					lookMode = false;
-				} else {
-					Haze::Application::Get().GetWindow().SetHideCursor(false);
-					lookMode = true;
-				}
-			}
-
-			lookModeLast = lookModeNow;
-
-			if (lookMode) {
-				auto[x, y] = Haze::Input::GetMousePosition();
-				static float lastx = x, lasty = y;
-
-				if (lookModeLast) {
-					lastx = x;
-					lasty = y;
-				}
-
-				float xo = x - lastx;
-				float yo = lasty - y;
-
-				camera.Look(xo, yo);
-
-				lastx = x;
-				lasty = y;
-			}
-
-			bool fpsCamStyleNow = Haze::Input::IsKeyPressed(HZ_KEY_Q);
-
-			if (!fpsCamStyleLast && fpsCamStyleNow) {
-				fpsCamStyle = !fpsCamStyle;
-				jmp = true;
-			}
-
-			fpsCamStyleLast = fpsCamStyleNow;
-		}
-		
-		dr.Draw(&scene, &camera);
-		
-		if (scene.Skybox) 
-		{
-			skyb.Draw(&scene, &camera, Haze::Mesh::GetCUBE());
-		}
-
-		if (scene.Item) 
-		{
-			weap.Draw(&scene, &camera, scene.Item);
-		}
-
-		float lowest = 0.0f;
 		Object* so = nullptr;
 		Mesh* sm = nullptr;
 
-		for (auto obj : scene.Objects) {
-			if (obj == selObj) continue;
+	public:
+		RenderLayer() : 
+			Layer("SandboxRenderLayer"), 
+			dr({ 0.0f, 0.0f, 1280.0f, 720.0f }, 2048, 5), 
+			or(), 
+			sk(new SkyboxAdapter(new Program({Shader::FromFile("shaders/skybox.frag", ShaderType::Fragment), Shader::FromFile("shaders/skybox.vert", ShaderType::Vertex)})))
+		{}
 
-			auto ir = obj->IntersectsRay(camera.GetWorldPosition(), glm::normalize(camera.GetDirection()));
-			if (ir.first && (so == nullptr || ir.second < lowest)) {
-				lowest = ir.second;
-				sm = ir.first;
-				so = obj;
+		void InputUpdate() {
+			static KeyLock KP_M1;
+			static KeyLock KP_M2;
+			static KeyLock KP_M3;
+			static KeyLock KP_Q;
+
+			if (KP_M1(Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_1))) {
+				if (s.size() > 0) {
+					if (si == -1) si = 0;
+					else si = ++si % s.size();
+				} else {
+					si = -1;
+				}
+			}
+
+			KP_M2(Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_2));
+			
+			if (KP_M3(Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_3))) {
+				Haze::Application::Get().GetWindow().SetHideCursor(!KP_M3());
+			}
+			
+			KP_Q(Input::IsKeyPressed(HZ_KEY_Q));
+
+			if (KP_M3()) {
+				auto[x, y] = Input::GetMousePosition();
+				static float lx = x, ly = y;
+				if (KP_M3.last()) { lx = x; ly = y; }
+				float xo = x - lx, yo = ly - y;
+				camera.Look(xo, yo);
+				lx = x; ly = y;
+
+				if (!KP_Q()) {
+					static float yDelta = 0.0f;
+					static bool yInAir = false;
+
+					if (Input::IsKeyPressed(HZ_KEY_W)) camera.Move(0, 0, +1, true);
+					if (Input::IsKeyPressed(HZ_KEY_S)) camera.Move(0, 0, -1, true);
+					if (Input::IsKeyPressed(HZ_KEY_D)) camera.Move(+1, 0, 0, true);
+					if (Input::IsKeyPressed(HZ_KEY_A)) camera.Move(-1, 0, 0, true);
+					if (Input::IsKeyPressed(HZ_KEY_SPACE) && !yInAir) {
+						yInAir = true;
+						yDelta = 1.0f;
+					}
+
+					if (yInAir) {
+						yDelta -= 0.05f;
+						camera.Move(0.0, yDelta, 0.0, true);
+					}
+
+					glm::vec3 pos = camera.GetWorldPosition();
+
+					if (pos.y > 2.0f) {
+						yInAir = true;
+					} else if (pos.y < 2.0f) {
+						yInAir = false;
+						camera.Set(pos.x, 2.0f, pos.z);
+					}
+
+				} else {
+					if (Input::IsKeyPressed(HZ_KEY_W)) camera.Move(0, 0, +1);
+					if (Input::IsKeyPressed(HZ_KEY_S)) camera.Move(0, 0, -1);
+					if (Input::IsKeyPressed(HZ_KEY_D)) camera.Move(+1, 0, 0);
+					if (Input::IsKeyPressed(HZ_KEY_A)) camera.Move(-1, 0, 0);
+					if (Input::IsKeyPressed(HZ_KEY_SPACE)) camera.Move(0, +1, 0);
+					if (Input::IsKeyPressed(HZ_KEY_C)) camera.Move(0, -1, 0);
+				}
 			}
 		}
 
-		static bool last = false;
-		bool now = Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_1);
-		if (now && !last) {
-			if (so && sm) {
-				selObj = so;
-				selMesh = sm;
+		void SceneUpdate() {
+			s.clear();
+
+			for (auto o : scene.Objects) {
+				auto inr = o->IntersectsRay(camera.GetWorldPosition(), glm::normalize(camera.GetDirection()));
+				if (inr.first) {
+					s.push_back({ o, inr.first });
+				}
+			}
+
+			if (si == -1 || si >= s.size()) {
+				si = -1;
+				so = nullptr;
+				sm = nullptr;
 			} else {
-				selObj = nullptr;
-				selMesh = nullptr;
+				so = s[si].first;
+				sm = s[si].second;
 			}
 		}
 
-		last = now;
+		void Draw() {
+			dr.Draw(&scene, &camera);
+			or.Draw(&scene, &camera, so, sm);
 
-		if (selObj && so && Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_3))
-		{
-			auto position = camera.GetWorldPosition() + camera.GetDirection() * lowest;
-			selObj->Matrix.SetPosition(position);
+			if (scene.Skybox) sk.Draw(&scene, &camera);
 		}
 
-		static OBBRenderer obbr;
-		obbr.Draw(&scene, &camera, selObj, selMesh);
-	}
+		virtual void OnUpdate() override {
+			if (GUI::InFocus()) {
+				InputUpdate();
+			}
 
-	void OnImGuiRender() override 
-	{
-		Haze::UI::ShowUI(&scene, &camera, selObj, selMesh);
-
-		Haze::GUI::Menu(&scene, &camera, dr._DrawMode, dr._DrawOverlayMode);
-	}
-
-	void OnEvent(Haze::Event& event) override {
-		if (event.GetEventType() == Haze::EventType::WindowResize) {
-			Haze::WindowResizeEvent& we = (Haze::WindowResizeEvent&)event;
-
-			camera.OnWindowResizeEvent(we);
-			dr.OnWindowResizeEvent(we);
+			SceneUpdate();
+			Draw();
 		}
-	}
 
-	Haze::DeferredRenderer dr;
-	Haze::ForwardRenderer fr, skyb, weap;
+		virtual void OnImGuiRender() override {
+			Haze::UI::ShowUI(&scene, &camera, so, sm);
 
-	Haze::Scene scene;
-	Haze::Camera camera;
+			/*
+				will be used until new UI is implemented properly
+			*/
+			Haze::GUI::Menu(&scene, &camera, dr._DrawMode, dr._DrawOverlayMode);
+		}
 
-	Object* selObj = nullptr;
-	Mesh* selMesh = nullptr;
+		void OnEvent(Haze::Event& e) override {
+			if (e.GetEventType() == Haze::EventType::WindowResize) {
+				Haze::WindowResizeEvent& we = (Haze::WindowResizeEvent&)e;
+
+				camera.OnWindowResizeEvent(we);
+				dr.OnWindowResizeEvent(we);
+			}
+		}
 };
 
 class Sandbox : public Haze::Application
@@ -253,7 +180,7 @@ class Sandbox : public Haze::Application
 	public:
 		Sandbox() 
 		{
-			PushLayer(new MyLayer());
+			PushLayer(new RenderLayer());
 		}
 
 		~Sandbox() 
