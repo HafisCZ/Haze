@@ -5,7 +5,7 @@
 #include "Haze/Events/ApplicationEvent.h"
 #include "Haze/Events/KeyEvent.h"
 
-#include <glad/glad.h>
+#include "Platform/OpenGL/OpenGLContext.h"
 
 namespace Haze 
 {
@@ -55,25 +55,13 @@ namespace Haze
 		}
 
 		_Window = glfwCreateWindow((int)props.Width, (int)props.Height, _Data.Title.c_str(), nullptr, nullptr);
-		glfwMakeContextCurrent(_Window);
 
-		int status = gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
-		HZ_CORE_ASSERT(status, "Failed to initialize GLAD!");
+		_Context = new OpenGLContext(_Window);
+		_Context->Init();
 
 		glfwSetWindowUserPointer(_Window, &_Data);
 		
 		SetVSync(true);
-
-		glEnable(GL_MULTISAMPLE);
-
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
-
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-
-		glEnable(GL_STENCIL_TEST);
-		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 		// GLFW callbacks
 		glfwSetWindowSizeCallback(_Window, [](GLFWwindow* window, int width, int height) 
@@ -175,7 +163,7 @@ namespace Haze
 	void WindowsWindow::OnUpdate() 
 	{
 		glfwPollEvents();
-		glfwSwapBuffers(_Window);
+		_Context->SwapBuffers();
 	}
 
 	void WindowsWindow::SetHideCursor(bool enabled)

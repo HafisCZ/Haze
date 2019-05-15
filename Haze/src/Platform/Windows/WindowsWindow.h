@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Haze/Window.h"
+#include "Haze/Renderer/GraphicsContext.h"
 
 #include <GLFW/glfw3.h>
 
@@ -33,6 +34,8 @@ namespace Haze
 
 		private:
 			GLFWwindow* _Window;
+
+			GraphicsContext* _Context;
 
 			struct WindowData 
 			{
