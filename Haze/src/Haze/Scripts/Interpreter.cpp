@@ -3,6 +3,7 @@
 
 #include "Haze/Scene/Scene.h"
 #include "Haze/Scene/Camera.h"
+#include "Haze/Objects/Loaders/ModelLoader.h"
 
 #include <iomanip>
 #include <regex>

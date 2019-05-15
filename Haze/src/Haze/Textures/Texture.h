@@ -3,6 +3,8 @@
 #include "Haze/Core.h"
 #include "Haze/Repository.h"
 
+#include "Haze/Utils/Lambda.h"
+
 #include <string>
 
 namespace Haze 
@@ -74,8 +76,8 @@ namespace Haze
 	class TextureLoader
 	{
 		public:
-			static Texture* Load(const std::string& path) { return static_cast<Texture*>(Repository::Load(path, lambda::make([&]() -> void* { return LoadImpl(path); }))); }
-			static Texture* LoadCube(const std::string& path) { return static_cast<Texture*>(Repository::Load(path, lambda::make([&]() -> void* { return LoadCubeImpl(path); }))); }
+			static Texture* Load(const std::string& path) { return static_cast<Texture*>(Repository::Load(path, Lambda([&]() -> void* { return LoadImpl(path); }))); }
+			static Texture* LoadCube(const std::string& path) { return static_cast<Texture*>(Repository::Load(path, Lambda([&]() -> void* { return LoadCubeImpl(path); }))); }
 
 		private:
 			static Texture* LoadImpl(const std::string& path);

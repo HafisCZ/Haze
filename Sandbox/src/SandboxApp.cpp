@@ -37,9 +37,7 @@ class RenderLayer : public Layer {
 		Camera camera;
 		Scene scene;
 
-		std::vector<std::pair<Object*, Mesh*>> s;
-		int si = -1;
-
+		std::vector<std::tuple<Object*, Mesh*, float>> s;
 		Object* so = nullptr;
 		Mesh* sm = nullptr;
 
@@ -59,10 +57,12 @@ class RenderLayer : public Layer {
 
 			if (KP_M1(Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_1)) && KP_M3()) {
 				if (s.size() > 0) {
-					if (si == -1) si = 0;
-					else si = ++si % s.size();
+					auto [o, m, f] = s[0];
+					so = o;
+					sm = m;
 				} else {
-					si = -1;
+					so = nullptr;
+					sm = nullptr;
 				}
 			}
 
@@ -127,17 +127,15 @@ class RenderLayer : public Layer {
 			for (auto o : scene.Objects) {
 				auto inr = o->IntersectsRay(camera.GetWorldPosition(), glm::normalize(camera.GetDirection()));
 				if (inr.first) {
-					s.push_back({ o, inr.first });
+					s.push_back({ o, inr.first, inr.second });
 				}
 			}
 
-			if (si == -1 || si >= s.size()) {
-				si = -1;
+			std::sort(s.begin(), s.end(), [](auto a, auto b) { return std::get<2>(a) < std::get<2>(b); });
+
+			if (so != nullptr && std::find_if(scene.Objects.begin(), scene.Objects.end(), [&](const Object* o) { return o == so; }) == scene.Objects.end()) {
 				so = nullptr;
 				sm = nullptr;
-			} else {
-				so = s[si].first;
-				sm = s[si].second;
 			}
 		}
 
@@ -182,6 +180,8 @@ class Sandbox : public Haze::Application
 		Sandbox() 
 		{
 			PushLayer(new RenderLayer());
+
+			INL::ReaderTest();
 		}
 
 		~Sandbox() 

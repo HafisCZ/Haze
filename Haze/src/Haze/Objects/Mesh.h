@@ -27,7 +27,7 @@ namespace Haze
 
 			virtual ~Mesh() {
 				for (auto texture : Textures) {
-					Repository::Unload(texture);
+					Repository::Unload<Texture>(texture);
 				}
 			}
 

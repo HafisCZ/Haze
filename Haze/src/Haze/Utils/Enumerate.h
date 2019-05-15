@@ -3,10 +3,10 @@
 #include <vector>
 #include <tuple>
 
-template <typename T> class enumerate_impl 
+template <typename T> class EnumerateImpl 
 {
 	public:
-		struct enumerable 
+		struct Enumerable 
 		{
 			std::size_t index;
 			typename T::value_type& value;
@@ -31,8 +31,8 @@ template <typename T> class enumerate_impl
 				return *_it;
 			}
 
-			enumerable operator*() {
-				return enumerable{ _index, *_it }; 
+			Enumerable operator*() {
+				return Enumerable{ _index, *_it }; 
 			}
 
 			std::size_t index() {
@@ -44,7 +44,7 @@ template <typename T> class enumerate_impl
 				std::size_t _index;
 		};
 
-		enumerate_impl(T& t) : t(t) {}
+		EnumerateImpl(T& t) : t(t) {}
 
 		iterator begin() 
 		{
@@ -60,7 +60,7 @@ template <typename T> class enumerate_impl
 		T& t;
 };
 
-template <typename T> enumerate_impl<T> enumerate(T& t) 
+template <typename T> EnumerateImpl<T> Enumerate(T& t) 
 {
-	return enumerate_impl<T>(t);
+	return EnumerateImpl<T>(t);
 }

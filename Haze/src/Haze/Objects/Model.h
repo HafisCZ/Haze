@@ -3,6 +3,8 @@
 #include "Haze/Core.h"
 #include "Haze/Objects/Mesh.h"
 
+
+
 #include <vector>
 
 namespace Haze 
@@ -31,19 +33,6 @@ namespace Haze
 
 			unsigned long Vertices = 0;
 			unsigned long Triangles = 0;
-	};
-
-	class  ModelLoader
-	{
-		public:
-			static Model* Load(const std::string& path, ModelLoaderFlags flags = All) {
-				return static_cast<Model*>(Repository::Load(path, lambda::make([&]() -> void* { return _Instance->LoadImpl(path, flags); })));
-			}
-
-			virtual Model* LoadImpl(const std::string& path, ModelLoaderFlags flags) = 0;
-
-		private:
-			static ModelLoader* _Instance;
 	};
 
 }

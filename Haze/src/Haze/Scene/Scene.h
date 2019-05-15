@@ -16,7 +16,7 @@ namespace Haze
 			Object() {}
 			Object(Model* model) : Model(model) {}
 
-			~Object() { Repository::Unload(Model); }
+			~Object() { Repository::Unload<Haze::Model>(Model); }
 
 			Model* Model;
 			ModelMatrix Matrix;

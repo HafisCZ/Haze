@@ -1,11 +1,12 @@
 #include "hzpch.h"
 #include "Presets.h"
 
-#include "Haze/enumerate.h"
+#include "Haze/Utils/Enumerate.h"
 
 #include "Haze/Repository.h"
 #include "Haze/Scene/Camera.h"
 #include "Haze/Scene/Scene.h"
+#include "Haze/Objects/Loaders/ModelLoader.h"
 
 #include "imgui.h"
 
@@ -101,7 +102,7 @@ namespace Haze
 	void GUI::RepositoryWindow(bool& show) {
 		ImGui::Begin("Repository", &show, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_AlwaysVerticalScrollbar);
 		{
-			for (auto pair : enumerate(Repository::_Instance._PtrNameMap)) {
+			for (auto pair : Enumerate(Repository::_Instance._PtrNameMap)) {
 				ImGui::Columns(3, 0, false);
 				ImGui::SetColumnWidth(0, ImGui::GetWindowWidth() - 180);
 				ImGui::SetColumnWidth(1, 100);
@@ -326,7 +327,7 @@ namespace Haze
 		{
 			ImGui::PushItemWidth(ImGui::GetWindowWidth() - 30);
 			if (ImGui::BeginCombo("##combo", preview.data())) {
-				for (auto obj : enumerate(scene->Objects)) {
+				for (auto obj : Enumerate(scene->Objects)) {
 					std::string str(std::to_string(obj.index));
 
 					bool selected = obj.index == atoi(preview.data());
@@ -364,7 +365,7 @@ namespace Haze
 					ImGui::Text("%d", obj->Model->Meshes.size());
 
 					if (expanded) {
-						for (auto m : enumerate(obj->Model->Meshes)) {
+						for (auto m : Enumerate(obj->Model->Meshes)) {
 							ImGui::PushID((int) m.index);
 							if (ImGui::TreeNode(std::to_string(m.index).data())) {
 								ImGui::Columns(2, 0, false);
@@ -468,7 +469,7 @@ namespace Haze
 
 			BigSpace();
 
-			for (auto& light : enumerate(scene->Point)) {
+			for (auto& light : Enumerate(scene->Point)) {
 				ImGui::PushID((int) light.index);
 
 				bool expanded = ImGui::CollapsingHeader("Point light", ImGuiTreeNodeFlags_AllowOverlapMode);

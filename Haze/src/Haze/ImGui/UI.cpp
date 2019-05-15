@@ -152,7 +152,7 @@ namespace Haze
 		ImGui::SetCursorPos(ImVec2(110, 135));	ImGui::Text("-");
 
 		ImGui::SetCursorPos(ImVec2(10, 150));	ImGui::Text("Middle Mouse");
-		ImGui::SetCursorPos(ImVec2(110, 150));	ImGui::Text("Enable movement");
+		ImGui::SetCursorPos(ImVec2(110, 150));	ImGui::Text("Look / Pointer");
 
 		ImGui::PopStyleColor();
 		ImGui::End();

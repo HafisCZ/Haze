@@ -3,24 +3,6 @@
 #include "Haze/Core.h"
 #include "Haze/ImGui/Presets.h"
 
-namespace lambda
-{
-
-	template <typename CT, typename ... A> struct function : public function<decltype(&CT::operator())(A ...)> {};
-	template <typename C> struct function<C> 
-	{
-		function(const C& obj) : _object(obj) {}
-		template <typename ... Args> typename std::result_of<C(Args ...)>::type operator()(Args ... a) { return this->_object.operator()(a ...); }
-		template <typename ... Args> typename std::result_of<const C(Args ...)>::type operator()(Args ... a) const { return this->_object.operator()(a ...); }
-
-		private:
-			C _object;
-	};
-
-	template <typename C> auto make(const C& obj) { return function<C>(obj); }
-
-}
-
 namespace Haze 
 {
 	class Repository 
@@ -29,10 +11,26 @@ namespace Haze
 
 		public:
 			inline static void* Load(const std::string& id, std::function<void*()> gen) { return _Instance.LoadImpl(id, gen); }
-			inline static void Unload(void* ptr) { _Instance.UnloadImpl(ptr); }
-
 			void* LoadImpl(const std::string& id, std::function<void*()>& gen);
-			void UnloadImpl(void* ptr);
+
+			template <typename T> inline static void Unload(void* ptr) { _Instance.UnloadImpl<T>(ptr); }
+			template <typename T> void UnloadImpl(void* ptr) {
+				if (T* cptr = static_cast<T*>(ptr)) {
+					auto iterator = _PtrCallMap.find(ptr);
+					if (iterator != _PtrCallMap.end()) {
+						iterator->second--;
+						if (iterator->second <= 0) {
+							for (auto it = _PtrNameMap.begin(); it != _PtrNameMap.end(); it++) {
+								_PtrNameMap.erase(it);
+								break;
+							}
+
+							delete cptr;
+							_PtrCallMap.erase(iterator);
+						}
+					}
+				}
+			}
 
 		private:
 			static Repository _Instance;

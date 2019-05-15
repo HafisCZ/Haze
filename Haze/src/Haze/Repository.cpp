@@ -20,25 +20,4 @@ namespace Haze
 		return iterator->second;
 	}
 
-	void Repository::UnloadImpl(void* ptr)
-	{
-		if (ptr) {
-			auto iterator = _PtrCallMap.find(ptr);
-			if (iterator != _PtrCallMap.end()) {
-				_PtrCallMap[ptr]--;
-				if (iterator->second <= 0) {
-					for (auto it = _PtrNameMap.begin(); it != _PtrNameMap.end(); it++) {
-						if (it->second == ptr) {
-							_PtrNameMap.erase(it);
-							break;
-						}
-					}
-
-					delete ptr;
-					_PtrCallMap.erase(iterator);
-				}
-			}
-		}
-	}
-
 }
